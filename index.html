@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Träningslogg</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface2: #21262d;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --c-brost: #ff6b6b;
+            --c-rygg: #4fc3f7;
+            --c-axlar: #c084fc;
+            --c-cardio: #4ade80;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── SCREENS ── */
+        .screen { display: none; min-height: 100vh; }
+        .screen.active { display: block; }
+
+        /* ── HEADER ── */
+        .top-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .top-bar h1 { font-size: 18px; font-weight: 600; flex: 1; }
+        .top-bar h1 span { color: var(--muted); font-weight: 400; }
+
+        .btn-icon {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 18px;
+            line-height: 1;
+            transition: all 0.15s;
+        }
+        .btn-icon:hover { background: var(--surface2); color: var(--text); }
+
+        /* ── HOME ── */
+        .home-body {
+            max-width: 560px;
+            margin: 0 auto;
+            padding: 32px 20px 40px;
+        }
+
+        .home-greeting {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .home-greeting h2 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+        .home-greeting p { color: var(--muted); font-size: 14px; }
+
+        .workout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .wcard {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px 16px 22px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .wcard::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .wcard:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .wcard:hover::before { opacity: 1; }
+        .wcard:active { transform: translateY(0); }
+
+        .wcard .icon { font-size: 38px; margin-bottom: 10px; display: block; }
+        .wcard h3 { font-size: 14px; font-weight: 600; color: var(--accent); }
+        .wcard .last-session { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+        .wcard-brost { --accent: var(--c-brost); }
+        .wcard-rygg  { --accent: var(--c-rygg); }
+        .wcard-axlar { --accent: var(--c-axlar); }
+        .wcard-cardio{ --accent: var(--c-cardio); }
+
+        .history-btn {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .history-btn:hover { background: var(--surface2); color: var(--text); border-color: #58a6ff; }
+
+        /* ── WORKOUT ── */
+        .workout-body {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+
+        .session-meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000;
+        }
+        .session-date { font-size: 13px; color: var(--muted); }
+        .prev-session-info { font-size: 12px; color: var(--muted); margin-left: auto; font-style: italic; }
+
+        .ex-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+        .ex-header {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--surface2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ex-name { font-weight: 600; font-size: 15px; }
+
+        .sets-table { width: 100%; border-collapse: collapse; }
+        .sets-table thead tr { background: var(--bg); }
+        .sets-table th {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 14px;
+            text-align: left;
+        }
+        .sets-table th:last-child { width: 40px; }
+
+        .set-row td { padding: 7px 14px; border-bottom: 1px solid var(--surface2); }
+        .set-row:last-child td { border-bottom: none; }
+        .set-num { color: var(--muted); font-size: 13px; width: 32px; }
+
+        .set-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 14px;
+            width: 88px;
+            transition: border-color 0.15s;
+        }
+        .set-input:focus { outline: none; border-color: #58a6ff; }
+
+        .prev-val { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+        .del-set {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: all 0.15s;
+        }
+        .del-set:hover { color: #f85149; background: rgba(248,81,73,0.1); }
+
+        .add-set-btn {
+            display: block;
+            width: 100%;
+            background: none;
+            border: none;
+            border-top: 1px dashed var(--border);
+            color: #58a6ff;
+            cursor: pointer;
+            padding: 10px;
+            font-size: 13px;
+            transition: background 0.15s;
+        }
+        .add-set-btn:hover { background: var(--surface2); }
+
+        .save-btn {
+            width: 100%;
+            background: #238636;
+            border: none;
+            color: #fff;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .save-btn:hover { background: #2ea043; }
+        .save-btn:active { background: #1a7f37; }
+
+        /* ── CARDIO ── */
+        .cardio-body {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 24px 20px 40px;
+        }
+        .cardio-body h2 { font-size: 16px; font-weight: 600; color: var(--muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .act-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 20px 10px 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .act-card:hover { border-color: var(--c-cardio); background: var(--surface2); }
+        .act-card.selected { border-color: var(--c-cardio); background: rgba(74,222,128,0.08); }
+        .act-card .icon { font-size: 30px; display: block; margin-bottom: 8px; }
+        .act-card span { font-size: 13px; color: var(--muted); transition: color 0.2s; }
+        .act-card.selected span { color: var(--c-cardio); font-weight: 600; }
+
+        .form-row { margin-bottom: 18px; }
+        .form-row label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+        .form-row input {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 12px 14px;
+            width: 100%;
+            font-size: 16px;
+            transition: border-color 0.15s;
+        }
+        .form-row input:focus { outline: none; border-color: var(--c-cardio); }
+
+        .save-btn-cardio {
+            background: #166534;
+            border: none;
+            color: #fff;
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .save-btn-cardio:hover { background: #15803d; }
+
+        /* ── HISTORY ── */
+        .history-body {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+        .history-empty { text-align: center; color: var(--muted); padding: 60px 0; font-size: 15px; }
+
+        .hist-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .hist-header {
+            padding: 13px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .hist-header.open { border-bottom-color: var(--surface2); }
+        .hist-title { font-weight: 600; flex: 1; }
+        .hist-date { font-size: 12px; color: var(--muted); }
+        .hist-chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
+        .hist-header.open .hist-chevron { transform: rotate(180deg); }
+
+        .hist-body { display: none; padding: 14px 16px; }
+        .hist-body.open { display: block; }
+
+        .hist-ex { margin-bottom: 12px; }
+        .hist-ex:last-child { margin-bottom: 0; }
+        .hist-ex-name { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--muted); }
+        .hist-sets { display: flex; gap: 8px; flex-wrap: wrap; }
+        .hist-set-pill {
+            background: var(--surface2);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 13px;
+        }
+
+        .hist-cardio-info { font-size: 14px; color: var(--muted); }
+        .hist-cardio-info strong { color: var(--text); }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #238636;
+            color: #fff;
+            padding: 11px 22px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 100;
+            white-space: nowrap;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.error { background: #b91c1c; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 440px) {
+            .workout-grid { grid-template-columns: 1fr; }
+            .activity-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .wcard { padding: 20px 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════════ HOME ════════ -->
+<div id="screen-home" class="screen active">
+    <div class="top-bar">
+        <h1>Träningslogg</h1>
+    </div>
+    <div class="home-body">
+        <div class="home-greeting">
+            <h2>Vad tränar du idag?</h2>
+            <p id="home-date"></p>
+        </div>
+        <div class="workout-grid">
+            <div class="wcard wcard-brost" onclick="startWorkout('brost')">
+                <span class="icon">💪</span>
+                <h3>Bröst & Triceps</h3>
+                <div class="last-session" id="last-brost"></div>
+            </div>
+            <div class="wcard wcard-rygg" onclick="startWorkout('rygg')">
+                <span class="icon">🏋️</span>
+                <h3>Rygg & Biceps</h3>
+                <div class="last-session" id="last-rygg"></div>
+            </div>
+            <div class="wcard wcard-axlar" onclick="startWorkout('axlar')">
+                <span class="icon">🔆</span>
+                <h3>Axlar & Mage</h3>
+                <div class="last-session" id="last-axlar"></div>
+            </div>
+            <div class="wcard wcard-cardio" onclick="startWorkout('cardio')">
+                <span class="icon">🏃</span>
+                <h3>Cardio</h3>
+                <div class="last-session" id="last-cardio"></div>
+            </div>
+        </div>
+        <button class="history-btn" onclick="showHistory()">📋 &nbsp; Visa träningshistorik</button>
+    </div>
+</div>
+
+<!-- ════════ WORKOUT (STYRKA) ════════ -->
+<div id="screen-workout" class="screen">
+    <div class="top-bar">
+        <button class="btn-icon" onclick="goHome()">←</button>
+        <h1 id="workout-title"></h1>
+    </div>
+    <div class="workout-body">
+        <div class="session-meta">
+            <span class="badge" id="workout-badge"></span>
+            <span class="session-date" id="workout-date"></span>
+            <span class="prev-session-info" id="prev-session-info"></span>
+        </div>
+        <div id="exercises-list"></div>
+        <button class="save-btn" onclick="saveWorkout()">Spara träningspass</button>
+    </div>
+</div>
+
+<!-- ════════ CARDIO ════════ -->
+<div id="screen-cardio" class="screen">
+    <div class="top-bar">
+        <button class="btn-icon" onclick="goHome()">←</button>
+        <h1>Cardio</h1>
+    </div>
+    <div class="cardio-body">
+        <h2>Välj aktivitet</h2>
+        <div class="activity-grid">
+            <div class="act-card" onclick="selectActivity(this,'cykel')">
+                <span class="icon">🚴</span>
+                <span>Cykel</span>
+            </div>
+            <div class="act-card" onclick="selectActivity(this,'promenad')">
+                <span class="icon">🚶</span>
+                <span>Promenad</span>
+            </div>
+            <div class="act-card" onclick="selectActivity(this,'crosstrainer')">
+                <span class="icon">🎿</span>
+                <span>Crosstrainer</span>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label>Tid (minuter)</label>
+            <input type="number" id="cardio-time" placeholder="45" min="1" inputmode="numeric">
+        </div>
+        <div class="form-row">
+            <label>Kalorier (kcal)</label>
+            <input type="number" id="cardio-kcal" placeholder="350" min="1" inputmode="numeric">
+        </div>
+        <button class="save-btn-cardio" onclick="saveCardio()">Spara Cardio</button>
+    </div>
+</div>
+
+<!-- ════════ HISTORY ════════ -->
+<div id="screen-history" class="screen">
+    <div class="top-bar">
+        <button class="btn-icon" onclick="goHome()">←</button>
+        <h1>Historik</h1>
+    </div>
+    <div class="history-body" id="history-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────
+const WORKOUTS = {
+    brost: {
+        title: 'Bröst & Triceps',
+        color: '#ff6b6b',
+        exercises: [
+            'Bänkpress',
+            'Lutande bänkpress',
+            'Kabel korsning',
+            'Dips',
+            'Triceps pushdown',
+            'Skull crushers'
+        ]
+    },
+    rygg: {
+        title: 'Rygg & Biceps',
+        color: '#4fc3f7',
+        exercises: [
+            'Marklyft',
+            'Latsdrag',
+            'Sittande rodd',
+            'Hantelrodd',
+            'Biceps curl (skivstång)',
+            'Hammer curl'
+        ]
+    },
+    axlar: {
+        title: 'Axlar & Mage',
+        color: '#c084fc',
+        exercises: [
+            'Militärpress',
+            'Sidolyft',
+            'Framlyft',
+            'Face pull',
+            'Plankan (sek)',
+            'Sit-ups',
+            'Ryska vridningar'
+        ]
+    }
+};
+
+let currentType = null;
+let selectedActivity = null;
+
+// ── INIT ─────────────────────────────────────────────
+document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+});
+updateLastSessions();
+
+// ── NAVIGATION ───────────────────────────────────────
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function goHome() {
+    showScreen('screen-home');
+    updateLastSessions();
+    selectedActivity = null;
+}
+
+function startWorkout(type) {
+    currentType = type;
+
+    if (type === 'cardio') {
+        document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('cardio-time').value = '';
+        document.getElementById('cardio-kcal').value = '';
+        showScreen('screen-cardio');
+        return;
+    }
+
+    const data = WORKOUTS[type];
+    const prev = getPrevious(type);
+
+    document.getElementById('workout-title').textContent = data.title;
+    document.getElementById('workout-badge').textContent = data.title;
+    document.getElementById('workout-badge').style.background = data.color;
+    document.getElementById('workout-date').textContent = new Date().toLocaleDateString('sv-SE');
+
+    if (prev) {
+        const d = new Date(prev.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+        document.getElementById('prev-session-info').textContent = `Förra passet: ${d}`;
+    } else {
+        document.getElementById('prev-session-info').textContent = '';
+    }
+
+    const list = document.getElementById('exercises-list');
+    list.innerHTML = '';
+
+    data.exercises.forEach(name => {
+        const prevEx = prev ? prev.exercises.find(e => e.name === name) : null;
+        list.appendChild(buildExerciseCard(name, prevEx));
+    });
+
+    showScreen('screen-workout');
+}
+
+function showHistory() {
+    const workouts = getStorage();
+    const container = document.getElementById('history-list');
+
+    if (workouts.length === 0) {
+        container.innerHTML = '<div class="history-empty">Inga träningspass sparade än.</div>';
+        showScreen('screen-history');
+        return;
+    }
+
+    const sorted = [...workouts].reverse();
+    container.innerHTML = sorted.map((w, i) => buildHistoryItem(w, i)).join('');
+    showScreen('screen-history');
+}
+
+// ── EXERCISE CARDS ────────────────────────────────────
+function buildExerciseCard(name, prevEx) {
+    const div = document.createElement('div');
+    div.className = 'ex-card';
+
+    div.innerHTML = `
+        <div class="ex-header">
+            <span class="ex-name">${name}</span>
+        </div>
+        <table class="sets-table">
+            <thead>
+                <tr>
+                    <th style="width:36px">Set</th>
+                    <th>Vikt (kg)</th>
+                    <th>Reps</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody class="sets-body"></tbody>
+        </table>
+        <button class="add-set-btn" onclick="addSet(this)">+ Lägg till set</button>
+    `;
+
+    const prevSets = prevEx ? prevEx.sets : [];
+
+    // Auto-add sets from previous session (or 3 empty sets)
+    const setsToAdd = prevSets.length > 0 ? prevSets.length : 3;
+    const btn = div.querySelector('.add-set-btn');
+
+    for (let i = 0; i < setsToAdd; i++) {
+        addSet(btn, prevSets[i] || null);
+    }
+
+    return div;
+}
+
+function addSet(btn, prevSet = null) {
+    const tbody = btn.closest('.ex-card').querySelector('.sets-body');
+    const num = tbody.querySelectorAll('.set-row').length + 1;
+
+    const tr = document.createElement('tr');
+    tr.className = 'set-row';
+
+    const prevWeight = prevSet ? prevSet.weight : '';
+    const prevReps   = prevSet ? prevSet.reps : '';
+    const hintW = prevSet ? `<div class="prev-val">Förra: ${prevWeight} kg</div>` : '';
+    const hintR = prevSet ? `<div class="prev-val">Förra: ${prevReps}</div>` : '';
+
+    tr.innerHTML = `
+        <td class="set-num">${num}</td>
+        <td>
+            <input class="set-input" type="number" placeholder="${prevWeight || '0'}" min="0" step="0.5" inputmode="decimal">
+            ${hintW}
+        </td>
+        <td>
+            <input class="set-input" type="number" placeholder="${prevReps || '0'}" min="0" inputmode="numeric">
+            ${hintR}
+        </td>
+        <td><button class="del-set" onclick="deleteSet(this)" title="Ta bort set">×</button></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function deleteSet(btn) {
+    const tbody = btn.closest('.sets-body');
+    btn.closest('.set-row').remove();
+    tbody.querySelectorAll('.set-row').forEach((r, i) => {
+        r.querySelector('.set-num').textContent = i + 1;
+    });
+}
+
+// ── CARDIO ───────────────────────────────────────────
+function selectActivity(el, activity) {
+    document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedActivity = activity;
+}
+
+// ── SAVE ─────────────────────────────────────────────
+function saveWorkout() {
+    const exercises = [];
+
+    document.querySelectorAll('.ex-card').forEach(card => {
+        const name = card.querySelector('.ex-name').textContent;
+        const sets = [];
+
+        card.querySelectorAll('.set-row').forEach(row => {
+            const inputs = row.querySelectorAll('.set-input');
+            const weight = inputs[0].value.trim();
+            const reps   = inputs[1].value.trim();
+            if (weight !== '' || reps !== '') {
+                sets.push({ weight: weight || '0', reps: reps || '0' });
+            }
+        });
+
+        if (sets.length > 0) exercises.push({ name, sets });
+    });
+
+    if (exercises.length === 0) {
+        toast('Fyll i minst en övning!', true); return;
+    }
+
+    saveToStorage({
+        id: Date.now(),
+        date: new Date().toISOString(),
+        type: currentType,
+        title: WORKOUTS[currentType].title,
+        exercises
+    });
+
+    toast('Träningspass sparat!');
+    setTimeout(goHome, 1600);
+}
+
+function saveCardio() {
+    if (!selectedActivity) { toast('Välj en aktivitet!', true); return; }
+
+    const time = document.getElementById('cardio-time').value.trim();
+    const kcal = document.getElementById('cardio-kcal').value.trim();
+
+    if (!time || !kcal) { toast('Fyll i tid och kalorier!', true); return; }
+
+    const LABELS = { cykel: 'Cykel', promenad: 'Promenad', crosstrainer: 'Crosstrainer' };
+
+    saveToStorage({
+        id: Date.now(),
+        date: new Date().toISOString(),
+        type: 'cardio',
+        title: 'Cardio',
+        activity: selectedActivity,
+        activityLabel: LABELS[selectedActivity],
+        time: parseInt(time),
+        kcal: parseInt(kcal)
+    });
+
+    toast('Cardio sparat!');
+    setTimeout(goHome, 1600);
+}
+
+// ── HISTORY VIEW ─────────────────────────────────────
+function buildHistoryItem(w, i) {
+    const date = new Date(w.date).toLocaleDateString('sv-SE', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    });
+
+    let bodyHtml = '';
+    if (w.type === 'cardio') {
+        const ICONS = { cykel: '🚴', promenad: '🚶', crosstrainer: '🎿' };
+        bodyHtml = `
+            <div class="hist-cardio-info">
+                ${ICONS[w.activity] || ''} <strong>${w.activityLabel}</strong> &nbsp;|&nbsp;
+                <strong>${w.time}</strong> min &nbsp;|&nbsp;
+                <strong>${w.kcal}</strong> kcal
+            </div>`;
+    } else {
+        bodyHtml = (w.exercises || []).map(ex => `
+            <div class="hist-ex">
+                <div class="hist-ex-name">${ex.name}</div>
+                <div class="hist-sets">
+                    ${ex.sets.map((s, si) => `
+                        <span class="hist-set-pill">${si+1}. ${s.weight} kg × ${s.reps}</span>
+                    `).join('')}
+                </div>
+            </div>`).join('');
+    }
+
+    return `
+        <div class="hist-item">
+            <div class="hist-header" onclick="toggleHistory(this)">
+                <span class="hist-title">${w.title}</span>
+                <span class="hist-date">${date}</span>
+                <span class="hist-chevron">▼</span>
+            </div>
+            <div class="hist-body">${bodyHtml}</div>
+        </div>`;
+}
+
+function toggleHistory(header) {
+    header.classList.toggle('open');
+    header.nextElementSibling.classList.toggle('open');
+}
+
+// ── HOME CARD LAST SESSION ────────────────────────────
+function updateLastSessions() {
+    ['brost', 'rygg', 'axlar', 'cardio'].forEach(type => {
+        const prev = getPrevious(type);
+        const el = document.getElementById(`last-${type}`);
+        if (prev) {
+            const d = new Date(prev.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+            el.textContent = `Senast: ${d}`;
+        } else {
+            el.textContent = '';
+        }
+    });
+}
+
+// ── STORAGE ──────────────────────────────────────────
+function getStorage() {
+    return JSON.parse(localStorage.getItem('traning_log') || '[]');
+}
+
+function saveToStorage(entry) {
+    const data = getStorage();
+    data.push(entry);
+    localStorage.setItem('traning_log', JSON.stringify(data));
+}
+
+function getPrevious(type) {
+    return getStorage()
+        .filter(w => w.type === type)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+}
+
+// ── TOAST ────────────────────────────────────────────
+function toast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast' + (isError ? ' error' : '') + ' show';
+    setTimeout(() => el.classList.remove('show'), 2400);
+}
+</script>
+</body>
+</html>
