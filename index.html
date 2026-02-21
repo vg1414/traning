@@ -1270,8 +1270,9 @@ function saveCardio() {
 
 // ── HISTORY VIEW ─────────────────────────────────────
 function buildHistoryItem(w, i) {
-    const date = new Date(w.date).toLocaleDateString('sv-SE', {
-        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    const date = new Date(w.date).toLocaleString('sv-SE', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
     });
 
     let bodyHtml = '';
