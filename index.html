@@ -134,17 +134,20 @@
 
         .programs-btn {
             width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 13px;
-            border-radius: 10px;
-            font-size: 14px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            border: none;
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 10px;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.3);
         }
-        .programs-btn:hover { background: var(--surface2); color: var(--text); border-color: #f59e0b; }
+        .programs-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.4); }
+        .programs-btn:active { transform: translateY(0); }
 
         /* ── PROGRAM SESSION ── */
         .prog-session-body {
@@ -926,21 +929,30 @@ const HELKROPP_PROGRAMS = [
 ];
 
 const EXERCISE_IMAGES = {
-    'Lutande hantelpress':  'https://privatetrainingonline.se/wp-content/uploads/2017/10/Lutande-bankpress-e1671284319441.jpg',
-    'Rak hantelpress':      'https://privatetrainingonline.se/wp-content/uploads/2017/10/Hantelpress-Private-Training-Online-PTO-e1671284094884.jpg',
-    'Bänkpress':            'https://privatetrainingonline.se/wp-content/uploads/2016/01/bankpress-pto-e1628371128315.jpg',
+    // Bröst & Triceps
+    'Lutande hantelpress':  'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Bench-Press_c2bf89a2-433f-4a8f-9801-67c679980867_600x600.png?v=1612138008',
+    'Rak hantelpress':      'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Bench-Press_13090f67-ccfc-4f3a-9bab-e75d753fa9fa_600x600.png?v=1612137970',
+    'Bänkpress':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Barbell-Bench-Press_0316b783-43b2-44f8-8a2b-b177a2cfcbfc_600x600.png?v=1612137800',
     'Drag curl':            'https://privatetrainingonline.se/wp-content/uploads/2021/07/Skivstangscurl-e1637772602866.jpg',
-    // Rygg & Biceps
-    'Latsdrag':             'https://privatetrainingonline.se/wp-content/uploads/2014/10/AdobeStock_510223617.jpeg',
-    'Sittande rodd':        'https://privatetrainingonline.se/wp-content/uploads/2014/10/Kabelrodd-Sittande-kabelrodd-PTO.jpg',
-    // Axlar & Mage
-    'Militärpress':         'https://privatetrainingonline.se/wp-content/uploads/2022/06/Militarpress-Private-Training-Online.jpg',
-    'Sidolyft':             'https://privatetrainingonline.se/wp-content/uploads/2022/06/Hantellyft-at-sidan-Sidolyft-PTO-e1710269630657.jpeg',
-    'Face pull':            'https://privatetrainingonline.se/wp-content/uploads/2021/12/Facepull-Ryggovning-PTO-e1709981314551.jpeg',
-    'Plankan (sek)':        'https://privatetrainingonline.se/wp-content/uploads/2021/11/Plankan-Magovning-Core-PTO-Private-Training-Online.jpeg',
-    'Pushdowns':            'https://privatetrainingonline.se/wp-content/uploads/2019/07/Pushdown-1-e1638635799836.jpg',
-    'Pec deck':             'https://privatetrainingonline.se/wp-content/uploads/2017/10/Pec-Deck-Flyes-Brostovning-e1671284398930.jpg',
+    'Pushdowns':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Triceps-Pressdown_e759437b-6200-4b44-b484-14db770024a4_600x600.png?v=1612136845',
+    'Pec deck':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Peck-Deck_600x600.png?v=1612137910',
     'Bröstpress':           'https://privatetrainingonline.se/wp-content/uploads/2018/04/Brostpress-Private-Training-Online-e1671284232699.jpg',
+    // Rygg & Biceps
+    'Latsdrag':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Wide-Grip-Pulldown_91fcba9b-47a2-4185-b093-aa542c81c55c_600x600.png?v=1612138105',
+    'Sittande rodd':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Seated-Cable-Row_9470fa48-f0d1-40b1-a980-caee9e6f2e53_600x600.png?v=1612138127',
+    'Good morning':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Good-Morning_600x600.png?v=1655224242',
+    'Preacher curl':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/EZ-Barbell-Preacher-Curl_4d449fee-1920-4137-970c-75d4698b268d_600x600.png?v=1612137254',
+    'Bakåtlutad bicepcurl': 'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Curl_7debf468-cd34-49bc-8933-7f4b087e6cca_600x600.png?v=1612137309',
+    'Cable curl':           'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Rope-Cable-Curl_6216e254-5f77-462c-9954-ea210fff8a70_600x600.png?v=1612137195',
+    // Axlar & Mage
+    'Militärpress':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Shoulder-Press_da0aa742-620a-45f7-9277-78137d38ff28_600x600.png?v=1612138495',
+    'Sidolyft':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Lateral-Raise_31c81eee-81c4-4ffe-890d-ee13dd5bbf20_600x600.png?v=1612138523',
+    'Framlyft':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Front-Raise_11804c3c-22d1-4589-a035-e30ad72149f3_600x600.png?v=1612138576',
+    'Face pull':            'https://privatetrainingonline.se/wp-content/uploads/2021/12/Facepull-Ryggovning-PTO-e1709981314551.jpeg',
+    'Plankan (sek)':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Plank_3a82d566-9cb2-4c20-b301-bc8bd635c4d1_600x600.png?v=1612138431',
+    'Dead bug':             'https://media.self.com/photos/580a37dc7f7be8915ea98685/master/w_1600%2Cc_limit/dead-bug_ab-stacked.jpg',
+    'Sidoplanka (sek)':     'https://liftmanual.com/wp-content/uploads/2023/04/side-plank-leg-lift.jpg',
+    'Hjulet':               'https://i5.walmartimages.com/asr/90b2c6cd-1ae5-4bbc-bd73-27272266f0cc.4249099862bc92bf028c4c2c86877dcb.jpeg',
 };
 
 let currentUser = null;
