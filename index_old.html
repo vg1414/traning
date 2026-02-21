@@ -7,10 +7,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-
         :root {
             --bg: #0d1117;
             --surface: #161b22;
@@ -22,8 +18,6 @@
             --c-rygg: #4fc3f7;
             --c-axlar: #c084fc;
             --c-cardio: #4ade80;
-            --c-ben: #fb923c;
-            --c-helkropp: #facc15;
         }
 
         body {
@@ -131,147 +125,6 @@
             transition: all 0.2s;
         }
         .history-btn:hover { background: var(--surface2); color: var(--text); border-color: #58a6ff; }
-
-        .programs-btn {
-            width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 13px;
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        .programs-btn:hover { background: var(--surface2); color: var(--text); border-color: #f59e0b; }
-
-        /* ── PROGRAMS SCREEN ── */
-        .programs-body {
-            max-width: 560px;
-            margin: 0 auto;
-            padding: 20px 16px 40px;
-        }
-        .prog-section-label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--muted);
-            margin: 22px 0 10px;
-        }
-        .prog-section-label:first-child { margin-top: 0; }
-        .prog-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 14px 14px 18px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-        .prog-card::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 4px;
-            background: var(--pc);
-        }
-        .prog-card:hover {
-            border-color: var(--pc);
-            transform: translateX(3px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-        }
-        .prog-emoji { font-size: 30px; min-width: 42px; text-align: center; }
-        .prog-info { flex: 1; min-width: 0; }
-        .prog-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-        .prog-sub { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
-        .prog-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-        .prog-tag {
-            background: var(--surface2);
-            border-radius: 4px;
-            padding: 2px 7px;
-            font-size: 11px;
-            color: var(--muted);
-        }
-        .prog-tag-level {
-            border-radius: 4px;
-            padding: 2px 7px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid var(--pc);
-            color: var(--pc);
-        }
-        .prog-arrow { color: var(--muted); font-size: 20px; flex-shrink: 0; }
-
-        /* ── EXERCISE SECTION HEADERS (för cirkelpass) ── */
-        .ex-section-head {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 22px 0 8px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--muted);
-        }
-        .ex-section-head::before, .ex-section-head::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border);
-        }
-        .ex-section-head:first-child { margin-top: 4px; }
-
-        /* ── EXERCISE IMAGE THUMBNAIL ── */
-        .ex-thumb {
-            width: 78px;
-            height: 56px;
-            object-fit: cover;
-            border-radius: 7px;
-            cursor: pointer;
-            opacity: 0.82;
-            flex-shrink: 0;
-            transition: opacity 0.15s, transform 0.15s;
-            border: 1px solid var(--border);
-        }
-        .ex-thumb:hover { opacity: 1; transform: scale(1.06); }
-
-        /* ── LIGHTBOX ── */
-        .lightbox {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.88);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            cursor: zoom-out;
-        }
-        .lightbox.open { display: flex; }
-        .lightbox img {
-            max-width: 94vw;
-            max-height: 86vh;
-            border-radius: 10px;
-            object-fit: contain;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-        }
-        .lightbox-close {
-            position: absolute;
-            top: 16px; right: 20px;
-            font-size: 28px;
-            color: #fff;
-            cursor: pointer;
-            line-height: 1;
-            opacity: 0.7;
-        }
-        .lightbox-close:hover { opacity: 1; }
 
         /* ── WORKOUT ── */
         .workout-body {
@@ -386,61 +239,6 @@
         }
         .save-btn:hover { background: #2ea043; }
         .save-btn:active { background: #1a7f37; }
-
-        /* ── USER SELECT ── */
-        .user-select-body {
-            max-width: 440px;
-            margin: 0 auto;
-            padding: 56px 24px 40px;
-            text-align: center;
-        }
-        .user-select-body h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .user-select-body p  { color: var(--muted); font-size: 15px; margin-bottom: 44px; }
-
-        .user-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        .user-card {
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 18px;
-            padding: 36px 16px 28px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.22s;
-            position: relative;
-            overflow: hidden;
-        }
-        .user-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--uc);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .user-card:hover { border-color: var(--uc); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
-        .user-card:hover::before { opacity: 1; }
-        .user-card:active { transform: translateY(0); }
-        .u-avatar { font-size: 54px; display: block; margin-bottom: 14px; }
-        .u-name { font-size: 22px; font-weight: 700; color: var(--uc); }
-        .user-card-emma  { --uc: #f472b6; }
-        .user-card-david { --uc: #38bdf8; }
-
-        .switch-user-btn {
-            background: none;
-            border: none;
-            color: var(--muted);
-            cursor: pointer;
-            font-size: 13px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: all 0.15s;
-        }
-        .switch-user-btn:hover { color: var(--text); background: var(--surface2); }
 
         /* ── CARDIO ── */
         .cardio-body {
@@ -577,36 +375,14 @@
 </head>
 <body>
 
-<!-- ════════ USER SELECT ════════ -->
-<div id="screen-user" class="screen active">
-    <div class="top-bar">
-        <h1>Träningslogg</h1>
-    </div>
-    <div class="user-select-body">
-        <h2>Vem tränar idag?</h2>
-        <p>Välj din profil för att komma igång</p>
-        <div class="user-grid">
-            <div class="user-card user-card-emma" onclick="selectUser('Emma')">
-                <span class="u-avatar">👩</span>
-                <div class="u-name">Emma</div>
-            </div>
-            <div class="user-card user-card-david" onclick="selectUser('David')">
-                <span class="u-avatar">👨</span>
-                <div class="u-name">David</div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- ════════ HOME ════════ -->
-<div id="screen-home" class="screen">
+<div id="screen-home" class="screen active">
     <div class="top-bar">
         <h1>Träningslogg</h1>
-        <button class="switch-user-btn" onclick="switchUser()" title="Byt användare">⇄ Byt</button>
     </div>
     <div class="home-body">
         <div class="home-greeting">
-            <h2 id="home-greeting-name"></h2>
+            <h2>Vad tränar du idag?</h2>
             <p id="home-date"></p>
         </div>
         <div class="workout-grid">
@@ -632,7 +408,6 @@
             </div>
         </div>
         <button class="history-btn" onclick="showHistory()">📋 &nbsp; Visa träningshistorik</button>
-        <button class="programs-btn" onclick="showPrograms()">⭐ &nbsp; Färdiga träningsprogram</button>
     </div>
 </div>
 
@@ -688,15 +463,6 @@
     </div>
 </div>
 
-<!-- ════════ PROGRAMS ════════ -->
-<div id="screen-programs" class="screen">
-    <div class="top-bar">
-        <button class="btn-icon" onclick="goHome()">←</button>
-        <h1>Färdiga program</h1>
-    </div>
-    <div class="programs-body" id="programs-list"></div>
-</div>
-
 <!-- ════════ HISTORY ════════ -->
 <div id="screen-history" class="screen">
     <div class="top-bar">
@@ -708,11 +474,6 @@
 
 <div class="toast" id="toast"></div>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-    <span class="lightbox-close">×</span>
-    <img id="lightbox-img" src="" alt="">
-</div>
-
 <script>
 // ── DATA ─────────────────────────────────────────────
 const WORKOUTS = {
@@ -720,13 +481,12 @@ const WORKOUTS = {
         title: 'Bröst & Triceps',
         color: '#ff6b6b',
         exercises: [
-            'Lutande hantelpress',
-            'Rak hantelpress',
             'Bänkpress',
-            'Drag curl',
-            'Pushdowns',
-            'Pec deck',
-            'Bröstpress',
+            'Lutande bänkpress',
+            'Kabel korsning',
+            'Dips',
+            'Triceps pushdown',
+            'Skull crushers'
         ]
     },
     rygg: {
@@ -753,145 +513,17 @@ const WORKOUTS = {
             'Sit-ups',
             'Ryska vridningar'
         ]
-    },
-    ben: { title: 'Ben & Rumpa', color: '#fb923c', exercises: [] },
-    helkropp: { title: 'Helkropp', color: '#facc15', exercises: [] }
+    }
 };
 
-// ── FÄRDIGA PROGRAM ───────────────────────────────────
-const PROGRAMS = [
-    {
-        id: 'push', title: 'Push-dag', subtitle: 'Bröst, Axlar & Triceps',
-        emoji: '💪', color: '#ff6b6b', type: 'brost',
-        level: 'Mellannivå', duration: '50–60 min', section: 'Överkropp',
-        exercises: [
-            { name: 'Bänkpress',            sets: 4, reps: 10 },
-            { name: 'Lutande hantelpress',   sets: 3, reps: 12 },
-            { name: 'Kabelkorsning',         sets: 3, reps: 15 },
-            { name: 'Militärpress',          sets: 3, reps: 10 },
-            { name: 'Sidolyft',             sets: 4, reps: 15 },
-            { name: 'Triceps pushdown',      sets: 3, reps: 15 },
-        ]
-    },
-    {
-        id: 'pull', title: 'Pull-dag', subtitle: 'Rygg & Biceps',
-        emoji: '🏋️', color: '#4fc3f7', type: 'rygg',
-        level: 'Mellannivå', duration: '50–60 min', section: 'Överkropp',
-        exercises: [
-            { name: 'Latsdrag',               sets: 4, reps: 10 },
-            { name: 'Sittande rodd',           sets: 4, reps: 10 },
-            { name: 'Hantelrodd',              sets: 3, reps: 12 },
-            { name: 'Face pull',               sets: 4, reps: 15 },
-            { name: 'Biceps curl (skivstång)', sets: 3, reps: 12 },
-            { name: 'Hammer curl',             sets: 3, reps: 12 },
-        ]
-    },
-    {
-        id: 'axlar_core', title: 'Axlar & Core', subtitle: 'Breda axlar & stark mage',
-        emoji: '🔥', color: '#c084fc', type: 'axlar',
-        level: 'Mellannivå', duration: '45–55 min', section: 'Överkropp',
-        exercises: [
-            { name: 'Militärpress',       sets: 4, reps: 10 },
-            { name: 'Sidolyft',          sets: 4, reps: 15 },
-            { name: 'Face pull',          sets: 3, reps: 20 },
-            { name: 'Plankan (sek)',      sets: 4, reps: 45 },
-            { name: 'Ryska vridningar',   sets: 3, reps: 20 },
-            { name: 'Bicycle crunches',   sets: 3, reps: 25 },
-        ]
-    },
-    {
-        id: 'ben_volym', title: 'Ben & Rumpa – Volym', subtitle: 'Form, pump och rumpa i fokus',
-        emoji: '🍑', color: '#fb923c', type: 'ben',
-        level: 'Mellannivå', duration: '55–65 min', section: 'Underkropp',
-        exercises: [
-            { name: 'Knäböj',                   sets: 4, reps: 10 },
-            { name: 'Höftlyft (hip thrust)',     sets: 4, reps: 12 },
-            { name: 'Utfallssteg',               sets: 3, reps: 12 },
-            { name: 'Rumpa kickback (kabel)',    sets: 3, reps: 15 },
-            { name: 'Höftabduktion (maskin)',    sets: 3, reps: 20 },
-            { name: 'Calf raises',               sets: 4, reps: 20 },
-        ]
-    },
-    {
-        id: 'ben_styrka', title: 'Ben & Rumpa – Styrka', subtitle: 'Tunga lyft för starka ben',
-        emoji: '🦵', color: '#f59e0b', type: 'ben',
-        level: 'Avancerad', duration: '55–65 min', section: 'Underkropp',
-        exercises: [
-            { name: 'Sumo marklyft',            sets: 4, reps: 6  },
-            { name: 'Romanian deadlift',         sets: 4, reps: 8  },
-            { name: 'Höftlyft (hip thrust)',     sets: 4, reps: 10 },
-            { name: 'Bulgarian split squat',     sets: 3, reps: 10 },
-            { name: 'Höftabduktion (maskin)',    sets: 3, reps: 15 },
-            { name: 'Nordic curl',               sets: 3, reps: 8  },
-        ]
-    },
-    {
-        id: 'helkropp', title: 'Helkropp – Effektivt', subtitle: 'Alla muskelgrupper på ett pass',
-        emoji: '⚡', color: '#facc15', type: 'helkropp',
-        level: 'Mellannivå', duration: '35–45 min', section: 'Helkropp',
-        exercises: [
-            { name: 'Knäböj',        sets: 3, reps: 10 },
-            { name: 'Marklyft',      sets: 3, reps: 8  },
-            { name: 'Bänkpress',     sets: 3, reps: 10 },
-            { name: 'Latsdrag',      sets: 3, reps: 10 },
-            { name: 'Militärpress',  sets: 2, reps: 12 },
-            { name: 'Plankan (sek)', sets: 3, reps: 45 },
-        ]
-    },
-    {
-        id: 'hiit', title: 'Cirkelfys – Helkropp', subtitle: 'Uppvärmning · 3 varv · Nedvarvning',
-        emoji: '🔄', color: '#f43f5e', type: 'helkropp',
-        level: 'Intensivt', duration: '45–55 min', section: 'Helkropp',
-        exercises: [
-            { name: 'Uppvärmning',                       isSection: true },
-            { name: 'Hopphopp',                          sets: 2, reps: 40 },
-            { name: 'High knees (sek)',                  sets: 2, reps: 30 },
-            { name: 'Armcirklar',                        sets: 1, reps: 20 },
-            { name: 'Dynamisk höftöppnare',              sets: 1, reps: 10 },
-            { name: 'Inchworm',                          sets: 1, reps: 6  },
-
-            { name: 'Cirkeln – 3 varv (40 sek arbete / 20 sek vila)', isSection: true },
-            { name: 'Burpees',                           sets: 3, reps: 10 },
-            { name: 'Jump squats',                       sets: 3, reps: 15 },
-            { name: 'Push-ups',                          sets: 3, reps: 12 },
-            { name: 'Mountain climbers (sek)',           sets: 3, reps: 30 },
-            { name: 'Reverse lunges',                    sets: 3, reps: 12 },
-            { name: 'Höftlyft (golv)',                   sets: 3, reps: 20 },
-            { name: 'Plankan (sek)',                     sets: 3, reps: 40 },
-            { name: 'Ryska vridningar',                  sets: 3, reps: 20 },
-
-            { name: 'Nedvarvning & stretching',          isSection: true },
-            { name: 'Höftsträckning (sek)',              sets: 1, reps: 60 },
-            { name: 'Hamstrings stretch (sek)',          sets: 1, reps: 60 },
-            { name: 'Bröststräckning (sek)',             sets: 1, reps: 60 },
-        ]
-    },
-];
-
-const EXERCISE_IMAGES = {
-    'Lutande hantelpress':  'https://privatetrainingonline.se/wp-content/uploads/2017/10/Lutande-bankpress-e1671284319441.jpg',
-    'Rak hantelpress':      'https://privatetrainingonline.se/wp-content/uploads/2017/10/Hantelpress-Private-Training-Online-PTO-e1671284094884.jpg',
-    'Bänkpress':            'https://privatetrainingonline.se/wp-content/uploads/2016/01/bankpress-pto-e1628371128315.jpg',
-    'Drag curl':            'https://privatetrainingonline.se/wp-content/uploads/2021/07/Skivstangscurl-e1637772602866.jpg',
-    'Pushdowns':            'https://privatetrainingonline.se/wp-content/uploads/2019/07/Pushdown-1-e1638635799836.jpg',
-    'Pec deck':             'https://privatetrainingonline.se/wp-content/uploads/2017/10/Pec-Deck-Flyes-Brostovning-e1671284398930.jpg',
-    'Bröstpress':           'https://privatetrainingonline.se/wp-content/uploads/2018/04/Brostpress-Private-Training-Online-e1671284232699.jpg',
-};
-
-let currentUser = null;
 let currentType = null;
-let currentProgramTitle = null;
 let selectedActivity = null;
 
 // ── INIT ─────────────────────────────────────────────
 document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
 });
-
-const _savedUser = localStorage.getItem('traning_current_user');
-if (_savedUser) {
-    selectUser(_savedUser, true);
-}
+updateLastSessions();
 
 // ── NAVIGATION ───────────────────────────────────────
 function showScreen(id) {
@@ -900,34 +532,14 @@ function showScreen(id) {
     window.scrollTo(0, 0);
 }
 
-function selectUser(name, silent = false) {
-    currentUser = name;
-    localStorage.setItem('traning_current_user', name);
-    document.getElementById('home-greeting-name').textContent = `Hej, ${name}! 💪`;
-    updateLastSessions();
-    if (!silent) showScreen('screen-home');
-    else {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-home').classList.add('active');
-    }
-}
-
-function switchUser() {
-    currentUser = null;
-    localStorage.removeItem('traning_current_user');
-    showScreen('screen-user');
-}
-
 function goHome() {
     showScreen('screen-home');
     updateLastSessions();
     selectedActivity = null;
-    currentProgramTitle = null;
 }
 
 function startWorkout(type) {
     currentType = type;
-    currentProgramTitle = null;
 
     if (type === 'cardio') {
         document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
@@ -978,94 +590,14 @@ function showHistory() {
     showScreen('screen-history');
 }
 
-// ── PROGRAMS ─────────────────────────────────────────
-function showPrograms() {
-    const sections = {};
-    PROGRAMS.forEach(p => {
-        if (!sections[p.section]) sections[p.section] = [];
-        sections[p.section].push(p);
-    });
-
-    let html = '';
-    for (const [section, progs] of Object.entries(sections)) {
-        html += `<div class="prog-section-label">${section}</div>`;
-        progs.forEach(p => {
-            html += `
-            <div class="prog-card" style="--pc:${p.color}" onclick="startProgram('${p.id}')">
-                <div class="prog-emoji">${p.emoji}</div>
-                <div class="prog-info">
-                    <div class="prog-name">${p.title}</div>
-                    <div class="prog-sub">${p.subtitle}</div>
-                    <div class="prog-meta">
-                        <span class="prog-tag-level">${p.level}</span>
-                        <span class="prog-tag">⏱ ${p.duration}</span>
-                        <span class="prog-tag">${p.exercises.length} övn.</span>
-                    </div>
-                </div>
-                <div class="prog-arrow">›</div>
-            </div>`;
-        });
-    }
-
-    document.getElementById('programs-list').innerHTML = html;
-    showScreen('screen-programs');
-}
-
-function startProgram(id) {
-    const prog = PROGRAMS.find(p => p.id === id);
-    if (!prog) return;
-
-    currentType = prog.type;
-    currentProgramTitle = prog.title;
-
-    // Hitta förra gången just detta program kördes
-    const prev = getStorage()
-        .filter(w => w.title === prog.title)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
-
-    document.getElementById('workout-title').textContent = prog.title;
-    document.getElementById('workout-badge').textContent = prog.subtitle;
-    document.getElementById('workout-badge').style.background = prog.color;
-    document.getElementById('workout-date').textContent = new Date().toLocaleDateString('sv-SE');
-
-    if (prev) {
-        const d = new Date(prev.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-        document.getElementById('prev-session-info').textContent = `Förra passet: ${d}`;
-    } else {
-        document.getElementById('prev-session-info').textContent = '';
-    }
-
-    const list = document.getElementById('exercises-list');
-    list.innerHTML = '';
-    prog.exercises.forEach(ex => {
-        if (ex.isSection) {
-            const div = document.createElement('div');
-            div.className = 'ex-section-head';
-            div.textContent = ex.name;
-            list.appendChild(div);
-            return;
-        }
-        const prevEx = prev ? prev.exercises.find(e => e.name === ex.name) : null;
-        list.appendChild(buildExerciseCard(ex.name, prevEx, ex));
-    });
-
-    showScreen('screen-workout');
-}
-
 // ── EXERCISE CARDS ────────────────────────────────────
-function buildExerciseCard(name, prevEx, templateEx = null) {
+function buildExerciseCard(name, prevEx) {
     const div = document.createElement('div');
     div.className = 'ex-card';
-
-    const imgUrl = EXERCISE_IMAGES[name];
-    const imgHtml = imgUrl
-        ? `<img class="ex-thumb" src="${imgUrl}" alt="${name}" onclick="openLightbox('${imgUrl}',event)" title="Klicka för att förstora">`
-        : '';
 
     div.innerHTML = `
         <div class="ex-header">
             <span class="ex-name">${name}</span>
-            ${imgHtml}
         </div>
         <table class="sets-table">
             <thead>
@@ -1082,32 +614,29 @@ function buildExerciseCard(name, prevEx, templateEx = null) {
     `;
 
     const prevSets = prevEx ? prevEx.sets : [];
-    const setsToAdd = prevSets.length > 0 ? prevSets.length : (templateEx ? templateEx.sets : 3);
+
+    // Auto-add sets from previous session (or 3 empty sets)
+    const setsToAdd = prevSets.length > 0 ? prevSets.length : 3;
     const btn = div.querySelector('.add-set-btn');
 
     for (let i = 0; i < setsToAdd; i++) {
-        const hasPrev = !!prevSets[i];
-        addSet(btn, prevSets[i] || null, (!hasPrev && templateEx) ? templateEx : null);
+        addSet(btn, prevSets[i] || null);
     }
 
     return div;
 }
 
-function addSet(btn, prevSet = null, templateEx = null) {
+function addSet(btn, prevSet = null) {
     const tbody = btn.closest('.ex-card').querySelector('.sets-body');
     const num = tbody.querySelectorAll('.set-row').length + 1;
 
     const tr = document.createElement('tr');
     tr.className = 'set-row';
 
-    const prevWeight  = prevSet ? prevSet.weight : '';
-    const prevReps    = prevSet ? prevSet.reps : '';
-    const suggestReps = templateEx ? templateEx.reps : '';
-
+    const prevWeight = prevSet ? prevSet.weight : '';
+    const prevReps   = prevSet ? prevSet.reps : '';
     const hintW = prevSet ? `<div class="prev-val">Förra: ${prevWeight} kg</div>` : '';
-    const hintR = prevSet
-        ? `<div class="prev-val">Förra: ${prevReps}</div>`
-        : (templateEx ? `<div class="prev-val" style="color:#58a6ff">Förslag: ${suggestReps} reps</div>` : '');
+    const hintR = prevSet ? `<div class="prev-val">Förra: ${prevReps}</div>` : '';
 
     tr.innerHTML = `
         <td class="set-num">${num}</td>
@@ -1116,7 +645,7 @@ function addSet(btn, prevSet = null, templateEx = null) {
             ${hintW}
         </td>
         <td>
-            <input class="set-input" type="number" placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric">
+            <input class="set-input" type="number" placeholder="${prevReps || '0'}" min="0" inputmode="numeric">
             ${hintR}
         </td>
         <td><button class="del-set" onclick="deleteSet(this)" title="Ta bort set">×</button></td>
@@ -1167,7 +696,7 @@ function saveWorkout() {
         id: Date.now(),
         date: new Date().toISOString(),
         type: currentType,
-        title: currentProgramTitle || (WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType),
+        title: WORKOUTS[currentType].title,
         exercises
     });
 
@@ -1258,34 +787,20 @@ function updateLastSessions() {
 }
 
 // ── STORAGE ──────────────────────────────────────────
-function storageKey() {
-    return currentUser ? `traning_log_${currentUser.toLowerCase()}` : 'traning_log';
-}
-
 function getStorage() {
-    return JSON.parse(localStorage.getItem(storageKey()) || '[]');
+    return JSON.parse(localStorage.getItem('traning_log') || '[]');
 }
 
 function saveToStorage(entry) {
     const data = getStorage();
     data.push(entry);
-    localStorage.setItem(storageKey(), JSON.stringify(data));
+    localStorage.setItem('traning_log', JSON.stringify(data));
 }
 
 function getPrevious(type) {
     return getStorage()
         .filter(w => w.type === type)
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
-}
-
-// ── LIGHTBOX ─────────────────────────────────────────
-function openLightbox(src, e) {
-    e.stopPropagation();
-    document.getElementById('lightbox-img').src = src;
-    document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox() {
-    document.getElementById('lightbox').classList.remove('open');
 }
 
 // ── TOAST ────────────────────────────────────────────
