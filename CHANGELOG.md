@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-25 (4)
+- Lagt till "Made by: David Hefner" på startsidan och användarvalssidan
+
 ## 2026-02-25 (3)
 - PB (personbästa) visas diskret under övningsnamnet vid träning: "PB: X kg × Y reps"
 
