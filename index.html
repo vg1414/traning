@@ -786,44 +786,29 @@ const WORKOUTS = {
     brost: {
         title: 'Bröst & Triceps',
         color: '#ff6b6b',
-        exercises: [
-            'Lutande hantelpress',
-            'Rak hantelpress',
-            'Bänkpress',
-            'Drag curl',
-            'Pushdowns',
-            'Pec deck',
-            'Bröstpress',
+        groups: [
+            { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Drag curl', 'Pec deck', 'Bröstpress', 'Low cable flyes'] },
+            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension'] }
         ]
     },
     rygg: {
         title: 'Rygg & Biceps',
         color: '#4fc3f7',
-        exercises: [
-            'Latsdrag',
-            'Sittande rodd',
-            'Good morning',
-            'Preacher curl',
-            'Bakåtlutad bicepcurl',
-            'Cable curl'
+        groups: [
+            { label: 'Rygg', exercises: ['Latsdrag', 'Sittande rodd', 'Good morning'] },
+            { label: 'Biceps', exercises: ['Preacher curl', 'Bakåtlutad bicepcurl', 'Cable curl'] }
         ]
     },
     axlar: {
         title: 'Axlar & Mage',
         color: '#c084fc',
-        exercises: [
-            'Militärpress',
-            'Sidolyft',
-            'Framlyft',
-            'Face pull',
-            'Plankan (sek)',
-            'Sidoplanka (sek)',
-            'Dead bug',
-            'Hjulet'
+        groups: [
+            { label: 'Axlar', exercises: ['Militärpress', 'Sidolyft', 'Framlyft', 'Face pull'] },
+            { label: 'Mage', exercises: ['Plankan (sek)', 'Sidoplanka (sek)', 'Dead bug', 'Hjulet'] }
         ]
     },
-    ben: { title: 'Ben & Rumpa', color: '#fb923c', exercises: [] },
-    helkropp: { title: 'Helkropp', color: '#facc15', exercises: [] }
+    ben: { title: 'Ben & Rumpa', color: '#fb923c', groups: [] },
+    helkropp: { title: 'Helkropp', color: '#facc15', groups: [] }
 };
 
 // ── HELKROPPSPASS (slumpas vid knapptryck) ────────────
@@ -953,6 +938,9 @@ const EXERCISE_IMAGES = {
     'Dead bug':             'https://media.self.com/photos/580a37dc7f7be8915ea98685/master/w_1600%2Cc_limit/dead-bug_ab-stacked.jpg',
     'Sidoplanka (sek)':     'https://liftmanual.com/wp-content/uploads/2023/04/side-plank-leg-lift.jpg',
     'Hjulet':               'https://i5.walmartimages.com/asr/90b2c6cd-1ae5-4bbc-bd73-27272266f0cc.4249099862bc92bf028c4c2c86877dcb.jpeg',
+    // Nya övningar
+    'Low cable flyes':              'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
+    'Overhead tricep extension':    'https://www.puregym.com/media/b5jl1ij3/overhead-tricep-extension.jpg?quality=80',
 };
 
 let currentUser = null;
@@ -1048,9 +1036,28 @@ function startWorkout(type) {
     const list = document.getElementById('exercises-list');
     list.innerHTML = '';
 
-    data.exercises.forEach(name => {
-        const prevEx = prev ? prev.exercises.find(e => e.name === name) : null;
-        list.appendChild(buildExerciseCard(name, prevEx));
+    const _allHistory = getStorage();
+    function _getLastPerformed(name) {
+        const sorted = [..._allHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+        for (const w of sorted) {
+            if (w.exercises && w.exercises.some(e => e.name === name)) {
+                return new Date(w.date).getTime();
+            }
+        }
+        return 0;
+    }
+
+    (data.groups || []).forEach(group => {
+        const hdr = document.createElement('div');
+        hdr.className = 'ex-section-head';
+        hdr.textContent = group.label;
+        list.appendChild(hdr);
+
+        const sortedEx = [...group.exercises].sort((a, b) => _getLastPerformed(b) - _getLastPerformed(a));
+        sortedEx.forEach(name => {
+            const prevEx = prev ? prev.exercises.find(e => e.name === name) : null;
+            list.appendChild(buildExerciseCard(name, prevEx));
+        });
     });
 
     showScreen('screen-workout');
@@ -1192,7 +1199,7 @@ function addSet(btn, prevSet = null, templateEx = null) {
     tr.innerHTML = `
         <td class="set-num">${num}</td>
         <td>
-            <input class="set-input" type="number" placeholder="${prevWeight || '0'}" min="0" step="0.5" inputmode="decimal">
+            <input class="set-input" type="text" inputmode="decimal" placeholder="${prevWeight || '0'}" pattern="[0-9]*[.,]?[0-9]*">
             ${hintW}
         </td>
         <td>
@@ -1229,7 +1236,7 @@ function saveWorkout() {
 
         card.querySelectorAll('.set-row').forEach(row => {
             const inputs = row.querySelectorAll('.set-input');
-            const weight = inputs[0].value.trim();
+            const weight = inputs[0].value.trim().replace(',', '.');
             const reps   = inputs[1].value.trim();
             if (weight !== '' || reps !== '') {
                 sets.push({ weight: weight || '0', reps: reps || '0' });

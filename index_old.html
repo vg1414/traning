@@ -134,80 +134,100 @@
 
         .programs-btn {
             width: 100%;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            padding: 13px;
-            border-radius: 10px;
-            font-size: 14px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            border: none;
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 10px;
+            box-shadow: 0 4px 16px rgba(245,158,11,0.3);
         }
-        .programs-btn:hover { background: var(--surface2); color: var(--text); border-color: #f59e0b; }
+        .programs-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.4); }
+        .programs-btn:active { transform: translateY(0); }
 
-        /* ── PROGRAMS SCREEN ── */
-        .programs-body {
-            max-width: 560px;
+        /* ── PROGRAM SESSION ── */
+        .prog-session-body {
+            max-width: 480px;
             margin: 0 auto;
             padding: 20px 16px 40px;
         }
-        .prog-section-label {
+        .prog-session-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 20px 20px;
+            margin-bottom: 16px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .prog-session-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--pc);
+        }
+        .prog-session-emoji { font-size: 48px; display: block; margin-bottom: 12px; }
+        .prog-session-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+        .prog-session-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+        .prog-ex-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px 16px;
+            margin-bottom: 24px;
+        }
+        .prog-ex-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--surface2);
+            font-size: 14px;
+        }
+        .prog-ex-item:last-child { border-bottom: none; }
+        .prog-ex-section {
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--muted);
-            margin: 22px 0 10px;
+            padding: 14px 0 4px;
+            text-align: center;
         }
-        .prog-section-label:first-child { margin-top: 0; }
-        .prog-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 14px 14px 14px 18px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
+
+        .diff-section {
+            text-align: center;
+            margin-bottom: 24px;
         }
-        .prog-card::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 4px;
-            background: var(--pc);
-        }
-        .prog-card:hover {
-            border-color: var(--pc);
-            transform: translateX(3px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-        }
-        .prog-emoji { font-size: 30px; min-width: 42px; text-align: center; }
-        .prog-info { flex: 1; min-width: 0; }
-        .prog-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-        .prog-sub { font-size: 12px; color: var(--muted); margin-bottom: 7px; }
-        .prog-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-        .prog-tag {
-            background: var(--surface2);
-            border-radius: 4px;
-            padding: 2px 7px;
-            font-size: 11px;
+        .diff-label {
+            font-size: 13px;
             color: var(--muted);
+            margin-bottom: 14px;
+            font-weight: 500;
+            min-height: 20px;
         }
-        .prog-tag-level {
-            border-radius: 4px;
-            padding: 2px 7px;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid var(--pc);
-            color: var(--pc);
+        .diff-stars {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
         }
-        .prog-arrow { color: var(--muted); font-size: 20px; flex-shrink: 0; }
+        .diff-star {
+            font-size: 40px;
+            cursor: pointer;
+            color: var(--border);
+            transition: all 0.15s;
+            user-select: none;
+            line-height: 1;
+        }
+        .diff-star.active { color: #facc15; }
+        .diff-star:hover { transform: scale(1.15); }
+
+        .hist-prog-row { font-size: 14px; color: var(--muted); }
+        .hist-prog-stars { color: #facc15; font-size: 20px; letter-spacing: 2px; display: block; margin-top: 4px; }
 
         /* ── EXERCISE SECTION HEADERS (för cirkelpass) ── */
         .ex-section-head {
@@ -529,6 +549,19 @@
         .hist-date { font-size: 12px; color: var(--muted); }
         .hist-chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
         .hist-header.open .hist-chevron { transform: rotate(180deg); }
+        .hist-delete-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 15px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .hist-delete-btn:hover { color: #f85149; background: rgba(248,81,73,0.1); }
 
         .hist-body { display: none; padding: 14px 16px; }
         .hist-body.open { display: block; }
@@ -631,8 +664,8 @@
                 <div class="last-session" id="last-cardio"></div>
             </div>
         </div>
+        <button class="programs-btn" onclick="startRandomHelkropp()">🎲 &nbsp; Slumpa helkroppspass</button>
         <button class="history-btn" onclick="showHistory()">📋 &nbsp; Visa träningshistorik</button>
-        <button class="programs-btn" onclick="showPrograms()">⭐ &nbsp; Färdiga träningsprogram</button>
     </div>
 </div>
 
@@ -688,13 +721,27 @@
     </div>
 </div>
 
-<!-- ════════ PROGRAMS ════════ -->
+<!-- ════════ PROGRAMS (slumpmässigt helkroppspass) ════════ -->
 <div id="screen-programs" class="screen">
     <div class="top-bar">
         <button class="btn-icon" onclick="goHome()">←</button>
-        <h1>Färdiga program</h1>
+        <h1 id="prog-session-title">Helkroppspass</h1>
     </div>
-    <div class="programs-body" id="programs-list"></div>
+    <div class="prog-session-body">
+        <div class="prog-session-card" id="prog-session-card"></div>
+        <div class="prog-ex-list" id="prog-ex-list"></div>
+        <div class="diff-section">
+            <div class="diff-label" id="diff-label">Hur jobbigt var det?</div>
+            <div class="diff-stars">
+                <span class="diff-star" onclick="setDifficulty(1)">★</span>
+                <span class="diff-star" onclick="setDifficulty(2)">★</span>
+                <span class="diff-star" onclick="setDifficulty(3)">★</span>
+                <span class="diff-star" onclick="setDifficulty(4)">★</span>
+                <span class="diff-star" onclick="setDifficulty(5)">★</span>
+            </div>
+        </div>
+        <button class="save-btn" onclick="saveProgramSession()">Spara träningspass</button>
+    </div>
 </div>
 
 <!-- ════════ HISTORY ════════ -->
@@ -713,7 +760,27 @@
     <img id="lightbox-img" src="" alt="">
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
+// ── FIREBASE ──────────────────────────────────────────
+const firebaseConfig = {
+    apiKey: "AIzaSyBIRuqAwzaG9LZz2XjYlBNTZhEMk8RrR-8",
+    authDomain: "traning-f6957.firebaseapp.com",
+    projectId: "traning-f6957",
+    storageBucket: "traning-f6957.firebasestorage.app",
+    messagingSenderId: "508636489314",
+    appId: "1:508636489314:web:b0ec532f0c4bedf3c5933b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+db.enablePersistence().catch(() => {});
+
+function userRef() {
+    return db.collection('users').doc(currentUser.toLowerCase()).collection('workouts');
+}
+
 // ── DATA ─────────────────────────────────────────────
 const WORKOUTS = {
     brost: {
@@ -733,12 +800,12 @@ const WORKOUTS = {
         title: 'Rygg & Biceps',
         color: '#4fc3f7',
         exercises: [
-            'Marklyft',
             'Latsdrag',
             'Sittande rodd',
-            'Hantelrodd',
-            'Biceps curl (skivstång)',
-            'Hammer curl'
+            'Good morning',
+            'Preacher curl',
+            'Bakåtlutad bicepcurl',
+            'Cable curl'
         ]
     },
     axlar: {
@@ -750,152 +817,151 @@ const WORKOUTS = {
             'Framlyft',
             'Face pull',
             'Plankan (sek)',
-            'Sit-ups',
-            'Ryska vridningar'
+            'Sidoplanka (sek)',
+            'Dead bug',
+            'Hjulet'
         ]
     },
     ben: { title: 'Ben & Rumpa', color: '#fb923c', exercises: [] },
     helkropp: { title: 'Helkropp', color: '#facc15', exercises: [] }
 };
 
-// ── FÄRDIGA PROGRAM ───────────────────────────────────
-const PROGRAMS = [
+// ── HELKROPPSPASS (slumpas vid knapptryck) ────────────
+const HELKROPP_PROGRAMS = [
     {
-        id: 'push', title: 'Push-dag', subtitle: 'Bröst, Axlar & Triceps',
-        emoji: '💪', color: '#ff6b6b', type: 'brost',
-        level: 'Mellannivå', duration: '50–60 min', section: 'Överkropp',
+        id: 'hiit_klassisk',
+        title: 'Cirkelfys – Klassisk',
+        subtitle: '3 varv · 40 sek arbete / 20 sek vila',
+        emoji: '⚡',
+        color: '#facc15',
+        duration: '40–50 min',
         exercises: [
-            { name: 'Bänkpress',            sets: 4, reps: 10 },
-            { name: 'Lutande hantelpress',   sets: 3, reps: 12 },
-            { name: 'Kabelkorsning',         sets: 3, reps: 15 },
-            { name: 'Militärpress',          sets: 3, reps: 10 },
-            { name: 'Sidolyft',             sets: 4, reps: 15 },
-            { name: 'Triceps pushdown',      sets: 3, reps: 15 },
+            '— Uppvärmning (5 min) —',
+            'Hopphopp – 2 × 30 sek',
+            'High knees – 2 × 30 sek',
+            'Armcirklar – 1 × 20',
+            'Dynamisk höftöppnare – 1 × 10/ben',
+            '— Cirkel, 3 varv (40 sek / 20 sek vila) —',
+            'Burpees',
+            'Jump squats',
+            'Push-ups',
+            'Mountain climbers',
+            'Reverse lunges',
+            'Höftlyft (golv)',
+            'Plankan',
+            '— Nedvarvning (5 min) —',
+            'Höftsträckning – 45 sek',
+            'Hamstrings stretch – 45 sek',
+            'Bröststräckning – 45 sek',
         ]
     },
     {
-        id: 'pull', title: 'Pull-dag', subtitle: 'Rygg & Biceps',
-        emoji: '🏋️', color: '#4fc3f7', type: 'rygg',
-        level: 'Mellannivå', duration: '50–60 min', section: 'Överkropp',
+        id: 'hiit_tabata',
+        title: 'Tabata-pass',
+        subtitle: '4 övningar · 8 varv var · 20 sek / 10 sek',
+        emoji: '🔥',
+        color: '#f43f5e',
+        duration: '30–40 min',
         exercises: [
-            { name: 'Latsdrag',               sets: 4, reps: 10 },
-            { name: 'Sittande rodd',           sets: 4, reps: 10 },
-            { name: 'Hantelrodd',              sets: 3, reps: 12 },
-            { name: 'Face pull',               sets: 4, reps: 15 },
-            { name: 'Biceps curl (skivstång)', sets: 3, reps: 12 },
-            { name: 'Hammer curl',             sets: 3, reps: 12 },
+            '— Uppvärmning (5 min) —',
+            'Lätt jogg på stället – 2 min',
+            'Benpendlar – 1 × 10/ben',
+            'Armsvängningar – 1 × 20',
+            '— Tabata (4 min per övning, 20 sek / 10 sek) —',
+            '↻ Burpees – 8 varv',
+            '↻ Jump squats – 8 varv',
+            '↻ Push-ups – 8 varv',
+            '↻ Mountain climbers – 8 varv',
+            '— Nedvarvning (5 min) —',
+            'Full kroppsstretching – 5 min',
         ]
     },
     {
-        id: 'axlar_core', title: 'Axlar & Core', subtitle: 'Breda axlar & stark mage',
-        emoji: '🔥', color: '#c084fc', type: 'axlar',
-        level: 'Mellannivå', duration: '45–55 min', section: 'Överkropp',
+        id: 'hiit_styrka',
+        title: 'Styrke-HIIT',
+        subtitle: '4 varv · Tyngre rörelser + kondition · 45/15 sek',
+        emoji: '💥',
+        color: '#f97316',
+        duration: '45–55 min',
         exercises: [
-            { name: 'Militärpress',       sets: 4, reps: 10 },
-            { name: 'Sidolyft',          sets: 4, reps: 15 },
-            { name: 'Face pull',          sets: 3, reps: 20 },
-            { name: 'Plankan (sek)',      sets: 4, reps: 45 },
-            { name: 'Ryska vridningar',   sets: 3, reps: 20 },
-            { name: 'Bicycle crunches',   sets: 3, reps: 25 },
+            '— Uppvärmning (5 min) —',
+            'Hopphopp – 2 × 40',
+            'Inchworm – 1 × 6',
+            'Dynamisk höftöppnare – 1 × 10/ben',
+            '— Cirkel, 4 varv (45 sek / 15 sek vila) —',
+            'Goblet squat',
+            'Kettlebell swing (alt. hantelsvings)',
+            'Push-ups (breda)',
+            'Utfallssteg med hopp',
+            'Rygglyft (golv)',
+            'Triceps dips (stol/bänk)',
+            '— Nedvarvning (5 min) —',
+            'Höftsträckning – 60 sek',
+            'Bröststräckning – 60 sek',
+            'Sit and reach – 60 sek',
         ]
     },
     {
-        id: 'ben_volym', title: 'Ben & Rumpa – Volym', subtitle: 'Form, pump och rumpa i fokus',
-        emoji: '🍑', color: '#fb923c', type: 'ben',
-        level: 'Mellannivå', duration: '55–65 min', section: 'Underkropp',
+        id: 'hiit_uthallighet',
+        title: 'Uthållighets-circuit',
+        subtitle: '5 varv · Fler övningar · 30 sek / 15 sek',
+        emoji: '🌊',
+        color: '#22d3ee',
+        duration: '45–55 min',
         exercises: [
-            { name: 'Knäböj',                   sets: 4, reps: 10 },
-            { name: 'Höftlyft (hip thrust)',     sets: 4, reps: 12 },
-            { name: 'Utfallssteg',               sets: 3, reps: 12 },
-            { name: 'Rumpa kickback (kabel)',    sets: 3, reps: 15 },
-            { name: 'Höftabduktion (maskin)',    sets: 3, reps: 20 },
-            { name: 'Calf raises',               sets: 4, reps: 20 },
-        ]
-    },
-    {
-        id: 'ben_styrka', title: 'Ben & Rumpa – Styrka', subtitle: 'Tunga lyft för starka ben',
-        emoji: '🦵', color: '#f59e0b', type: 'ben',
-        level: 'Avancerad', duration: '55–65 min', section: 'Underkropp',
-        exercises: [
-            { name: 'Sumo marklyft',            sets: 4, reps: 6  },
-            { name: 'Romanian deadlift',         sets: 4, reps: 8  },
-            { name: 'Höftlyft (hip thrust)',     sets: 4, reps: 10 },
-            { name: 'Bulgarian split squat',     sets: 3, reps: 10 },
-            { name: 'Höftabduktion (maskin)',    sets: 3, reps: 15 },
-            { name: 'Nordic curl',               sets: 3, reps: 8  },
-        ]
-    },
-    {
-        id: 'helkropp', title: 'Helkropp – Effektivt', subtitle: 'Alla muskelgrupper på ett pass',
-        emoji: '⚡', color: '#facc15', type: 'helkropp',
-        level: 'Mellannivå', duration: '35–45 min', section: 'Helkropp',
-        exercises: [
-            { name: 'Knäböj',        sets: 3, reps: 10 },
-            { name: 'Marklyft',      sets: 3, reps: 8  },
-            { name: 'Bänkpress',     sets: 3, reps: 10 },
-            { name: 'Latsdrag',      sets: 3, reps: 10 },
-            { name: 'Militärpress',  sets: 2, reps: 12 },
-            { name: 'Plankan (sek)', sets: 3, reps: 45 },
-        ]
-    },
-    {
-        id: 'hiit', title: 'Cirkelfys – Helkropp', subtitle: 'Uppvärmning · 3 varv · Nedvarvning',
-        emoji: '🔄', color: '#f43f5e', type: 'helkropp',
-        level: 'Intensivt', duration: '45–55 min', section: 'Helkropp',
-        exercises: [
-            { name: 'Uppvärmning',                       isSection: true },
-            { name: 'Hopphopp',                          sets: 2, reps: 40 },
-            { name: 'High knees (sek)',                  sets: 2, reps: 30 },
-            { name: 'Armcirklar',                        sets: 1, reps: 20 },
-            { name: 'Dynamisk höftöppnare',              sets: 1, reps: 10 },
-            { name: 'Inchworm',                          sets: 1, reps: 6  },
-
-            { name: 'Cirkeln – 3 varv (40 sek arbete / 20 sek vila)', isSection: true },
-            { name: 'Burpees',                           sets: 3, reps: 10 },
-            { name: 'Jump squats',                       sets: 3, reps: 15 },
-            { name: 'Push-ups',                          sets: 3, reps: 12 },
-            { name: 'Mountain climbers (sek)',           sets: 3, reps: 30 },
-            { name: 'Reverse lunges',                    sets: 3, reps: 12 },
-            { name: 'Höftlyft (golv)',                   sets: 3, reps: 20 },
-            { name: 'Plankan (sek)',                     sets: 3, reps: 40 },
-            { name: 'Ryska vridningar',                  sets: 3, reps: 20 },
-
-            { name: 'Nedvarvning & stretching',          isSection: true },
-            { name: 'Höftsträckning (sek)',              sets: 1, reps: 60 },
-            { name: 'Hamstrings stretch (sek)',          sets: 1, reps: 60 },
-            { name: 'Bröststräckning (sek)',             sets: 1, reps: 60 },
+            '— Uppvärmning (5 min) —',
+            'Lätt jogg på stället – 3 min',
+            'Axelrotationer – 1 × 20',
+            'Hip circles – 1 × 10/ben',
+            '— Cirkel, 5 varv (30 sek / 15 sek vila) —',
+            'Jumping jacks',
+            'Squat pulsar',
+            'Push-ups (smala)',
+            'High knees',
+            'Sidoutfall',
+            'Armhävning med rotation',
+            'Crunch',
+            'Sidoplanka (växla sidor)',
+            '— Nedvarvning (5 min) —',
+            'Full kroppsstretching – 5 min',
         ]
     },
 ];
 
 const EXERCISE_IMAGES = {
-    'Lutande hantelpress':  'https://privatetrainingonline.se/wp-content/uploads/2017/10/Lutande-bankpress-e1671284319441.jpg',
-    'Rak hantelpress':      'https://privatetrainingonline.se/wp-content/uploads/2017/10/Hantelpress-Private-Training-Online-PTO-e1671284094884.jpg',
-    'Bänkpress':            'https://privatetrainingonline.se/wp-content/uploads/2016/01/bankpress-pto-e1628371128315.jpg',
+    // Bröst & Triceps
+    'Lutande hantelpress':  'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Bench-Press_c2bf89a2-433f-4a8f-9801-67c679980867_600x600.png?v=1612138008',
+    'Rak hantelpress':      'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Bench-Press_13090f67-ccfc-4f3a-9bab-e75d753fa9fa_600x600.png?v=1612137970',
+    'Bänkpress':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Barbell-Bench-Press_0316b783-43b2-44f8-8a2b-b177a2cfcbfc_600x600.png?v=1612137800',
     'Drag curl':            'https://privatetrainingonline.se/wp-content/uploads/2021/07/Skivstangscurl-e1637772602866.jpg',
-    // Rygg & Biceps
-    'Marklyft':             'https://privatetrainingonline.se/wp-content/uploads/2019/10/Marklyft.jpg',
-    'Latsdrag':             'https://privatetrainingonline.se/wp-content/uploads/2014/10/AdobeStock_510223617.jpeg',
-    'Sittande rodd':        'https://privatetrainingonline.se/wp-content/uploads/2014/10/Kabelrodd-Sittande-kabelrodd-PTO.jpg',
-    'Hantelrodd':           'https://privatetrainingonline.se/wp-content/uploads/2019/07/Hantelrodd-Ryggövning-hemma.jpeg',
-    'Biceps curl (skivstång)': 'https://privatetrainingonline.se/wp-content/uploads/2021/07/Skivstangscurl-e1637772602866.jpg',
-    'Hammer curl':          'https://privatetrainingonline.se/wp-content/uploads/2018/02/hammercurls-pto-e1667299196848.jpg',
-    // Axlar & Mage
-    'Militärpress':         'https://privatetrainingonline.se/wp-content/uploads/2022/06/Militarpress-Private-Training-Online.jpg',
-    'Sidolyft':             'https://privatetrainingonline.se/wp-content/uploads/2022/06/Hantellyft-at-sidan-Sidolyft-PTO-e1710269630657.jpeg',
-    'Face pull':            'https://privatetrainingonline.se/wp-content/uploads/2021/12/Facepull-Ryggovning-PTO-e1709981314551.jpeg',
-    'Plankan (sek)':        'https://privatetrainingonline.se/wp-content/uploads/2021/11/Plankan-Magovning-Core-PTO-Private-Training-Online.jpeg',
-    'Sit-ups':              'https://privatetrainingonline.se/wp-content/uploads/2021/06/Situps-Varianter-av-Situps.jpg',
-    'Ryska vridningar':     'https://privatetrainingonline.se/wp-content/uploads/2022/10/Bencykling-magovning-artikel-PTO.jpeg',
-    'Pushdowns':            'https://privatetrainingonline.se/wp-content/uploads/2019/07/Pushdown-1-e1638635799836.jpg',
-    'Pec deck':             'https://privatetrainingonline.se/wp-content/uploads/2017/10/Pec-Deck-Flyes-Brostovning-e1671284398930.jpg',
+    'Pushdowns':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Triceps-Pressdown_e759437b-6200-4b44-b484-14db770024a4_600x600.png?v=1612136845',
+    'Pec deck':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Peck-Deck_600x600.png?v=1612137910',
     'Bröstpress':           'https://privatetrainingonline.se/wp-content/uploads/2018/04/Brostpress-Private-Training-Online-e1671284232699.jpg',
+    // Rygg & Biceps
+    'Latsdrag':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Wide-Grip-Pulldown_91fcba9b-47a2-4185-b093-aa542c81c55c_600x600.png?v=1612138105',
+    'Sittande rodd':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Seated-Cable-Row_9470fa48-f0d1-40b1-a980-caee9e6f2e53_600x600.png?v=1612138127',
+    'Good morning':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Good-Morning_600x600.png?v=1655224242',
+    'Preacher curl':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/EZ-Barbell-Preacher-Curl_4d449fee-1920-4137-970c-75d4698b268d_600x600.png?v=1612137254',
+    'Bakåtlutad bicepcurl': 'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Curl_7debf468-cd34-49bc-8933-7f4b087e6cca_600x600.png?v=1612137309',
+    'Cable curl':           'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Rope-Cable-Curl_6216e254-5f77-462c-9954-ea210fff8a70_600x600.png?v=1612137195',
+    // Axlar & Mage
+    'Militärpress':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Shoulder-Press_da0aa742-620a-45f7-9277-78137d38ff28_600x600.png?v=1612138495',
+    'Sidolyft':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Lateral-Raise_31c81eee-81c4-4ffe-890d-ee13dd5bbf20_600x600.png?v=1612138523',
+    'Framlyft':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Front-Raise_11804c3c-22d1-4589-a035-e30ad72149f3_600x600.png?v=1612138576',
+    'Face pull':            'https://privatetrainingonline.se/wp-content/uploads/2021/12/Facepull-Ryggovning-PTO-e1709981314551.jpeg',
+    'Plankan (sek)':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Plank_3a82d566-9cb2-4c20-b301-bc8bd635c4d1_600x600.png?v=1612138431',
+    'Dead bug':             'https://media.self.com/photos/580a37dc7f7be8915ea98685/master/w_1600%2Cc_limit/dead-bug_ab-stacked.jpg',
+    'Sidoplanka (sek)':     'https://liftmanual.com/wp-content/uploads/2023/04/side-plank-leg-lift.jpg',
+    'Hjulet':               'https://i5.walmartimages.com/asr/90b2c6cd-1ae5-4bbc-bd73-27272266f0cc.4249099862bc92bf028c4c2c86877dcb.jpeg',
 };
 
 let currentUser = null;
 let currentType = null;
-let currentProgramTitle = null;
+let currentProgram = null;
+let selectedDifficulty = 0;
 let selectedActivity = null;
+let localWorkouts = [];
+let unsubscribeListener = null;
 
 // ── INIT ─────────────────────────────────────────────
 document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
@@ -918,7 +984,18 @@ function selectUser(name, silent = false) {
     currentUser = name;
     localStorage.setItem('traning_current_user', name);
     document.getElementById('home-greeting-name').textContent = `Hej, ${name}! 💪`;
-    updateLastSessions();
+
+    if (unsubscribeListener) unsubscribeListener();
+    unsubscribeListener = userRef()
+        .orderBy('date')
+        .onSnapshot(snapshot => {
+            localWorkouts = snapshot.docs.map(doc => doc.data());
+            updateLastSessions();
+            if (document.getElementById('screen-history').classList.contains('active')) {
+                showHistory();
+            }
+        }, () => toast('Kunde inte ansluta till molnet', true));
+
     if (!silent) showScreen('screen-home');
     else {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -928,6 +1005,8 @@ function selectUser(name, silent = false) {
 
 function switchUser() {
     currentUser = null;
+    localWorkouts = [];
+    if (unsubscribeListener) { unsubscribeListener(); unsubscribeListener = null; }
     localStorage.removeItem('traning_current_user');
     showScreen('screen-user');
 }
@@ -936,12 +1015,12 @@ function goHome() {
     showScreen('screen-home');
     updateLastSessions();
     selectedActivity = null;
-    currentProgramTitle = null;
+    currentProgram = null;
+    selectedDifficulty = 0;
 }
 
 function startWorkout(type) {
     currentType = type;
-    currentProgramTitle = null;
 
     if (type === 'cardio') {
         document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
@@ -992,78 +1071,65 @@ function showHistory() {
     showScreen('screen-history');
 }
 
-// ── PROGRAMS ─────────────────────────────────────────
-function showPrograms() {
-    const sections = {};
-    PROGRAMS.forEach(p => {
-        if (!sections[p.section]) sections[p.section] = [];
-        sections[p.section].push(p);
-    });
+// ── HELKROPPSPASS (slump) ─────────────────────────────
+function startRandomHelkropp() {
+    const prog = HELKROPP_PROGRAMS[Math.floor(Math.random() * HELKROPP_PROGRAMS.length)];
+    currentProgram = prog;
+    selectedDifficulty = 0;
 
-    let html = '';
-    for (const [section, progs] of Object.entries(sections)) {
-        html += `<div class="prog-section-label">${section}</div>`;
-        progs.forEach(p => {
-            html += `
-            <div class="prog-card" style="--pc:${p.color}" onclick="startProgram('${p.id}')">
-                <div class="prog-emoji">${p.emoji}</div>
-                <div class="prog-info">
-                    <div class="prog-name">${p.title}</div>
-                    <div class="prog-sub">${p.subtitle}</div>
-                    <div class="prog-meta">
-                        <span class="prog-tag-level">${p.level}</span>
-                        <span class="prog-tag">⏱ ${p.duration}</span>
-                        <span class="prog-tag">${p.exercises.length} övn.</span>
-                    </div>
-                </div>
-                <div class="prog-arrow">›</div>
-            </div>`;
-        });
-    }
+    document.getElementById('prog-session-title').textContent = prog.title;
 
-    document.getElementById('programs-list').innerHTML = html;
+    const card = document.getElementById('prog-session-card');
+    card.style.setProperty('--pc', prog.color);
+    card.innerHTML = `
+        <span class="prog-session-emoji">${prog.emoji}</span>
+        <div class="prog-session-name">${prog.title}</div>
+        <div class="prog-session-sub">${prog.subtitle}</div>
+        <div class="prog-session-sub">⏱ ${prog.duration}</div>
+    `;
+
+    const exList = document.getElementById('prog-ex-list');
+    exList.innerHTML = prog.exercises.map(ex => {
+        if (ex.startsWith('—')) {
+            return `<div class="prog-ex-section">${ex.replace(/—/g, '').trim()}</div>`;
+        }
+        return `<div class="prog-ex-item">· ${ex}</div>`;
+    }).join('');
+
+    updateStars(0);
     showScreen('screen-programs');
 }
 
-function startProgram(id) {
-    const prog = PROGRAMS.find(p => p.id === id);
-    if (!prog) return;
+function setDifficulty(n) {
+    selectedDifficulty = n;
+    updateStars(n);
+}
 
-    currentType = prog.type;
-    currentProgramTitle = prog.title;
-
-    // Hitta förra gången just detta program kördes
-    const prev = getStorage()
-        .filter(w => w.title === prog.title)
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
-
-    document.getElementById('workout-title').textContent = prog.title;
-    document.getElementById('workout-badge').textContent = prog.subtitle;
-    document.getElementById('workout-badge').style.background = prog.color;
-    document.getElementById('workout-date').textContent = new Date().toLocaleDateString('sv-SE');
-
-    if (prev) {
-        const d = new Date(prev.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
-        document.getElementById('prev-session-info').textContent = `Förra passet: ${d}`;
-    } else {
-        document.getElementById('prev-session-info').textContent = '';
-    }
-
-    const list = document.getElementById('exercises-list');
-    list.innerHTML = '';
-    prog.exercises.forEach(ex => {
-        if (ex.isSection) {
-            const div = document.createElement('div');
-            div.className = 'ex-section-head';
-            div.textContent = ex.name;
-            list.appendChild(div);
-            return;
-        }
-        const prevEx = prev ? prev.exercises.find(e => e.name === ex.name) : null;
-        list.appendChild(buildExerciseCard(ex.name, prevEx, ex));
+function updateStars(n) {
+    const labels = ['Hur jobbigt var det?', 'Väldigt lätt 😴', 'Lätt 🙂', 'Lagom 💪', 'Tungt 😤', 'Extremt jobbigt 🔥'];
+    document.querySelectorAll('.diff-star').forEach((s, i) => {
+        s.classList.toggle('active', i < n);
     });
+    document.getElementById('diff-label').textContent = labels[n];
+}
 
-    showScreen('screen-workout');
+function saveProgramSession() {
+    if (selectedDifficulty === 0) {
+        toast('Välj svårighetsgrad!', true);
+        return;
+    }
+    saveToStorage({
+        id: Date.now(),
+        date: new Date().toISOString(),
+        type: 'helkropp',
+        title: currentProgram.title,
+        isProgram: true,
+        programId: currentProgram.id,
+        emoji: currentProgram.emoji,
+        difficulty: selectedDifficulty,
+    });
+    toast('Träningspass sparat!');
+    setTimeout(goHome, 1600);
 }
 
 // ── EXERCISE CARDS ────────────────────────────────────
@@ -1181,7 +1247,7 @@ function saveWorkout() {
         id: Date.now(),
         date: new Date().toISOString(),
         type: currentType,
-        title: currentProgramTitle || (WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType),
+        title: WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType,
         exercises
     });
 
@@ -1216,12 +1282,21 @@ function saveCardio() {
 
 // ── HISTORY VIEW ─────────────────────────────────────
 function buildHistoryItem(w, i) {
-    const date = new Date(w.date).toLocaleDateString('sv-SE', {
-        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    const date = new Date(w.date).toLocaleString('sv-SE', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
     });
 
     let bodyHtml = '';
-    if (w.type === 'cardio') {
+    if (w.isProgram) {
+        const stars = '★'.repeat(w.difficulty) + '☆'.repeat(5 - w.difficulty);
+        bodyHtml = `
+            <div class="hist-prog-row">
+                ${w.emoji || ''} ${w.title}<br>
+                <span class="hist-prog-stars">${stars}</span>
+                <span style="font-size:12px;margin-left:6px;">Svårighet ${w.difficulty}/5</span>
+            </div>`;
+    } else if (w.type === 'cardio') {
         const ICONS = { cykel: '🚴', promenad: '🚶', crosstrainer: '🎿' };
         bodyHtml = `
             <div class="hist-cardio-info">
@@ -1246,6 +1321,7 @@ function buildHistoryItem(w, i) {
             <div class="hist-header" onclick="toggleHistory(this)">
                 <span class="hist-title">${w.title}</span>
                 <span class="hist-date">${date}</span>
+                <button class="hist-delete-btn" onclick="event.stopPropagation(); deleteWorkout(${w.id})" title="Ta bort">🗑</button>
                 <span class="hist-chevron">▼</span>
             </div>
             <div class="hist-body">${bodyHtml}</div>
@@ -1272,18 +1348,19 @@ function updateLastSessions() {
 }
 
 // ── STORAGE ──────────────────────────────────────────
-function storageKey() {
-    return currentUser ? `traning_log_${currentUser.toLowerCase()}` : 'traning_log';
-}
-
 function getStorage() {
-    return JSON.parse(localStorage.getItem(storageKey()) || '[]');
+    return localWorkouts;
 }
 
 function saveToStorage(entry) {
-    const data = getStorage();
-    data.push(entry);
-    localStorage.setItem(storageKey(), JSON.stringify(data));
+    userRef().doc(String(entry.id)).set(entry)
+        .catch(() => toast('Kunde inte spara!', true));
+}
+
+function deleteWorkout(id) {
+    if (!confirm('Ta bort träningspass?')) return;
+    userRef().doc(String(id)).delete()
+        .catch(() => toast('Kunde inte radera!', true));
 }
 
 function getPrevious(type) {
