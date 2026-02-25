@@ -569,6 +569,20 @@
         }
         .hist-delete-btn:hover { color: #f85149; background: rgba(248,81,73,0.1); }
 
+        .hist-edit-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 15px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .hist-edit-btn:hover { color: #58a6ff; background: rgba(88,166,255,0.1); }
+
         .hist-body { display: none; padding: 14px 16px; }
         .hist-body.open { display: block; }
 
@@ -585,6 +599,116 @@
 
         .hist-cardio-info { font-size: 14px; color: var(--muted); }
         .hist-cardio-info strong { color: var(--text); }
+
+        /* ── HISTORY WEEK GROUPS ── */
+        .week-group { margin-bottom: 24px; }
+        .week-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 0 2px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .week-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── STATS ── */
+        .stats-body {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+        .stats-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .stat-value { font-size: 34px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+
+        .chart-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 16px 14px;
+            margin-bottom: 14px;
+        }
+        .chart-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: stretch;
+            gap: 4px;
+            height: 150px;
+            overflow-x: auto;
+        }
+        .bar-group {
+            flex: 1;
+            min-width: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .bar-val {
+            font-size: 10px;
+            font-weight: 700;
+            color: #58a6ff;
+            min-height: 15px;
+            line-height: 15px;
+            text-align: center;
+        }
+        .bar-col {
+            width: 65%;
+            max-width: 30px;
+            min-height: 2px;
+            border-radius: 3px 3px 0 0;
+            background: linear-gradient(to top, #1f6feb, #58a6ff);
+        }
+        .bar-lbl {
+            font-size: 9px;
+            color: var(--muted);
+            padding-top: 5px;
+            text-align: center;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fun-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .fun-stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 8px 12px;
+            text-align: center;
+        }
+        .fun-stat-emoji { font-size: 20px; display: block; margin-bottom: 5px; }
+        .fun-stat-val { font-size: 22px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; color: var(--text); }
+        .fun-stat-desc { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
 
         /* ── TOAST ── */
         .toast {
@@ -671,7 +795,10 @@
             </div>
         </div>
         <button class="programs-btn" onclick="startRandomHelkropp()">🎲 &nbsp; Slumpa helkroppspass</button>
-        <button class="history-btn" onclick="showHistory()">📋 &nbsp; Visa träningshistorik</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+            <button class="history-btn" onclick="showHistory()">📋 &nbsp; Historik</button>
+            <button class="history-btn" onclick="showStats()">📊 &nbsp; Statistik</button>
+        </div>
     </div>
 </div>
 
@@ -748,6 +875,15 @@
         </div>
         <button class="save-btn" onclick="saveProgramSession()">Spara träningspass</button>
     </div>
+</div>
+
+<!-- ════════ STATISTICS ════════ -->
+<div id="screen-stats" class="screen">
+    <div class="top-bar">
+        <button class="btn-icon" onclick="goHome()">←</button>
+        <h1>Statistik</h1>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
 </div>
 
 <!-- ════════ HISTORY ════════ -->
@@ -957,6 +1093,7 @@ let selectedDifficulty = 0;
 let selectedActivity = null;
 let localWorkouts = [];
 let unsubscribeListener = null;
+let editingWorkout = null;
 
 // ── INIT ─────────────────────────────────────────────
 document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
@@ -1012,6 +1149,8 @@ function goHome() {
     selectedActivity = null;
     currentProgram = null;
     selectedDifficulty = 0;
+    editingWorkout = null;
+    document.querySelector('.save-btn').textContent = 'Spara träningspass';
 }
 
 function startWorkout(type) {
@@ -1070,6 +1209,51 @@ function startWorkout(type) {
     showScreen('screen-workout');
 }
 
+function editWorkout(id) {
+    const w = localWorkouts.find(w => w.id === id);
+    if (!w) return;
+
+    editingWorkout = w;
+    currentType = w.type;
+    const data = WORKOUTS[w.type];
+    if (!data) return;
+
+    document.getElementById('workout-title').textContent = data.title;
+    document.getElementById('workout-badge').textContent = data.title;
+    document.getElementById('workout-badge').style.background = data.color;
+    document.getElementById('workout-date').textContent = new Date(w.date).toLocaleDateString('sv-SE');
+    document.getElementById('prev-session-info').textContent = '✏️ Redigerar – datum ändras ej';
+    document.querySelector('.save-btn').textContent = 'Spara ändringar';
+
+    const list = document.getElementById('exercises-list');
+    list.innerHTML = '';
+
+    (data.groups || []).forEach(group => {
+        const hdr = document.createElement('div');
+        hdr.className = 'ex-section-head';
+        hdr.textContent = group.label;
+        list.appendChild(hdr);
+
+        group.exercises.forEach(name => {
+            const savedEx = w.exercises.find(e => e.name === name);
+            // currentSets = [] for unlogged exercises (starts empty), savedEx.sets if logged
+            list.appendChild(buildExerciseCard(name, null, null, savedEx ? savedEx.sets : []));
+        });
+    });
+
+    showScreen('screen-workout');
+}
+
+// ── WEEK HELPER ──────────────────────────────────────
+function getWeekStart(dateVal) {
+    const d = new Date(dateVal);
+    const day = d.getDay(); // 0=sön, 1=mån ...
+    const diff = day === 0 ? -6 : 1 - day; // justera till måndag
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
 function showHistory() {
     const workouts = getStorage();
     const container = document.getElementById('history-list');
@@ -1080,9 +1264,197 @@ function showHistory() {
         return;
     }
 
-    const sorted = [...workouts].reverse();
-    container.innerHTML = sorted.map((w, i) => buildHistoryItem(w, i)).join('');
+    const sorted = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const currentYear = new Date().getFullYear();
+    let html = '';
+    let currentWeekKey = null;
+
+    sorted.forEach((w, i) => {
+        const ws = getWeekStart(w.date);
+        const we = new Date(ws);
+        we.setDate(we.getDate() + 6);
+        const weekKey = ws.toISOString().slice(0, 10);
+
+        if (weekKey !== currentWeekKey) {
+            if (currentWeekKey !== null) html += '</div>';
+            currentWeekKey = weekKey;
+            const opts = { day: 'numeric', month: 'short' };
+            const startStr = ws.toLocaleDateString('sv-SE', opts);
+            const endStr   = we.toLocaleDateString('sv-SE', ws.getFullYear() !== currentYear ? { ...opts, year: 'numeric' } : opts);
+            html += `<div class="week-group"><div class="week-header"><span>${startStr} – ${endStr}</span></div>`;
+        }
+        html += buildHistoryItem(w, i);
+    });
+
+    if (currentWeekKey !== null) html += '</div>';
+    container.innerHTML = html;
     showScreen('screen-history');
+}
+
+// ── STATISTICS ───────────────────────────────────────
+function getISOWeek(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function showStats() {
+    const workouts = getStorage();
+    const now = new Date();
+
+    if (workouts.length === 0) {
+        document.getElementById('stats-body').innerHTML =
+            '<div class="history-empty">Inga träningspass loggade än.</div>';
+        showScreen('screen-stats');
+        return;
+    }
+
+    const weekStart  = getWeekStart(now);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // ── Sammanfattning ──
+    const totalCount = workouts.length;
+    const thisWeek   = workouts.filter(w => new Date(w.date) >= weekStart).length;
+    const thisMonth  = workouts.filter(w => new Date(w.date) >= monthStart).length;
+
+    let weekStreak = 0;
+    let checkWs = getWeekStart(now);
+    while (true) {
+        const checkWe = new Date(checkWs); checkWe.setDate(checkWe.getDate() + 7);
+        if (workouts.some(w => { const d = new Date(w.date); return d >= checkWs && d < checkWe; })) {
+            weekStreak++;
+            checkWs = new Date(checkWs); checkWs.setDate(checkWs.getDate() - 7);
+        } else break;
+    }
+
+    // ── Längsta svit (dagar i rad) ──
+    const uniqueDates = [...new Set(workouts.map(w => w.date.slice(0, 10)))].sort();
+    let maxDayStreak = uniqueDates.length > 0 ? 1 : 0, curStreak = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+        const diff = Math.round((new Date(uniqueDates[i]) - new Date(uniqueDates[i-1])) / 86400000);
+        if (diff === 1) { curStreak++; maxDayStreak = Math.max(maxDayStreak, curStreak); }
+        else curStreak = 1;
+    }
+
+    // ── Rekordvecka ──
+    const weekCounts = {};
+    workouts.forEach(w => {
+        const key = getWeekStart(w.date).toISOString().slice(0, 10);
+        weekCounts[key] = (weekCounts[key] || 0) + 1;
+    });
+    const recordWeek = Object.values(weekCounts).length ? Math.max(...Object.values(weekCounts)) : 0;
+
+    // ── Favoritpass ──
+    const typeCounts = {};
+    workouts.forEach(w => { typeCounts[w.type] = (typeCounts[w.type] || 0) + 1; });
+    const typeShort = { brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', helkropp:'Helkropp', ben:'Ben' };
+    const favTypeEntry = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
+    const favTypeLabel = favTypeEntry ? (typeShort[favTypeEntry[0]] || favTypeEntry[0]) : '–';
+
+    // ── Träningstid på dygnet ──
+    const timeBuckets = { 'Förmiddag': 0, 'Eftermiddag': 0, 'Kväll': 0 };
+    workouts.forEach(w => {
+        const h = new Date(w.date).getHours();
+        if (h < 12) timeBuckets['Förmiddag']++;
+        else if (h < 17) timeBuckets['Eftermiddag']++;
+        else timeBuckets['Kväll']++;
+    });
+    const favTime = Object.entries(timeBuckets).sort((a, b) => b[1] - a[1])[0][0];
+
+    // ── Längsta vila (dagar mellan pass) ──
+    let longestBreak = 0;
+    if (uniqueDates.length >= 2) {
+        for (let i = 1; i < uniqueDates.length; i++) {
+            const gap = Math.round((new Date(uniqueDates[i]) - new Date(uniqueDates[i-1])) / 86400000) - 1;
+            longestBreak = Math.max(longestBreak, gap);
+        }
+    }
+
+    // ── Veckodagsfördelning ──
+    const DAY_NAMES = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+    const dayCounts = [0,0,0,0,0,0,0];
+    workouts.forEach(w => {
+        const d = new Date(w.date).getDay();
+        dayCounts[d === 0 ? 6 : d - 1]++;
+    });
+    const weekdayData = DAY_NAMES.map((label, i) => ({ label, count: dayCounts[i] }));
+    const maxDayIdx = dayCounts.indexOf(Math.max(...dayCounts));
+    const minDayIdx = dayCounts.indexOf(Math.min(...dayCounts));
+
+    // ── Veckodata v.X (senaste 12) ──
+    const weeklyData = [];
+    for (let i = 11; i >= 0; i--) {
+        const ws = getWeekStart(now); ws.setDate(ws.getDate() - i * 7);
+        const we = new Date(ws); we.setDate(we.getDate() + 7);
+        const count = workouts.filter(w => { const d = new Date(w.date); return d >= ws && d < we; }).length;
+        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count });
+    }
+
+    // ── Månadsdata (senaste 12) ──
+    const monthlyData = [];
+    for (let i = 11; i >= 0; i--) {
+        const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const count = workouts.filter(w => { const d = new Date(w.date); return d >= ms && d < me; }).length;
+        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count });
+    }
+
+    const avgPerWeek = (weeklyData.reduce((s, w) => s + w.count, 0) / 12).toFixed(1);
+
+    document.getElementById('stats-body').innerHTML = `
+        <div class="stats-summary">
+            <div class="stat-card"><div class="stat-value">${totalCount}</div><div class="stat-label">Totalt</div></div>
+            <div class="stat-card"><div class="stat-value">${thisWeek}</div><div class="stat-label">Den här veckan</div></div>
+            <div class="stat-card"><div class="stat-value">${thisMonth}</div><div class="stat-label">Den här månaden</div></div>
+            <div class="stat-card"><div class="stat-value">${weekStreak}</div><div class="stat-label">Veckor i rad 🔥</div></div>
+        </div>
+
+        <div class="fun-stats-grid">
+            <div class="fun-stat-card"><span class="fun-stat-emoji">🏆</span><div class="fun-stat-val">${recordWeek}</div><div class="fun-stat-desc">Rekordvecka</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">🔥</span><div class="fun-stat-val">${maxDayStreak}</div><div class="fun-stat-desc">Dagar i rad</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">💪</span><div class="fun-stat-val" style="font-size:17px">${favTypeLabel}</div><div class="fun-stat-desc">Favoritpass</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">📈</span><div class="fun-stat-val">${avgPerWeek}</div><div class="fun-stat-desc">Snitt/vecka</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">⏰</span><div class="fun-stat-val" style="font-size:15px">${favTime}</div><div class="fun-stat-desc">Träningstid</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">😴</span><div class="fun-stat-val">${longestBreak}</div><div class="fun-stat-desc">Längsta vilan (dgr)</div></div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Veckodagsfördelning</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+                Mest aktiv: <strong style="color:var(--text)">${DAY_NAMES[maxDayIdx]}</strong>
+                &nbsp;·&nbsp;
+                Minst aktiv: <strong style="color:var(--text)">${DAY_NAMES[minDayIdx]}</strong>
+            </div>
+            ${buildBarChart(weekdayData, maxDayIdx)}
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Pass per vecka – senaste 12 veckorna</div>
+            ${buildBarChart(weeklyData)}
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Pass per månad – senaste 12 månaderna</div>
+            ${buildBarChart(monthlyData)}
+        </div>`;
+
+    showScreen('screen-stats');
+}
+
+function buildBarChart(data, highlightIdx = -1) {
+    const maxCount = Math.max(...data.map(d => d.count), 1);
+    const BAR_MAX_H = 100;
+    return '<div class="bar-chart">' + data.map((d, i) => {
+        const h = Math.round((d.count / maxCount) * BAR_MAX_H);
+        const hl = i === highlightIdx;
+        return `<div class="bar-group">
+            <div class="bar-val" style="${hl ? 'color:#ff6b6b' : ''}">${d.count > 0 ? d.count : ''}</div>
+            <div class="bar-col" style="height:${h}px${hl ? ';background:linear-gradient(to top,#cc4444,#ff6b6b)' : ''}"></div>
+            <div class="bar-lbl">${d.label}</div>
+        </div>`;
+    }).join('') + '</div>';
 }
 
 // ── HELKROPPSPASS (slump) ─────────────────────────────
@@ -1147,7 +1519,7 @@ function saveProgramSession() {
 }
 
 // ── EXERCISE CARDS ────────────────────────────────────
-function buildExerciseCard(name, prevEx, templateEx = null) {
+function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null) {
     const div = document.createElement('div');
     div.className = 'ex-card';
 
@@ -1176,18 +1548,20 @@ function buildExerciseCard(name, prevEx, templateEx = null) {
     `;
 
     const prevSets = prevEx ? prevEx.sets : [];
-    const setsToAdd = prevSets.length > 0 ? prevSets.length : (templateEx ? templateEx.sets : 3);
+    const setsToAdd = currentSets !== null
+        ? currentSets.length
+        : (prevSets.length > 0 ? prevSets.length : (templateEx ? templateEx.sets : 3));
     const btn = div.querySelector('.add-set-btn');
 
     for (let i = 0; i < setsToAdd; i++) {
         const hasPrev = !!prevSets[i];
-        addSet(btn, prevSets[i] || null, (!hasPrev && templateEx) ? templateEx : null);
+        addSet(btn, prevSets[i] || null, (!hasPrev && templateEx) ? templateEx : null, currentSets ? currentSets[i] || null : null);
     }
 
     return div;
 }
 
-function addSet(btn, prevSet = null, templateEx = null) {
+function addSet(btn, prevSet = null, templateEx = null, currentSet = null) {
     const tbody = btn.closest('.ex-card').querySelector('.sets-body');
     const num = tbody.querySelectorAll('.set-row').length + 1;
 
@@ -1206,11 +1580,15 @@ function addSet(btn, prevSet = null, templateEx = null) {
     tr.innerHTML = `
         <td class="set-num">${num}</td>
         <td>
-            <input class="set-input" type="text" inputmode="decimal" placeholder="${prevWeight || '0'}" pattern="[0-9]*[.,]?[0-9]*">
+            <input class="set-input" type="text" inputmode="decimal"
+                   placeholder="${prevWeight || '0'}" pattern="[0-9]*[.,]?[0-9]*"
+                   ${currentSet ? `value="${currentSet.weight}"` : ''}>
             ${hintW}
         </td>
         <td>
-            <input class="set-input" type="number" placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric">
+            <input class="set-input" type="number"
+                   placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric"
+                   ${currentSet ? `value="${currentSet.reps}"` : ''}>
             ${hintR}
         </td>
         <td><button class="del-set" onclick="deleteSet(this)" title="Ta bort set">×</button></td>
@@ -1258,14 +1636,15 @@ function saveWorkout() {
     }
 
     saveToStorage({
-        id: Date.now(),
-        date: new Date().toISOString(),
+        id:    editingWorkout ? editingWorkout.id   : Date.now(),
+        date:  editingWorkout ? editingWorkout.date : new Date().toISOString(),
         type: currentType,
         title: WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType,
         exercises
     });
 
-    toast('Träningspass sparat!');
+    toast(editingWorkout ? 'Pass uppdaterat!' : 'Träningspass sparat!');
+    editingWorkout = null;
     setTimeout(goHome, 1600);
 }
 
@@ -1330,11 +1709,16 @@ function buildHistoryItem(w, i) {
             </div>`).join('');
     }
 
+    const editBtn = (!w.isProgram && w.type !== 'cardio' && WORKOUTS[w.type])
+        ? `<button class="hist-edit-btn" onclick="event.stopPropagation(); editWorkout(${w.id})" title="Redigera">✏️</button>`
+        : '';
+
     return `
         <div class="hist-item">
             <div class="hist-header" onclick="toggleHistory(this)">
                 <span class="hist-title">${w.title}</span>
                 <span class="hist-date">${date}</span>
+                ${editBtn}
                 <button class="hist-delete-btn" onclick="event.stopPropagation(); deleteWorkout(${w.id})" title="Ta bort">🗑</button>
                 <span class="hist-chevron">▼</span>
             </div>
