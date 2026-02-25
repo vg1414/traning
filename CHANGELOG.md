@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-25 (10)
+- Buggfix: PB och förifyllda vikter fungerar nu korrekt även efter namnbyten på övningar
+
 ## 2026-02-25 (9)
 - "Low cable flyes" omdöpt till "High to low cable flyes (drag curl)" (historik uppdaterad)
 - "Low to high cable fly" tillagd i Bröst & Triceps med bild

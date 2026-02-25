@@ -1244,7 +1244,8 @@ function startWorkout(type) {
 
         const sortedEx = [...group.exercises].sort((a, b) => _getLastPerformed(b) - _getLastPerformed(a));
         sortedEx.forEach(name => {
-            const prevEx = prev ? prev.exercises.find(e => e.name === name) : null;
+            const aliases = getExerciseAliases(name);
+            const prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
             list.appendChild(buildExerciseCard(name, prevEx));
         });
     });
@@ -1820,12 +1821,21 @@ function getPrevious(type) {
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
 }
 
+function getExerciseAliases(name) {
+    const aliases = [name];
+    for (const [oldName, newName] of Object.entries(EXERCISE_RENAMES)) {
+        if (newName === name) aliases.push(oldName);
+    }
+    return aliases;
+}
+
 function getExercisePB(exerciseName) {
+    const aliases = getExerciseAliases(exerciseName);
     let pb = null;
     getStorage().forEach(workout => {
         if (!workout.exercises) return;
         workout.exercises.forEach(ex => {
-            if (ex.name !== exerciseName) return;
+            if (!aliases.includes(ex.name)) return;
             ex.sets.forEach(s => {
                 const w = parseFloat(String(s.weight).replace(',', '.'));
                 if (!isNaN(w) && w > 0 && (pb === null || w > pb.weight)) {
