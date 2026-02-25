@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-25 (6)
+- "Made by: David Hefner" visas nu på alla sidor (fast position längst ner)
+
 ## 2026-02-25 (5)
 - Ben & Rumpa tillagt som träningskategori med 9 övningar och bilder
 - "Single arm cable extension" omdöpt till "Cable kickback triceps" (ny bild, historik uppdaterad)

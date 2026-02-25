@@ -126,6 +126,18 @@
         .wcard-cardio{ --accent: var(--c-cardio); }
         .wcard-ben   { --accent: var(--c-ben); }
 
+        /* ── SIGNATURE ── */
+        .signature {
+            position: fixed;
+            bottom: 6px;
+            left: 0; right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: #333d47;
+            pointer-events: none;
+            z-index: 5;
+        }
+
         .history-btn {
             width: 100%;
             background: var(--surface);
@@ -758,7 +770,6 @@
                 <div class="u-name">David</div>
             </div>
         </div>
-        <p style="margin-top:28px;font-size:12px;color:#484f58;">Made by: David Hefner</p>
     </div>
 </div>
 
@@ -805,7 +816,6 @@
             <button class="history-btn" onclick="showHistory()">📋 &nbsp; Historik</button>
             <button class="history-btn" onclick="showStats()">📊 &nbsp; Statistik</button>
         </div>
-        <p style="text-align:center;margin-top:20px;font-size:12px;color:#484f58;">Made by: David Hefner</p>
     </div>
 </div>
 
@@ -1842,5 +1852,6 @@ function toast(msg, isError = false) {
     setTimeout(() => el.classList.remove('show'), 2400);
 }
 </script>
+<div class="signature">Made by: David Hefner</div>
 </body>
 </html>
