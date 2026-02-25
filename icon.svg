@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Bakgrund med rundade hörn (app-ikon-form) -->
+  <rect width="512" height="512" rx="96" fill="#0d1117"/>
+
+  <!-- Vänster vikter -->
+  <rect x="32" y="168" width="90" height="176" rx="20" fill="#ff6b6b"/>
+  <!-- Höger vikter -->
+  <rect x="390" y="168" width="90" height="176" rx="20" fill="#ff6b6b"/>
+
+  <!-- Vänster krage -->
+  <rect x="118" y="194" width="46" height="124" rx="14" fill="#ff6b6b"/>
+  <!-- Höger krage -->
+  <rect x="348" y="194" width="46" height="124" rx="14" fill="#ff6b6b"/>
+
+  <!-- Handtag -->
+  <rect x="162" y="230" width="188" height="52" rx="26" fill="#c9d1d9"/>
+</svg>

@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Träningslogg</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <meta name="theme-color" content="#0d1117">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Träningslogg">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -788,7 +794,7 @@ const WORKOUTS = {
         color: '#ff6b6b',
         groups: [
             { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Drag curl', 'Pec deck', 'Bröstpress', 'Low cable flyes'] },
-            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension'] }
+            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension', 'Single arm cable extension'] }
         ]
     },
     rygg: {
@@ -941,6 +947,7 @@ const EXERCISE_IMAGES = {
     // Nya övningar
     'Low cable flyes':              'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
     'Overhead tricep extension':    'https://www.puregym.com/media/b5jl1ij3/overhead-tricep-extension.jpg?quality=80',
+    'Single arm cable extension':   'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Single-Arm-Cable-Triceps-Extension-with-Supinated-Grip_600x600.png',
 };
 
 let currentUser = null;
