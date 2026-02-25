@@ -124,6 +124,7 @@
         .wcard-rygg  { --accent: var(--c-rygg); }
         .wcard-axlar { --accent: var(--c-axlar); }
         .wcard-cardio{ --accent: var(--c-cardio); }
+        .wcard-ben   { --accent: var(--c-ben); }
 
         .history-btn {
             width: 100%;
@@ -363,7 +364,7 @@
             color: var(--text);
             border-radius: 6px;
             padding: 6px 10px;
-            font-size: 14px;
+            font-size: 16px;
             width: 88px;
             transition: border-color 0.15s;
         }
@@ -376,8 +377,8 @@
             border: none;
             color: var(--muted);
             cursor: pointer;
-            font-size: 18px;
-            padding: 2px 6px;
+            font-size: 20px;
+            padding: 8px 12px;
             border-radius: 4px;
             line-height: 1;
             transition: all 0.15s;
@@ -479,7 +480,7 @@
 
         .activity-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 28px;
         }
@@ -558,17 +559,15 @@
         .hist-header.open .hist-chevron { transform: rotate(180deg); }
         .hist-delete-btn {
             background: none;
-            border: none;
+            border: 1px solid var(--border);
             color: var(--muted);
             cursor: pointer;
-            font-size: 15px;
-            padding: 2px 6px;
-            border-radius: 4px;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
             transition: all 0.15s;
-            line-height: 1;
-            flex-shrink: 0;
         }
-        .hist-delete-btn:hover { color: #f85149; background: rgba(248,81,73,0.1); }
+        .hist-delete-btn:hover { color: #f85149; border-color: #f85149; background: rgba(248,81,73,0.08); }
 
         .hist-edit-btn {
             background: none;
@@ -669,7 +668,7 @@
             justify-content: flex-end;
         }
         .bar-val {
-            font-size: 10px;
+            font-size: 12px;
             font-weight: 700;
             color: #58a6ff;
             min-height: 15px;
@@ -684,7 +683,7 @@
             background: linear-gradient(to top, #1f6feb, #58a6ff);
         }
         .bar-lbl {
-            font-size: 9px;
+            font-size: 11px;
             color: var(--muted);
             padding-top: 5px;
             text-align: center;
@@ -734,7 +733,7 @@
         /* ── RESPONSIVE ── */
         @media (max-width: 440px) {
             .workout-grid { grid-template-columns: 1fr; }
-            .activity-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .activity-grid { grid-template-columns: 1fr 1fr; }
             .wcard { padding: 20px 12px 16px; }
         }
     </style>
@@ -794,6 +793,11 @@
                 <span class="icon">🏃</span>
                 <h3>Cardio</h3>
                 <div class="last-session" id="last-cardio"></div>
+            </div>
+            <div class="wcard wcard-ben" onclick="startWorkout('ben')">
+                <span class="icon">🦵</span>
+                <h3>Ben & Rumpa</h3>
+                <div class="last-session" id="last-ben"></div>
             </div>
         </div>
         <button class="programs-btn" onclick="startRandomHelkropp()">🎲 &nbsp; Slumpa helkroppspass</button>
@@ -933,7 +937,7 @@ const WORKOUTS = {
         color: '#ff6b6b',
         groups: [
             { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Low cable chest', 'Pec deck', 'Bröstpress', 'Low cable flyes'] },
-            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension', 'Single arm cable extension'] }
+            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension', 'Cable kickback triceps'] }
         ]
     },
     rygg: {
@@ -952,7 +956,14 @@ const WORKOUTS = {
             { label: 'Mage', exercises: ['Plankan (sek)', 'Sidoplanka (sek)', 'Dead bug', 'Hjulet'] }
         ]
     },
-    ben: { title: 'Ben & Rumpa', color: '#fb923c', groups: [] },
+    ben: {
+        title: 'Ben & Rumpa',
+        color: '#fb923c',
+        groups: [
+            { label: 'Ben', exercises: ['Knäböj', 'Benpress', 'Leg extension', 'Leg curl', 'Utfall'] },
+            { label: 'Rumpa', exercises: ['Hip thrust', 'Romanian deadlift', 'Sumo knäböj', 'Cable kickback'] }
+        ]
+    },
     helkropp: { title: 'Helkropp', color: '#facc15', groups: [] }
 };
 
@@ -1086,12 +1097,23 @@ const EXERCISE_IMAGES = {
     // Nya övningar
     'Low cable flyes':              'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
     'Overhead tricep extension':    'https://www.puregym.com/media/b5jl1ij3/overhead-tricep-extension.jpg?quality=80',
-    'Single arm cable extension':   'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Single-Arm-Cable-Triceps-Extension-with-Supinated-Grip_600x600.png',
+    'Cable kickback triceps':       'https://s3.amazonaws.com/prod.skimble/assets/2597476/image_iphone.jpg',
+    // Ben & Rumpa
+    'Knäböj':               'https://privatetrainingonline.se/wp-content/uploads/2015/01/Knaboj-varianter-Goblet-Squat.jpg',
+    'Benpress':             'https://www.mathiaszachau.com/wp-content/uploads/2018/03/benpressens-biomekanik-muskelaktivering-illustration-1.jpg',
+    'Leg extension':        'https://training.fit/wp-content/uploads/2020/03/beinstrecken-geraet-1.png',
+    'Leg curl':             'https://newlife.com.cy/wp-content/uploads/2019/08/seated-leg-curl-990x557.png',
+    'Utfall':               'https://static.vecteezy.com/ti/gratis-vektor/p1/26177950-kvinna-haller-pa-med-utfall-steg-posten-traning-trana-for-de-rumpa-och-hofter-vector.jpg',
+    'Hip thrust':           'https://weighttraining.guide/wp-content/uploads/2017/04/barbell-hip-thrust-resized.png',
+    'Romanian deadlift':    'https://www.inspireusafoundation.org/file/2022/06/barbell-romanian-deadlift-benefits-1024x576.jpg',
+    'Sumo knäböj':          'https://www.kettlebellkings.com/cdn/shop/articles/Kettlebell_Sumo_Squat.jpg?v=1732016655',
+    'Cable kickback':       'https://anabolicaliens.com/cdn/shop/articles/1280_684e5ae5-84dd-41af-ae4e-1bd3655083d1.png',
 };
 
 // Gamla övningsnamn → nytt namn (visas i historiken med nytt namn)
 const EXERCISE_RENAMES = {
     'Drag curl': 'Low cable chest',
+    'Single arm cable extension': 'Cable kickback triceps',
 };
 
 let currentUser = null;
@@ -1733,10 +1755,14 @@ function buildHistoryItem(w, i) {
                 <span class="hist-title">${w.title}</span>
                 <span class="hist-date">${date}</span>
                 ${editBtn}
-                <button class="hist-delete-btn" onclick="event.stopPropagation(); deleteWorkout(${w.id})" title="Ta bort">🗑</button>
                 <span class="hist-chevron">▼</span>
             </div>
-            <div class="hist-body">${bodyHtml}</div>
+            <div class="hist-body">
+                ${bodyHtml}
+                <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--surface2);text-align:right;">
+                    <button class="hist-delete-btn" onclick="deleteWorkout(${w.id})" title="Ta bort">🗑 Ta bort pass</button>
+                </div>
+            </div>
         </div>`;
 }
 
@@ -1747,7 +1773,7 @@ function toggleHistory(header) {
 
 // ── HOME CARD LAST SESSION ────────────────────────────
 function updateLastSessions() {
-    ['brost', 'rygg', 'axlar', 'cardio'].forEach(type => {
+    ['brost', 'rygg', 'axlar', 'cardio', 'ben'].forEach(type => {
         const prev = getPrevious(type);
         const el = document.getElementById(`last-${type}`);
         if (prev) {
