@@ -1,5 +1,9 @@
 # Ändringslogg
 
+## 2026-02-25 (2)
+- "Drag curl" omdöpt till "Low cable chest" (ny bild, visas med nytt namn även i historiken)
+- App-ikon fixad för iPhone: PNG-fil genererad (SVG fungerar ej som hemskärmsikon på iOS)
+
 ## 2026-02-25
 - Veckonummer (v.X) i stapeldiagrammet för statistiksidan
 - Veckodagsfördelning (Mån–Sön) med mest aktiv dag markerad i rött

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Träningslogg</title>
     <link rel="icon" type="image/svg+xml" href="icon.svg">
-    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#0d1117">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Träningslogg">
@@ -929,7 +929,7 @@ const WORKOUTS = {
         title: 'Bröst & Triceps',
         color: '#ff6b6b',
         groups: [
-            { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Drag curl', 'Pec deck', 'Bröstpress', 'Low cable flyes'] },
+            { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Low cable chest', 'Pec deck', 'Bröstpress', 'Low cable flyes'] },
             { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension', 'Single arm cable extension'] }
         ]
     },
@@ -1060,7 +1060,7 @@ const EXERCISE_IMAGES = {
     'Lutande hantelpress':  'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Bench-Press_c2bf89a2-433f-4a8f-9801-67c679980867_600x600.png?v=1612138008',
     'Rak hantelpress':      'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Bench-Press_13090f67-ccfc-4f3a-9bab-e75d753fa9fa_600x600.png?v=1612137970',
     'Bänkpress':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Barbell-Bench-Press_0316b783-43b2-44f8-8a2b-b177a2cfcbfc_600x600.png?v=1612137800',
-    'Drag curl':            'https://privatetrainingonline.se/wp-content/uploads/2021/07/Skivstangscurl-e1637772602866.jpg',
+    'Low cable chest':      'https://www.hsefitness.com/wp-content/uploads/2025/01/High-to-Low-Cable-Crossover-600x600.png',
     'Pushdowns':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Triceps-Pressdown_e759437b-6200-4b44-b484-14db770024a4_600x600.png?v=1612136845',
     'Pec deck':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Peck-Deck_600x600.png?v=1612137910',
     'Bröstpress':           'https://privatetrainingonline.se/wp-content/uploads/2018/04/Brostpress-Private-Training-Online-e1671284232699.jpg',
@@ -1084,6 +1084,11 @@ const EXERCISE_IMAGES = {
     'Low cable flyes':              'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
     'Overhead tricep extension':    'https://www.puregym.com/media/b5jl1ij3/overhead-tricep-extension.jpg?quality=80',
     'Single arm cable extension':   'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Single-Arm-Cable-Triceps-Extension-with-Supinated-Grip_600x600.png',
+};
+
+// Gamla övningsnamn → nytt namn (visas i historiken med nytt namn)
+const EXERCISE_RENAMES = {
+    'Drag curl': 'Low cable chest',
 };
 
 let currentUser = null;
@@ -1700,7 +1705,7 @@ function buildHistoryItem(w, i) {
     } else {
         bodyHtml = (w.exercises || []).map(ex => `
             <div class="hist-ex">
-                <div class="hist-ex-name">${ex.name}</div>
+                <div class="hist-ex-name">${EXERCISE_RENAMES[ex.name] || ex.name}</div>
                 <div class="hist-sets">
                     ${ex.sets.map((s, si) => `
                         <span class="hist-set-pill">${si+1}. ${s.weight} kg × ${s.reps}</span>
