@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-25 (8)
+- "Good morning" omdöpt till "Hyperextensions" (historik uppdaterad, ny bild)
+
 ## 2026-02-25 (7)
 - Ny bild på Good morning
 
