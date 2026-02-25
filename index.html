@@ -338,6 +338,7 @@
             justify-content: space-between;
         }
         .ex-name { font-weight: 600; font-size: 15px; }
+        .ex-pb { font-size: 11px; color: #facc15; opacity: 0.75; margin-top: 2px; }
 
         .sets-table { width: 100%; border-collapse: collapse; }
         .sets-table thead tr { background: var(--bg); }
@@ -1533,9 +1534,15 @@ function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null) 
         ? `<img class="ex-thumb" src="${imgUrl}" alt="${name}" onclick="openLightbox('${imgUrl}',event)" title="Klicka för att förstora">`
         : '';
 
+    const pb = getExercisePB(name);
+    const pbHtml = pb !== null ? `<div class="ex-pb">PB: ${pb.weight} kg × ${pb.reps} reps</div>` : '';
+
     div.innerHTML = `
         <div class="ex-header">
-            <span class="ex-name">${name}</span>
+            <div>
+                <span class="ex-name">${name}</span>
+                ${pbHtml}
+            </div>
             ${imgHtml}
         </div>
         <table class="sets-table">
@@ -1770,6 +1777,23 @@ function getPrevious(type) {
     return getStorage()
         .filter(w => w.type === type)
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+}
+
+function getExercisePB(exerciseName) {
+    let pb = null;
+    getStorage().forEach(workout => {
+        if (!workout.exercises) return;
+        workout.exercises.forEach(ex => {
+            if (ex.name !== exerciseName) return;
+            ex.sets.forEach(s => {
+                const w = parseFloat(String(s.weight).replace(',', '.'));
+                if (!isNaN(w) && w > 0 && (pb === null || w > pb.weight)) {
+                    pb = { weight: w, reps: s.reps };
+                }
+            });
+        });
+    });
+    return pb;
 }
 
 // ── LIGHTBOX ─────────────────────────────────────────

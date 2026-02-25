@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-25 (3)
+- PB (personbästa) visas diskret under övningsnamnet vid träning: "PB: X kg × Y reps"
+
 ## 2026-02-25 (2)
 - "Drag curl" omdöpt till "Low cable chest" (ny bild, visas med nytt namn även i historiken)
 - App-ikon fixad för iPhone: PNG-fil genererad (SVG fungerar ej som hemskärmsikon på iOS)
