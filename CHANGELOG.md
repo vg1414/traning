@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-25 (7)
+- Ny bild på Good morning
+
 ## 2026-02-25 (6)
 - "Made by: David Hefner" visas nu på alla sidor (fast position längst ner)
 
