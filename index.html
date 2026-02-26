@@ -1839,7 +1839,7 @@ function getExercisePB(exerciseName) {
             if (!aliases.includes(ex.name)) return;
             ex.sets.forEach(s => {
                 const w = parseFloat(String(s.weight).replace(',', '.'));
-                if (!isNaN(w) && w > 0 && (pb === null || w > pb.weight)) {
+                if (!isNaN(w) && w >= 0 && (pb === null || w > pb.weight)) {
                     pb = { weight: w, reps: s.reps };
                 }
             });
