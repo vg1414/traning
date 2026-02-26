@@ -352,6 +352,17 @@
         }
         .ex-name { font-weight: 600; font-size: 15px; }
         .ex-pb { font-size: 11px; color: #facc15; opacity: 0.75; margin-top: 2px; }
+        .variant-select {
+            display: block;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 3px 8px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
 
         .sets-table { width: 100%; border-collapse: collapse; }
         .sets-table thead tr { background: var(--bg); }
@@ -1122,6 +1133,13 @@ const EXERCISE_IMAGES = {
     'Cable kickback':       'https://anabolicaliens.com/cdn/shop/articles/1280_684e5ae5-84dd-41af-ae4e-1bd3655083d1.png',
 };
 
+// Övningar med varianter (dropdown i kortet)
+const VARIANT_EXERCISES = {
+    'Latsdrag':      ['Maskin', 'Cable'],
+    'Sittande rodd': ['Maskin', 'Cable'],
+    'Preacher curl': ['Maskin', 'Hantlar'],
+};
+
 // Gamla övningsnamn → nytt namn (visas i historiken med nytt namn)
 const EXERCISE_RENAMES = {
     'Drag curl': 'Low cable chest',
@@ -1280,9 +1298,16 @@ function editWorkout(id) {
         list.appendChild(hdr);
 
         group.exercises.forEach(name => {
-            const savedEx = w.exercises.find(e => e.name === name);
+            let savedEx = w.exercises.find(e => e.name === name);
+            let initialVariant = null;
+            if (!savedEx && VARIANT_EXERCISES[name]) {
+                for (const v of VARIANT_EXERCISES[name]) {
+                    const found = w.exercises.find(e => e.name === `${name} (${v.toLowerCase()})`);
+                    if (found) { savedEx = found; initialVariant = v.toLowerCase(); break; }
+                }
+            }
             // currentSets = [] for unlogged exercises (starts empty), savedEx.sets if logged
-            list.appendChild(buildExerciseCard(name, null, null, savedEx ? savedEx.sets : []));
+            list.appendChild(buildExerciseCard(name, null, null, savedEx ? savedEx.sets : [], initialVariant));
         });
     });
 
@@ -1564,22 +1589,43 @@ function saveProgramSession() {
 }
 
 // ── EXERCISE CARDS ────────────────────────────────────
-function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null) {
+function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null, initialVariant = null) {
     const div = document.createElement('div');
     div.className = 'ex-card';
 
-    const imgUrl = EXERCISE_IMAGES[name];
+    const variants = VARIANT_EXERCISES[name];
+    const hasVariants = !!variants;
+    const activeVariant = initialVariant || (hasVariants ? variants[0].toLowerCase() : null);
+    const effectiveName = hasVariants ? `${name} (${activeVariant})` : name;
+
+    if (hasVariants) {
+        div.dataset.baseName = name;
+        div.dataset.effectiveName = effectiveName;
+        if (!prevEx && currentSets === null) {
+            const prev = getPrevious(currentType);
+            const aliases = getExerciseAliases(effectiveName);
+            prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
+        }
+    }
+
+    const imgUrl = EXERCISE_IMAGES[effectiveName] || EXERCISE_IMAGES[name];
     const imgHtml = imgUrl
         ? `<img class="ex-thumb" src="${imgUrl}" alt="${name}" onclick="openLightbox('${imgUrl}',event)" title="Klicka för att förstora">`
         : '';
 
-    const pb = getExercisePB(name);
-    const pbHtml = pb !== null ? `<div class="ex-pb">PB: ${pb.weight} kg × ${pb.reps} reps</div>` : '';
+    const pb = getExercisePB(effectiveName);
+    const pbText = pb !== null ? `PB: ${pb.weight} kg × ${pb.reps} reps` : '';
+    const pbHtml = `<div class="ex-pb">${pbText}</div>`;
+
+    const variantHtml = hasVariants
+        ? `<select class="variant-select" onchange="changeVariant(this)">${variants.map(v => `<option value="${v.toLowerCase()}"${v.toLowerCase() === activeVariant ? ' selected' : ''}>${v}</option>`).join('')}</select>`
+        : '';
 
     div.innerHTML = `
         <div class="ex-header">
             <div>
                 <span class="ex-name">${name}</span>
+                ${variantHtml}
                 ${pbHtml}
             </div>
             ${imgHtml}
@@ -1610,6 +1656,56 @@ function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null) 
     }
 
     return div;
+}
+
+function changeVariant(select) {
+    const card = select.closest('.ex-card');
+    const baseName = card.dataset.baseName;
+    const variant = select.value;
+    const effectiveName = `${baseName} (${variant})`;
+    card.dataset.effectiveName = effectiveName;
+
+    // Uppdatera PB
+    const pb = getExercisePB(effectiveName);
+    const pbEl = card.querySelector('.ex-pb');
+    pbEl.textContent = pb !== null ? `PB: ${pb.weight} kg × ${pb.reps} reps` : '';
+
+    // Hämta förra passets sets för den valda varianten
+    const prev = getPrevious(currentType);
+    const aliases = getExerciseAliases(effectiveName);
+    const prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
+    const prevSets = prevEx ? prevEx.sets : [];
+
+    card.querySelectorAll('.set-row').forEach((row, i) => {
+        const prevSet = prevSets[i];
+        const tds = row.querySelectorAll('td');
+        const wInput = tds[1].querySelector('.set-input');
+        const rInput = tds[2].querySelector('.set-input');
+        let wHint = tds[1].querySelector('.prev-val');
+        let rHint = tds[2].querySelector('.prev-val');
+
+        if (prevSet) {
+            if (!wHint) { wHint = document.createElement('div'); wHint.className = 'prev-val'; tds[1].appendChild(wHint); }
+            if (!rHint) { rHint = document.createElement('div'); rHint.className = 'prev-val'; tds[2].appendChild(rHint); }
+            wHint.textContent = `Förra: ${prevSet.weight} kg`;
+            rHint.textContent = `Förra: ${prevSet.reps}`;
+            if (wInput) wInput.placeholder = prevSet.weight;
+            if (rInput) rInput.placeholder = prevSet.reps;
+        } else {
+            if (wHint) wHint.textContent = '';
+            if (rHint) rHint.textContent = '';
+            if (wInput) wInput.placeholder = '0';
+            if (rInput) rInput.placeholder = '0';
+        }
+    });
+
+    // Uppdatera bild
+    const imgUrl = EXERCISE_IMAGES[effectiveName] || EXERCISE_IMAGES[baseName];
+    const img = card.querySelector('.ex-thumb');
+    if (img && imgUrl) {
+        img.src = imgUrl;
+        img.setAttribute('onclick', `openLightbox('${imgUrl}',event)`);
+    }
 }
 
 function addSet(btn, prevSet = null, templateEx = null, currentSet = null) {
@@ -1667,7 +1763,7 @@ function saveWorkout() {
     const exercises = [];
 
     document.querySelectorAll('.ex-card').forEach(card => {
-        const name = card.querySelector('.ex-name').textContent;
+        const name = card.dataset.effectiveName || card.querySelector('.ex-name').textContent;
         const sets = [];
 
         card.querySelectorAll('.set-row').forEach(row => {
@@ -1826,6 +1922,12 @@ function getExerciseAliases(name) {
     const aliases = [name];
     for (const [oldName, newName] of Object.entries(EXERCISE_RENAMES)) {
         if (newName === name) aliases.push(oldName);
+    }
+    // Om det är en variantövning som "Latsdrag (maskin)", inkludera basnamnet som alias
+    for (const [baseName, variants] of Object.entries(VARIANT_EXERCISES)) {
+        if (variants.some(v => name === `${baseName} (${v.toLowerCase()})`)) {
+            aliases.push(baseName);
+        }
     }
     return aliases;
 }
