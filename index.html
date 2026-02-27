@@ -392,6 +392,8 @@
             transition: border-color 0.15s;
         }
         .set-input:focus { outline: none; border-color: #58a6ff; }
+        .set-input:not(:placeholder-shown) { border-color: #2ea043; }
+        .set-input:focus:not(:placeholder-shown) { border-color: #58a6ff; }
 
         .prev-val { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
