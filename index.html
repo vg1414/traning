@@ -1506,6 +1506,16 @@ function showHistory() {
 }
 
 // ── STATISTICS ───────────────────────────────────────
+function getExerciseType(name) {
+    for (const [type, data] of Object.entries(WORKOUTS)) {
+        if (!data.groups) continue;
+        for (const group of data.groups) {
+            if (group.exercises.includes(name)) return type;
+        }
+    }
+    return null;
+}
+
 // Räknar övningar per kategori (ej sessioner) för proportionell färguppdelning
 function calcBreakdown(ws) {
     const bd = {};
@@ -1513,7 +1523,7 @@ function calcBreakdown(ws) {
         if (w.exercises && w.exercises.length > 0) {
             w.exercises.forEach(ex => {
                 const baseName = ex.name.replace(/\s*\([^)]+\)\s*$/, '');
-                const type = getExerciseCategory(baseName) || getExerciseCategory(ex.name) || w.type;
+                const type = getExerciseType(baseName) || getExerciseType(ex.name) || w.type;
                 bd[type] = (bd[type] || 0) + 1;
             });
         } else {

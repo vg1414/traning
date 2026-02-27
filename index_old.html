@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Träningslogg</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#0d1117">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Träningslogg">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -118,6 +124,19 @@
         .wcard-rygg  { --accent: var(--c-rygg); }
         .wcard-axlar { --accent: var(--c-axlar); }
         .wcard-cardio{ --accent: var(--c-cardio); }
+        .wcard-ben   { --accent: var(--c-ben); }
+
+        /* ── SIGNATURE ── */
+        .signature {
+            position: fixed;
+            bottom: 6px;
+            left: 0; right: 0;
+            text-align: center;
+            font-size: 11px;
+            color: #333d47;
+            pointer-events: none;
+            z-index: 5;
+        }
 
         .history-btn {
             width: 100%;
@@ -332,6 +351,18 @@
             justify-content: space-between;
         }
         .ex-name { font-weight: 600; font-size: 15px; }
+        .ex-pb { font-size: 11px; color: #facc15; opacity: 0.75; margin-top: 2px; }
+        .variant-select {
+            display: block;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 3px 8px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
 
         .sets-table { width: 100%; border-collapse: collapse; }
         .sets-table thead tr { background: var(--bg); }
@@ -356,11 +387,13 @@
             color: var(--text);
             border-radius: 6px;
             padding: 6px 10px;
-            font-size: 14px;
+            font-size: 16px;
             width: 88px;
             transition: border-color 0.15s;
         }
         .set-input:focus { outline: none; border-color: #58a6ff; }
+        .set-input:not(:placeholder-shown) { border-color: #2ea043; }
+        .set-input:focus:not(:placeholder-shown) { border-color: #58a6ff; }
 
         .prev-val { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
@@ -369,8 +402,8 @@
             border: none;
             color: var(--muted);
             cursor: pointer;
-            font-size: 18px;
-            padding: 2px 6px;
+            font-size: 20px;
+            padding: 8px 12px;
             border-radius: 4px;
             line-height: 1;
             transition: all 0.15s;
@@ -472,7 +505,7 @@
 
         .activity-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 28px;
         }
@@ -551,6 +584,18 @@
         .hist-header.open .hist-chevron { transform: rotate(180deg); }
         .hist-delete-btn {
             background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        .hist-delete-btn:hover { color: #f85149; border-color: #f85149; background: rgba(248,81,73,0.08); }
+
+        .hist-edit-btn {
+            background: none;
             border: none;
             color: var(--muted);
             cursor: pointer;
@@ -561,7 +606,7 @@
             line-height: 1;
             flex-shrink: 0;
         }
-        .hist-delete-btn:hover { color: #f85149; background: rgba(248,81,73,0.1); }
+        .hist-edit-btn:hover { color: #58a6ff; background: rgba(88,166,255,0.1); }
 
         .hist-body { display: none; padding: 14px 16px; }
         .hist-body.open { display: block; }
@@ -579,6 +624,116 @@
 
         .hist-cardio-info { font-size: 14px; color: var(--muted); }
         .hist-cardio-info strong { color: var(--text); }
+
+        /* ── HISTORY WEEK GROUPS ── */
+        .week-group { margin-bottom: 24px; }
+        .week-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 0 2px 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .week-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        /* ── STATS ── */
+        .stats-body {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 20px 16px 40px;
+        }
+        .stats-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 12px;
+            text-align: center;
+        }
+        .stat-value { font-size: 34px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+        .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+
+        .chart-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 16px 14px;
+            margin-bottom: 14px;
+        }
+        .chart-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: stretch;
+            gap: 4px;
+            height: 150px;
+            overflow-x: auto;
+        }
+        .bar-group {
+            flex: 1;
+            min-width: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        .bar-val {
+            font-size: 12px;
+            font-weight: 700;
+            color: #58a6ff;
+            min-height: 15px;
+            line-height: 15px;
+            text-align: center;
+        }
+        .bar-col {
+            width: 65%;
+            max-width: 30px;
+            min-height: 2px;
+            border-radius: 3px 3px 0 0;
+            background: linear-gradient(to top, #1f6feb, #58a6ff);
+        }
+        .bar-lbl {
+            font-size: 11px;
+            color: var(--muted);
+            padding-top: 5px;
+            text-align: center;
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .fun-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .fun-stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 8px 12px;
+            text-align: center;
+        }
+        .fun-stat-emoji { font-size: 20px; display: block; margin-bottom: 5px; }
+        .fun-stat-val { font-size: 22px; font-weight: 700; line-height: 1.1; margin-bottom: 4px; color: var(--text); }
+        .fun-stat-desc { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
 
         /* ── TOAST ── */
         .toast {
@@ -600,10 +755,123 @@
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.error { background: #b91c1c; }
 
+        /* ── ADD EXERCISE MODAL ── */
+        .add-ex-btn {
+            display: block;
+            width: 100%;
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            color: #58a6ff;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+        }
+        .add-ex-btn:hover { background: var(--surface2); border-color: #58a6ff; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 150;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px 16px 0 0;
+            width: 100%;
+            max-width: 680px;
+            max-height: 82vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.22s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0.4; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+        .modal-header {
+            padding: 16px 20px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .modal-header h3 { font-size: 16px; font-weight: 600; }
+        .modal-close {
+            background: none; border: none; color: var(--muted);
+            font-size: 26px; cursor: pointer; padding: 0 4px; line-height: 1;
+        }
+        .modal-close:hover { color: var(--text); }
+        .modal-body { overflow-y: auto; padding: 0 16px 32px; flex: 1; }
+        .modal-custom-row {
+            display: flex; gap: 8px;
+            padding: 14px 0 12px;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0;
+            background: var(--surface); z-index: 1;
+        }
+        .modal-custom-input {
+            flex: 1;
+            background: var(--bg); border: 1px solid var(--border);
+            color: var(--text); border-radius: 8px;
+            padding: 10px 12px; font-size: 15px;
+        }
+        .modal-custom-input:focus { outline: none; border-color: #58a6ff; }
+        .modal-add-btn {
+            background: #1f6feb; border: none; color: #fff;
+            border-radius: 8px; padding: 10px 16px;
+            font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+        }
+        .modal-add-btn:hover { background: #388bfd; }
+        .modal-cat-header {
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            padding: 14px 0 5px;
+        }
+        .modal-ex-item {
+            padding: 9px 10px; border-radius: 8px; cursor: pointer;
+            font-size: 14px; transition: background 0.12s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .modal-ex-item:hover { background: var(--surface2); }
+        .ex-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ── PIE CHART ── */
+        .pie-wrap { display: flex; justify-content: center; margin: 12px 0 18px; }
+        .pie-chart {
+            width: 150px; height: 150px; border-radius: 50%;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+        }
+        .pie-labels {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px;
+            font-size: 13px;
+        }
+        .pie-label { display: flex; align-items: center; gap: 6px; }
+        .pie-pct { color: var(--muted); font-size: 12px; margin-left: auto; padding-left: 4px; }
+
+        /* ── CHART LEGEND ── */
+        .chart-legend {
+            display: flex; flex-wrap: wrap; gap: 6px 14px;
+            font-size: 11px; color: var(--muted); margin-bottom: 16px;
+        }
+        .legend-dot {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 4px; flex-shrink: 0;
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 440px) {
             .workout-grid { grid-template-columns: 1fr; }
-            .activity-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .activity-grid { grid-template-columns: 1fr 1fr; }
             .wcard { padding: 20px 12px 16px; }
         }
     </style>
@@ -663,9 +931,17 @@
                 <h3>Cardio</h3>
                 <div class="last-session" id="last-cardio"></div>
             </div>
+            <div class="wcard wcard-ben" onclick="startWorkout('ben')">
+                <span class="icon">🦵</span>
+                <h3>Ben & Rumpa</h3>
+                <div class="last-session" id="last-ben"></div>
+            </div>
         </div>
         <button class="programs-btn" onclick="startRandomHelkropp()">🎲 &nbsp; Slumpa helkroppspass</button>
-        <button class="history-btn" onclick="showHistory()">📋 &nbsp; Visa träningshistorik</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+            <button class="history-btn" onclick="showHistory()">📋 &nbsp; Historik</button>
+            <button class="history-btn" onclick="showStats()">📊 &nbsp; Statistik</button>
+        </div>
     </div>
 </div>
 
@@ -682,6 +958,7 @@
             <span class="prev-session-info" id="prev-session-info"></span>
         </div>
         <div id="exercises-list"></div>
+        <button class="add-ex-btn" onclick="openAddExerciseModal()">＋ Lägg till övning</button>
         <button class="save-btn" onclick="saveWorkout()">Spara träningspass</button>
     </div>
 </div>
@@ -744,6 +1021,15 @@
     </div>
 </div>
 
+<!-- ════════ STATISTICS ════════ -->
+<div id="screen-stats" class="screen">
+    <div class="top-bar">
+        <button class="btn-icon" onclick="goHome()">←</button>
+        <h1>Statistik</h1>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
+</div>
+
 <!-- ════════ HISTORY ════════ -->
 <div id="screen-history" class="screen">
     <div class="top-bar">
@@ -751,6 +1037,23 @@
         <h1>Historik</h1>
     </div>
     <div class="history-body" id="history-list"></div>
+</div>
+
+<!-- ════════ ADD EXERCISE MODAL ════════ -->
+<div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Lägg till övning</h3>
+            <button class="modal-close" onclick="closeAddExerciseModal()">×</button>
+        </div>
+        <div class="modal-body" id="modal-ex-body">
+            <div class="modal-custom-row">
+                <input class="modal-custom-input" id="custom-ex-input" placeholder="Skriv eget övningsnamn..." maxlength="60"
+                    onkeydown="if(event.key==='Enter') addCustomExercise()">
+                <button class="modal-add-btn" onclick="addCustomExercise()">Lägg till</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -787,16 +1090,16 @@ const WORKOUTS = {
         title: 'Bröst & Triceps',
         color: '#ff6b6b',
         groups: [
-            { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Drag curl', 'Pec deck', 'Bröstpress', 'Low cable flyes'] },
-            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension'] }
+            { label: 'Bröst', exercises: ['Bänkpress', 'Lutande hantelpress', 'Rak hantelpress', 'Low cable chest', 'Pec deck', 'Bröstpress', 'High to low cable flyes (drag curl)', 'Low to high cable fly'] },
+            { label: 'Triceps', exercises: ['Pushdowns', 'Overhead tricep extension', 'Cable kickback triceps'] }
         ]
     },
     rygg: {
         title: 'Rygg & Biceps',
         color: '#4fc3f7',
         groups: [
-            { label: 'Rygg', exercises: ['Latsdrag', 'Sittande rodd', 'Good morning'] },
-            { label: 'Biceps', exercises: ['Preacher curl', 'Bakåtlutad bicepcurl', 'Cable curl'] }
+            { label: 'Rygg', exercises: ['Latsdrag', 'Sittande rodd', 'Hyperextensions'] },
+            { label: 'Biceps', exercises: ['Preacher curl', 'Bakåtlutad bicepcurl', 'Cable curl', 'One arm cable curl'] }
         ]
     },
     axlar: {
@@ -807,7 +1110,14 @@ const WORKOUTS = {
             { label: 'Mage', exercises: ['Plankan (sek)', 'Sidoplanka (sek)', 'Dead bug', 'Hjulet'] }
         ]
     },
-    ben: { title: 'Ben & Rumpa', color: '#fb923c', groups: [] },
+    ben: {
+        title: 'Ben & Rumpa',
+        color: '#fb923c',
+        groups: [
+            { label: 'Ben', exercises: ['Knäböj', 'Benpress', 'Leg extension', 'Leg curl', 'Utfall'] },
+            { label: 'Rumpa', exercises: ['Hip thrust', 'Romanian deadlift', 'Sumo knäböj', 'Cable kickback'] }
+        ]
+    },
     helkropp: { title: 'Helkropp', color: '#facc15', groups: [] }
 };
 
@@ -918,17 +1228,18 @@ const EXERCISE_IMAGES = {
     'Lutande hantelpress':  'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Bench-Press_c2bf89a2-433f-4a8f-9801-67c679980867_600x600.png?v=1612138008',
     'Rak hantelpress':      'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Bench-Press_13090f67-ccfc-4f3a-9bab-e75d753fa9fa_600x600.png?v=1612137970',
     'Bänkpress':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Barbell-Bench-Press_0316b783-43b2-44f8-8a2b-b177a2cfcbfc_600x600.png?v=1612137800',
-    'Drag curl':            'https://privatetrainingonline.se/wp-content/uploads/2021/07/Skivstangscurl-e1637772602866.jpg',
+    'Low cable chest':      'https://www.hsefitness.com/wp-content/uploads/2025/01/High-to-Low-Cable-Crossover-600x600.png',
     'Pushdowns':            'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Triceps-Pressdown_e759437b-6200-4b44-b484-14db770024a4_600x600.png?v=1612136845',
     'Pec deck':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Peck-Deck_600x600.png?v=1612137910',
     'Bröstpress':           'https://privatetrainingonline.se/wp-content/uploads/2018/04/Brostpress-Private-Training-Online-e1671284232699.jpg',
     // Rygg & Biceps
     'Latsdrag':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Wide-Grip-Pulldown_91fcba9b-47a2-4185-b093-aa542c81c55c_600x600.png?v=1612138105',
     'Sittande rodd':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Seated-Cable-Row_9470fa48-f0d1-40b1-a980-caee9e6f2e53_600x600.png?v=1612138127',
-    'Good morning':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Good-Morning_600x600.png?v=1655224242',
+    'Hyperextensions':      'https://weighttraining.guide/wp-content/uploads/2016/10/45-degree-hyperextension.png',
     'Preacher curl':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/EZ-Barbell-Preacher-Curl_4d449fee-1920-4137-970c-75d4698b268d_600x600.png?v=1612137254',
     'Bakåtlutad bicepcurl': 'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Curl_7debf468-cd34-49bc-8933-7f4b087e6cca_600x600.png?v=1612137309',
     'Cable curl':           'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Rope-Cable-Curl_6216e254-5f77-462c-9954-ea210fff8a70_600x600.png?v=1612137195',
+    'One arm cable curl':   'https://fitnessprogramer.com/wp-content/uploads/2021/02/One-Arm-Cable-Curl.gif',
     // Axlar & Mage
     'Militärpress':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Shoulder-Press_da0aa742-620a-45f7-9277-78137d38ff28_600x600.png?v=1612138495',
     'Sidolyft':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Lateral-Raise_31c81eee-81c4-4ffe-890d-ee13dd5bbf20_600x600.png?v=1612138523',
@@ -936,11 +1247,42 @@ const EXERCISE_IMAGES = {
     'Face pull':            'https://privatetrainingonline.se/wp-content/uploads/2021/12/Facepull-Ryggovning-PTO-e1709981314551.jpeg',
     'Plankan (sek)':        'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Plank_3a82d566-9cb2-4c20-b301-bc8bd635c4d1_600x600.png?v=1612138431',
     'Dead bug':             'https://media.self.com/photos/580a37dc7f7be8915ea98685/master/w_1600%2Cc_limit/dead-bug_ab-stacked.jpg',
-    'Sidoplanka (sek)':     'https://liftmanual.com/wp-content/uploads/2023/04/side-plank-leg-lift.jpg',
+    'Sidoplanka (sek)':     'https://fitnessprogramer.com/wp-content/uploads/2021/02/Side-Plank-1.png',
     'Hjulet':               'https://i5.walmartimages.com/asr/90b2c6cd-1ae5-4bbc-bd73-27272266f0cc.4249099862bc92bf028c4c2c86877dcb.jpeg',
     // Nya övningar
-    'Low cable flyes':              'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
+    'High to low cable flyes (drag curl)': 'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
+    'Low to high cable fly':        'https://cdn.shopify.com/s/files/1/1633/7705/files/cable_flys_low_480x480.jpg',
     'Overhead tricep extension':    'https://www.puregym.com/media/b5jl1ij3/overhead-tricep-extension.jpg?quality=80',
+    'Cable kickback triceps':       'https://s3.amazonaws.com/prod.skimble/assets/2597476/image_iphone.jpg',
+    // Ben & Rumpa
+    'Knäböj':               'https://privatetrainingonline.se/wp-content/uploads/2015/01/Knaboj-varianter-Goblet-Squat.jpg',
+    'Benpress':             'https://www.mathiaszachau.com/wp-content/uploads/2018/03/benpressens-biomekanik-muskelaktivering-illustration-1.jpg',
+    'Leg extension':        'https://training.fit/wp-content/uploads/2020/03/beinstrecken-geraet-1.png',
+    'Leg curl':             'https://newlife.com.cy/wp-content/uploads/2019/08/seated-leg-curl-990x557.png',
+    'Utfall':               'https://static.vecteezy.com/ti/gratis-vektor/p1/26177950-kvinna-haller-pa-med-utfall-steg-posten-traning-trana-for-de-rumpa-och-hofter-vector.jpg',
+    'Hip thrust':           'https://weighttraining.guide/wp-content/uploads/2017/04/barbell-hip-thrust-resized.png',
+    'Romanian deadlift':    'https://www.inspireusafoundation.org/file/2022/06/barbell-romanian-deadlift-benefits-1024x576.jpg',
+    'Sumo knäböj':          'https://www.kettlebellkings.com/cdn/shop/articles/Kettlebell_Sumo_Squat.jpg?v=1732016655',
+    'Cable kickback':       'https://anabolicaliens.com/cdn/shop/articles/1280_684e5ae5-84dd-41af-ae4e-1bd3655083d1.png',
+};
+
+// Övningar utan viktkolumn (bara reps/sek)
+const NO_WEIGHT_EXERCISES = new Set(['Plankan (sek)', 'Sidoplanka (sek)', 'Hjulet']);
+
+// Övningar med varianter (dropdown i kortet)
+const VARIANT_EXERCISES = {
+    'Latsdrag':      ['Maskin', 'Cable'],
+    'Sittande rodd': ['Maskin', 'Cable'],
+    'Preacher curl': ['Maskin', 'Hantlar'],
+    'Sidolyft':      ['Hantlar', 'Cable'],
+};
+
+// Gamla övningsnamn → nytt namn (visas i historiken med nytt namn)
+const EXERCISE_RENAMES = {
+    'Drag curl': 'Low cable chest',
+    'Single arm cable extension': 'Cable kickback triceps',
+    'Good morning': 'Hyperextensions',
+    'Low cable flyes': 'High to low cable flyes (drag curl)',
 };
 
 let currentUser = null;
@@ -950,6 +1292,7 @@ let selectedDifficulty = 0;
 let selectedActivity = null;
 let localWorkouts = [];
 let unsubscribeListener = null;
+let editingWorkout = null;
 
 // ── INIT ─────────────────────────────────────────────
 document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
@@ -960,6 +1303,11 @@ const _savedUser = localStorage.getItem('traning_current_user');
 if (_savedUser) {
     selectUser(_savedUser, true);
 }
+
+// Lyssna på input-händelser för auto-spara utkast
+document.getElementById('exercises-list').addEventListener('input', saveDraft);
+document.getElementById('cardio-time').addEventListener('input', saveDraft);
+document.getElementById('cardio-kcal').addEventListener('input', saveDraft);
 
 // ── NAVIGATION ───────────────────────────────────────
 function showScreen(id) {
@@ -1005,6 +1353,8 @@ function goHome() {
     selectedActivity = null;
     currentProgram = null;
     selectedDifficulty = 0;
+    editingWorkout = null;
+    document.querySelector('.save-btn').textContent = 'Spara träningspass';
 }
 
 function startWorkout(type) {
@@ -1015,6 +1365,7 @@ function startWorkout(type) {
         document.getElementById('cardio-time').value = '';
         document.getElementById('cardio-kcal').value = '';
         showScreen('screen-cardio');
+        restoreCardioDraft();
         return;
     }
 
@@ -1055,12 +1406,66 @@ function startWorkout(type) {
 
         const sortedEx = [...group.exercises].sort((a, b) => _getLastPerformed(b) - _getLastPerformed(a));
         sortedEx.forEach(name => {
-            const prevEx = prev ? prev.exercises.find(e => e.name === name) : null;
+            const aliases = getExerciseAliases(name);
+            const prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
             list.appendChild(buildExerciseCard(name, prevEx));
         });
     });
 
     showScreen('screen-workout');
+    restoreWorkoutDraft();
+}
+
+function editWorkout(id) {
+    const w = localWorkouts.find(w => w.id === id);
+    if (!w) return;
+
+    editingWorkout = w;
+    currentType = w.type;
+    const data = WORKOUTS[w.type];
+    if (!data) return;
+
+    document.getElementById('workout-title').textContent = data.title;
+    document.getElementById('workout-badge').textContent = data.title;
+    document.getElementById('workout-badge').style.background = data.color;
+    document.getElementById('workout-date').textContent = new Date(w.date).toLocaleDateString('sv-SE');
+    document.getElementById('prev-session-info').textContent = '✏️ Redigerar – datum ändras ej';
+    document.querySelector('.save-btn').textContent = 'Spara ändringar';
+
+    const list = document.getElementById('exercises-list');
+    list.innerHTML = '';
+
+    (data.groups || []).forEach(group => {
+        const hdr = document.createElement('div');
+        hdr.className = 'ex-section-head';
+        hdr.textContent = group.label;
+        list.appendChild(hdr);
+
+        group.exercises.forEach(name => {
+            let savedEx = w.exercises.find(e => e.name === name);
+            let initialVariant = null;
+            if (!savedEx && VARIANT_EXERCISES[name]) {
+                for (const v of VARIANT_EXERCISES[name]) {
+                    const found = w.exercises.find(e => e.name === `${name} (${v.toLowerCase()})`);
+                    if (found) { savedEx = found; initialVariant = v.toLowerCase(); break; }
+                }
+            }
+            // currentSets = [] for unlogged exercises (starts empty), savedEx.sets if logged
+            list.appendChild(buildExerciseCard(name, null, null, savedEx ? savedEx.sets : [], initialVariant));
+        });
+    });
+
+    showScreen('screen-workout');
+}
+
+// ── WEEK HELPER ──────────────────────────────────────
+function getWeekStart(dateVal) {
+    const d = new Date(dateVal);
+    const day = d.getDay(); // 0=sön, 1=mån ...
+    const diff = day === 0 ? -6 : 1 - day; // justera till måndag
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
 }
 
 function showHistory() {
@@ -1073,9 +1478,279 @@ function showHistory() {
         return;
     }
 
-    const sorted = [...workouts].reverse();
-    container.innerHTML = sorted.map((w, i) => buildHistoryItem(w, i)).join('');
+    const sorted = [...workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const currentYear = new Date().getFullYear();
+    let html = '';
+    let currentWeekKey = null;
+
+    sorted.forEach((w, i) => {
+        const ws = getWeekStart(w.date);
+        const we = new Date(ws);
+        we.setDate(we.getDate() + 6);
+        const weekKey = ws.toISOString().slice(0, 10);
+
+        if (weekKey !== currentWeekKey) {
+            if (currentWeekKey !== null) html += '</div>';
+            currentWeekKey = weekKey;
+            const opts = { day: 'numeric', month: 'short' };
+            const startStr = ws.toLocaleDateString('sv-SE', opts);
+            const endStr   = we.toLocaleDateString('sv-SE', ws.getFullYear() !== currentYear ? { ...opts, year: 'numeric' } : opts);
+            html += `<div class="week-group"><div class="week-header"><span>${startStr} – ${endStr}</span></div>`;
+        }
+        html += buildHistoryItem(w, i);
+    });
+
+    if (currentWeekKey !== null) html += '</div>';
+    container.innerHTML = html;
     showScreen('screen-history');
+}
+
+// ── STATISTICS ───────────────────────────────────────
+// Räknar övningar per kategori (ej sessioner) för proportionell färguppdelning
+function calcBreakdown(ws) {
+    const bd = {};
+    ws.forEach(w => {
+        if (w.exercises && w.exercises.length > 0) {
+            w.exercises.forEach(ex => {
+                const baseName = ex.name.replace(/\s*\([^)]+\)\s*$/, '');
+                const type = getExerciseCategory(baseName) || getExerciseCategory(ex.name) || w.type;
+                bd[type] = (bd[type] || 0) + 1;
+            });
+        } else {
+            bd[w.type] = (bd[w.type] || 0) + 1;
+        }
+    });
+    return bd;
+}
+
+function buildPieChart(breakdown) {
+    const TYPE_COLORS = { brost:'#ff6b6b', rygg:'#4fc3f7', axlar:'#c084fc', cardio:'#4ade80', ben:'#fb923c', helkropp:'#facc15' };
+    const TYPE_LABELS = { brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', ben:'Ben', helkropp:'Helkropp' };
+    const total = Object.values(breakdown).reduce((s, v) => s + v, 0);
+    if (total === 0) return '';
+    const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]).filter(([, v]) => v > 0);
+    let cum = 0;
+    const stops = entries.map(([type, count]) => {
+        const pct = (count / total) * 100;
+        const s = `${TYPE_COLORS[type] || '#58a6ff'} ${cum.toFixed(2)}% ${(cum + pct).toFixed(2)}%`;
+        cum += pct;
+        return s;
+    });
+    const labels = entries.map(([type, count]) => {
+        const pct = Math.round((count / total) * 100);
+        return `<div class="pie-label"><span class="legend-dot" style="background:${TYPE_COLORS[type]||'#58a6ff'}"></span><span>${TYPE_LABELS[type]||type}</span><span class="pie-pct">${pct}%</span></div>`;
+    }).join('');
+    return `<div class="pie-wrap"><div class="pie-chart" style="background:conic-gradient(${stops.join(',')});"></div></div><div class="pie-labels">${labels}</div>`;
+}
+
+function getISOWeek(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function showStats() {
+    const workouts = getStorage();
+    const now = new Date();
+
+    if (workouts.length === 0) {
+        document.getElementById('stats-body').innerHTML =
+            '<div class="history-empty">Inga träningspass loggade än.</div>';
+        showScreen('screen-stats');
+        return;
+    }
+
+    const weekStart  = getWeekStart(now);
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // ── Sammanfattning ──
+    const totalCount = workouts.length;
+    const thisWeek   = workouts.filter(w => new Date(w.date) >= weekStart).length;
+    const thisMonth  = workouts.filter(w => new Date(w.date) >= monthStart).length;
+
+    let weekStreak = 0;
+    let checkWs = getWeekStart(now);
+    while (true) {
+        const checkWe = new Date(checkWs); checkWe.setDate(checkWe.getDate() + 7);
+        if (workouts.some(w => { const d = new Date(w.date); return d >= checkWs && d < checkWe; })) {
+            weekStreak++;
+            checkWs = new Date(checkWs); checkWs.setDate(checkWs.getDate() - 7);
+        } else break;
+    }
+
+    // ── Längsta svit (dagar i rad) ──
+    const uniqueDates = [...new Set(workouts.map(w => w.date.slice(0, 10)))].sort();
+    let maxDayStreak = uniqueDates.length > 0 ? 1 : 0, curStreak = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+        const diff = Math.round((new Date(uniqueDates[i]) - new Date(uniqueDates[i-1])) / 86400000);
+        if (diff === 1) { curStreak++; maxDayStreak = Math.max(maxDayStreak, curStreak); }
+        else curStreak = 1;
+    }
+
+    // ── Rekordvecka ──
+    const weekCounts = {};
+    workouts.forEach(w => {
+        const key = getWeekStart(w.date).toISOString().slice(0, 10);
+        weekCounts[key] = (weekCounts[key] || 0) + 1;
+    });
+    const recordWeek = Object.values(weekCounts).length ? Math.max(...Object.values(weekCounts)) : 0;
+
+    // ── Favoritpass ──
+    const typeCounts = {};
+    workouts.forEach(w => { typeCounts[w.type] = (typeCounts[w.type] || 0) + 1; });
+    const typeShort = { brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', helkropp:'Helkropp', ben:'Ben' };
+    const favTypeEntry = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
+    const favTypeLabel = favTypeEntry ? (typeShort[favTypeEntry[0]] || favTypeEntry[0]) : '–';
+
+    // ── Träningstid på dygnet ──
+    const timeBuckets = { 'Förmiddag': 0, 'Eftermiddag': 0, 'Kväll': 0 };
+    workouts.forEach(w => {
+        const h = new Date(w.date).getHours();
+        if (h < 12) timeBuckets['Förmiddag']++;
+        else if (h < 17) timeBuckets['Eftermiddag']++;
+        else timeBuckets['Kväll']++;
+    });
+    const favTime = Object.entries(timeBuckets).sort((a, b) => b[1] - a[1])[0][0];
+
+    // ── Längsta vila (dagar mellan pass) ──
+    let longestBreak = 0;
+    if (uniqueDates.length >= 2) {
+        for (let i = 1; i < uniqueDates.length; i++) {
+            const gap = Math.round((new Date(uniqueDates[i]) - new Date(uniqueDates[i-1])) / 86400000) - 1;
+            longestBreak = Math.max(longestBreak, gap);
+        }
+    }
+
+    // ── Veckodagsfördelning ──
+    const DAY_NAMES = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
+    const dayCounts = [0,0,0,0,0,0,0];
+    const dayWorkouts = Array.from({length: 7}, () => []);
+    workouts.forEach(w => {
+        const idx = (new Date(w.date).getDay() + 6) % 7;
+        dayCounts[idx]++;
+        dayWorkouts[idx].push(w);
+    });
+    const weekdayData = DAY_NAMES.map((label, i) => ({ label, count: dayCounts[i], breakdown: calcBreakdown(dayWorkouts[i]) }));
+    const maxDayIdx = dayCounts.indexOf(Math.max(...dayCounts));
+    const minDayIdx = dayCounts.indexOf(Math.min(...dayCounts));
+
+    // ── Veckodata v.X (senaste 12) ──
+    const weeklyData = [];
+    for (let i = 11; i >= 0; i--) {
+        const ws = getWeekStart(now); ws.setDate(ws.getDate() - i * 7);
+        const we = new Date(ws); we.setDate(we.getDate() + 7);
+        const ww = workouts.filter(w => { const d = new Date(w.date); return d >= ws && d < we; });
+        const wbd = {}; ww.forEach(w => { wbd[w.type] = (wbd[w.type] || 0) + 1; });
+        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count: ww.length, breakdown: wbd });
+    }
+
+    // ── Månadsdata (senaste 12) ──
+    const monthlyData = [];
+    for (let i = 11; i >= 0; i--) {
+        const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+        const mw = workouts.filter(w => { const d = new Date(w.date); return d >= ms && d < me; });
+        const mbd = {}; mw.forEach(w => { mbd[w.type] = (mbd[w.type] || 0) + 1; });
+        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count: mw.length, breakdown: mbd });
+    }
+
+    // ── Cirkeldiagram (totalt) ──
+    const overallBreakdown = calcBreakdown(workouts);
+
+    const avgPerWeek = (weeklyData.reduce((s, w) => s + w.count, 0) / 12).toFixed(1);
+
+    document.getElementById('stats-body').innerHTML = `
+        <div class="stats-summary">
+            <div class="stat-card"><div class="stat-value">${totalCount}</div><div class="stat-label">Totalt</div></div>
+            <div class="stat-card"><div class="stat-value">${thisWeek}</div><div class="stat-label">Den här veckan</div></div>
+            <div class="stat-card"><div class="stat-value">${thisMonth}</div><div class="stat-label">Den här månaden</div></div>
+            <div class="stat-card"><div class="stat-value">${weekStreak}</div><div class="stat-label">Veckor i rad 🔥</div></div>
+        </div>
+
+        <div class="fun-stats-grid">
+            <div class="fun-stat-card"><span class="fun-stat-emoji">🏆</span><div class="fun-stat-val">${recordWeek}</div><div class="fun-stat-desc">Rekordvecka</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">🔥</span><div class="fun-stat-val">${maxDayStreak}</div><div class="fun-stat-desc">Dagar i rad</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">💪</span><div class="fun-stat-val" style="font-size:17px">${favTypeLabel}</div><div class="fun-stat-desc">Favoritpass</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">📈</span><div class="fun-stat-val">${avgPerWeek}</div><div class="fun-stat-desc">Snitt/vecka</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">⏰</span><div class="fun-stat-val" style="font-size:15px">${favTime}</div><div class="fun-stat-desc">Träningstid</div></div>
+            <div class="fun-stat-card"><span class="fun-stat-emoji">😴</span><div class="fun-stat-val">${longestBreak}</div><div class="fun-stat-desc">Längsta vilan (dgr)</div></div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Fördelning muskelgrupper – totalt</div>
+            ${buildPieChart(overallBreakdown)}
+        </div>
+
+        <div class="chart-legend">
+            <span><span class="legend-dot" style="background:#ff6b6b"></span>Bröst</span>
+            <span><span class="legend-dot" style="background:#4fc3f7"></span>Rygg</span>
+            <span><span class="legend-dot" style="background:#c084fc"></span>Axlar</span>
+            <span><span class="legend-dot" style="background:#fb923c"></span>Ben</span>
+            <span><span class="legend-dot" style="background:#facc15"></span>Helkropp</span>
+            <span><span class="legend-dot" style="background:#4ade80"></span>Cardio</span>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Veckodagsfördelning</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">
+                Mest aktiv: <strong style="color:var(--text)">${DAY_NAMES[maxDayIdx]}</strong>
+                &nbsp;·&nbsp;
+                Minst aktiv: <strong style="color:var(--text)">${DAY_NAMES[minDayIdx]}</strong>
+            </div>
+            ${buildBarChart(weekdayData, maxDayIdx)}
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Pass per vecka – senaste 12 veckorna</div>
+            ${buildBarChart(weeklyData)}
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Pass per månad – senaste 12 månaderna</div>
+            ${buildBarChart(monthlyData)}
+        </div>`;
+
+    showScreen('screen-stats');
+}
+
+function buildBarChart(data, highlightIdx = -1) {
+    const TYPE_COLORS = {
+        brost: '#ff6b6b', rygg: '#4fc3f7', axlar: '#c084fc',
+        cardio: '#4ade80', ben: '#fb923c', helkropp: '#facc15'
+    };
+    const TYPE_ORDER = ['brost', 'rygg', 'axlar', 'ben', 'helkropp', 'cardio'];
+    const maxCount = Math.max(...data.map(d => d.count), 1);
+    const BAR_MAX_H = 100;
+
+    return '<div class="bar-chart">' + data.map((d, i) => {
+        const h = Math.round((d.count / maxCount) * BAR_MAX_H);
+        const hl = i === highlightIdx;
+
+        let barHtml;
+        if (d.breakdown && d.count > 0) {
+            const types = TYPE_ORDER.filter(t => d.breakdown[t]);
+            Object.keys(d.breakdown).forEach(t => { if (!TYPE_ORDER.includes(t)) types.push(t); });
+            let assignedH = 0;
+            const segments = types.map((type, idx) => {
+                const segH = idx === types.length - 1
+                    ? h - assignedH
+                    : Math.round((d.breakdown[type] / d.count) * h);
+                assignedH += segH;
+                return `<div style="height:${segH}px;background:${TYPE_COLORS[type] || '#58a6ff'};width:100%;"></div>`;
+            }).join('');
+            barHtml = `<div style="height:${h}px;width:65%;max-width:30px;border-radius:3px 3px 0 0;overflow:hidden;display:flex;flex-direction:column-reverse;${h === 0 ? '' : 'min-height:2px;'}">${segments}</div>`;
+        } else {
+            barHtml = `<div class="bar-col" style="height:${h}px${hl ? ';background:linear-gradient(to top,#cc4444,#ff6b6b)' : ''}"></div>`;
+        }
+
+        return `<div class="bar-group">
+            <div class="bar-val" style="${hl ? 'color:#ff6b6b' : ''}">${d.count > 0 ? d.count : ''}</div>
+            ${barHtml}
+            <div class="bar-lbl">${d.label}</div>
+        </div>`;
+    }).join('') + '</div>';
 }
 
 // ── HELKROPPSPASS (slump) ─────────────────────────────
@@ -1140,25 +1815,55 @@ function saveProgramSession() {
 }
 
 // ── EXERCISE CARDS ────────────────────────────────────
-function buildExerciseCard(name, prevEx, templateEx = null) {
+function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null, initialVariant = null) {
     const div = document.createElement('div');
     div.className = 'ex-card';
 
-    const imgUrl = EXERCISE_IMAGES[name];
+    const variants = VARIANT_EXERCISES[name];
+    const hasVariants = !!variants;
+    const activeVariant = initialVariant || (hasVariants ? variants[0].toLowerCase() : null);
+    const effectiveName = hasVariants ? `${name} (${activeVariant})` : name;
+
+    if (hasVariants) {
+        div.dataset.baseName = name;
+        div.dataset.effectiveName = effectiveName;
+        if (!prevEx && currentSets === null) {
+            const prev = getPrevious(currentType);
+            const aliases = getExerciseAliases(effectiveName);
+            prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
+        }
+    }
+
+    const noWeight = NO_WEIGHT_EXERCISES.has(name);
+    if (noWeight) div.dataset.noWeight = 'true';
+
+    const imgUrl = EXERCISE_IMAGES[effectiveName] || EXERCISE_IMAGES[name];
     const imgHtml = imgUrl
         ? `<img class="ex-thumb" src="${imgUrl}" alt="${name}" onclick="openLightbox('${imgUrl}',event)" title="Klicka för att förstora">`
         : '';
 
+    const pb = getExercisePB(effectiveName);
+    const pbText = pb !== null ? `PB: ${pb.weight} kg × ${pb.reps} reps` : '';
+    const pbHtml = `<div class="ex-pb">${pbText}</div>`;
+
+    const variantHtml = hasVariants
+        ? `<select class="variant-select" onchange="changeVariant(this)">${variants.map(v => `<option value="${v.toLowerCase()}"${v.toLowerCase() === activeVariant ? ' selected' : ''}>${v}</option>`).join('')}</select>`
+        : '';
+
     div.innerHTML = `
         <div class="ex-header">
-            <span class="ex-name">${name}</span>
+            <div>
+                <span class="ex-name">${name}</span>
+                ${variantHtml}
+                ${pbHtml}
+            </div>
             ${imgHtml}
         </div>
         <table class="sets-table">
             <thead>
                 <tr>
                     <th style="width:36px">Set</th>
-                    <th>Vikt (kg)</th>
+                    ${noWeight ? '' : '<th>Vikt (kg)</th>'}
                     <th>Reps</th>
                     <th></th>
                 </tr>
@@ -1169,19 +1874,74 @@ function buildExerciseCard(name, prevEx, templateEx = null) {
     `;
 
     const prevSets = prevEx ? prevEx.sets : [];
-    const setsToAdd = prevSets.length > 0 ? prevSets.length : (templateEx ? templateEx.sets : 3);
+    const setsToAdd = currentSets !== null
+        ? currentSets.length
+        : (prevSets.length > 0 ? prevSets.length : (templateEx ? templateEx.sets : 3));
     const btn = div.querySelector('.add-set-btn');
 
     for (let i = 0; i < setsToAdd; i++) {
         const hasPrev = !!prevSets[i];
-        addSet(btn, prevSets[i] || null, (!hasPrev && templateEx) ? templateEx : null);
+        addSet(btn, prevSets[i] || null, (!hasPrev && templateEx) ? templateEx : null, currentSets ? currentSets[i] || null : null);
     }
 
     return div;
 }
 
-function addSet(btn, prevSet = null, templateEx = null) {
-    const tbody = btn.closest('.ex-card').querySelector('.sets-body');
+function changeVariant(select) {
+    const card = select.closest('.ex-card');
+    const baseName = card.dataset.baseName;
+    const variant = select.value;
+    const effectiveName = `${baseName} (${variant})`;
+    card.dataset.effectiveName = effectiveName;
+
+    // Uppdatera PB
+    const pb = getExercisePB(effectiveName);
+    const pbEl = card.querySelector('.ex-pb');
+    pbEl.textContent = pb !== null ? `PB: ${pb.weight} kg × ${pb.reps} reps` : '';
+
+    // Hämta förra passets sets för den valda varianten
+    const prev = getPrevious(currentType);
+    const aliases = getExerciseAliases(effectiveName);
+    const prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
+    const prevSets = prevEx ? prevEx.sets : [];
+
+    card.querySelectorAll('.set-row').forEach((row, i) => {
+        const prevSet = prevSets[i];
+        const tds = row.querySelectorAll('td');
+        const wInput = tds[1].querySelector('.set-input');
+        const rInput = tds[2].querySelector('.set-input');
+        let wHint = tds[1].querySelector('.prev-val');
+        let rHint = tds[2].querySelector('.prev-val');
+
+        if (prevSet) {
+            if (!wHint) { wHint = document.createElement('div'); wHint.className = 'prev-val'; tds[1].appendChild(wHint); }
+            if (!rHint) { rHint = document.createElement('div'); rHint.className = 'prev-val'; tds[2].appendChild(rHint); }
+            wHint.textContent = `Förra: ${prevSet.weight} kg`;
+            rHint.textContent = `Förra: ${prevSet.reps}`;
+            if (wInput) wInput.placeholder = prevSet.weight;
+            if (rInput) rInput.placeholder = prevSet.reps;
+        } else {
+            if (wHint) wHint.textContent = '';
+            if (rHint) rHint.textContent = '';
+            if (wInput) wInput.placeholder = '0';
+            if (rInput) rInput.placeholder = '0';
+        }
+    });
+
+    // Uppdatera bild
+    const imgUrl = EXERCISE_IMAGES[effectiveName] || EXERCISE_IMAGES[baseName];
+    const img = card.querySelector('.ex-thumb');
+    if (img && imgUrl) {
+        img.src = imgUrl;
+        img.setAttribute('onclick', `openLightbox('${imgUrl}',event)`);
+    }
+    saveDraft();
+}
+
+function addSet(btn, prevSet = null, templateEx = null, currentSet = null) {
+    const card  = btn.closest('.ex-card');
+    const tbody = card.querySelector('.sets-body');
+    const noWeight = card.dataset.noWeight === 'true';
     const num = tbody.querySelectorAll('.set-row').length + 1;
 
     const tr = document.createElement('tr');
@@ -1196,19 +1956,38 @@ function addSet(btn, prevSet = null, templateEx = null) {
         ? `<div class="prev-val">Förra: ${prevReps}</div>`
         : (templateEx ? `<div class="prev-val" style="color:#58a6ff">Förslag: ${suggestReps} reps</div>` : '');
 
-    tr.innerHTML = `
-        <td class="set-num">${num}</td>
-        <td>
-            <input class="set-input" type="text" inputmode="decimal" placeholder="${prevWeight || '0'}" pattern="[0-9]*[.,]?[0-9]*">
-            ${hintW}
-        </td>
-        <td>
-            <input class="set-input" type="number" placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric">
-            ${hintR}
-        </td>
-        <td><button class="del-set" onclick="deleteSet(this)" title="Ta bort set">×</button></td>
-    `;
+    if (noWeight) {
+        tr.innerHTML = `
+            <td class="set-num">${num}</td>
+            <td colspan="2">
+                <input class="set-input" type="hidden" value="0">
+                <input class="set-input" type="number"
+                       placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric"
+                       ${currentSet ? `value="${currentSet.reps}"` : ''}>
+                ${hintR}
+            </td>
+            <td><button class="del-set" onclick="deleteSet(this)" title="Ta bort set">×</button></td>
+        `;
+    } else {
+        tr.innerHTML = `
+            <td class="set-num">${num}</td>
+            <td>
+                <input class="set-input" type="text" inputmode="decimal"
+                       placeholder="${prevWeight || '0'}" pattern="[0-9]*[.,]?[0-9]*"
+                       ${currentSet ? `value="${currentSet.weight}"` : ''}>
+                ${hintW}
+            </td>
+            <td>
+                <input class="set-input" type="number"
+                       placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric"
+                       ${currentSet ? `value="${currentSet.reps}"` : ''}>
+                ${hintR}
+            </td>
+            <td><button class="del-set" onclick="deleteSet(this)" title="Ta bort set">×</button></td>
+        `;
+    }
     tbody.appendChild(tr);
+    saveDraft();
 }
 
 function deleteSet(btn) {
@@ -1217,6 +1996,7 @@ function deleteSet(btn) {
     tbody.querySelectorAll('.set-row').forEach((r, i) => {
         r.querySelector('.set-num').textContent = i + 1;
     });
+    saveDraft();
 }
 
 // ── CARDIO ───────────────────────────────────────────
@@ -1224,6 +2004,7 @@ function selectActivity(el, activity) {
     document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     selectedActivity = activity;
+    saveDraft();
 }
 
 // ── SAVE ─────────────────────────────────────────────
@@ -1231,7 +2012,7 @@ function saveWorkout() {
     const exercises = [];
 
     document.querySelectorAll('.ex-card').forEach(card => {
-        const name = card.querySelector('.ex-name').textContent;
+        const name = card.dataset.effectiveName || card.querySelector('.ex-name').textContent;
         const sets = [];
 
         card.querySelectorAll('.set-row').forEach(row => {
@@ -1251,14 +2032,16 @@ function saveWorkout() {
     }
 
     saveToStorage({
-        id: Date.now(),
-        date: new Date().toISOString(),
+        id:    editingWorkout ? editingWorkout.id   : Date.now(),
+        date:  editingWorkout ? editingWorkout.date : new Date().toISOString(),
         type: currentType,
-        title: WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType,
+        title: generateWorkoutTitle(),
         exercises
     });
 
-    toast('Träningspass sparat!');
+    clearDraft();
+    toast(editingWorkout ? 'Pass uppdaterat!' : 'Träningspass sparat!');
+    editingWorkout = null;
     setTimeout(goHome, 1600);
 }
 
@@ -1283,6 +2066,7 @@ function saveCardio() {
         kcal: parseInt(kcal)
     });
 
+    clearDraft();
     toast('Cardio sparat!');
     setTimeout(goHome, 1600);
 }
@@ -1314,7 +2098,7 @@ function buildHistoryItem(w, i) {
     } else {
         bodyHtml = (w.exercises || []).map(ex => `
             <div class="hist-ex">
-                <div class="hist-ex-name">${ex.name}</div>
+                <div class="hist-ex-name">${EXERCISE_RENAMES[ex.name] || ex.name}</div>
                 <div class="hist-sets">
                     ${ex.sets.map((s, si) => `
                         <span class="hist-set-pill">${si+1}. ${s.weight} kg × ${s.reps}</span>
@@ -1323,15 +2107,24 @@ function buildHistoryItem(w, i) {
             </div>`).join('');
     }
 
+    const editBtn = (!w.isProgram && w.type !== 'cardio' && WORKOUTS[w.type])
+        ? `<button class="hist-edit-btn" onclick="event.stopPropagation(); editWorkout(${w.id})" title="Redigera">✏️</button>`
+        : '';
+
     return `
         <div class="hist-item">
             <div class="hist-header" onclick="toggleHistory(this)">
                 <span class="hist-title">${w.title}</span>
                 <span class="hist-date">${date}</span>
-                <button class="hist-delete-btn" onclick="event.stopPropagation(); deleteWorkout(${w.id})" title="Ta bort">🗑</button>
+                ${editBtn}
                 <span class="hist-chevron">▼</span>
             </div>
-            <div class="hist-body">${bodyHtml}</div>
+            <div class="hist-body">
+                ${bodyHtml}
+                <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--surface2);text-align:right;">
+                    <button class="hist-delete-btn" onclick="deleteWorkout(${w.id})" title="Ta bort">🗑 Ta bort pass</button>
+                </div>
+            </div>
         </div>`;
 }
 
@@ -1342,7 +2135,7 @@ function toggleHistory(header) {
 
 // ── HOME CARD LAST SESSION ────────────────────────────
 function updateLastSessions() {
-    ['brost', 'rygg', 'axlar', 'cardio'].forEach(type => {
+    ['brost', 'rygg', 'axlar', 'cardio', 'ben'].forEach(type => {
         const prev = getPrevious(type);
         const el = document.getElementById(`last-${type}`);
         if (prev) {
@@ -1376,6 +2169,38 @@ function getPrevious(type) {
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
 }
 
+function getExerciseAliases(name) {
+    const aliases = [name];
+    for (const [oldName, newName] of Object.entries(EXERCISE_RENAMES)) {
+        if (newName === name) aliases.push(oldName);
+    }
+    // Om det är en variantövning som "Latsdrag (maskin)", inkludera basnamnet som alias
+    for (const [baseName, variants] of Object.entries(VARIANT_EXERCISES)) {
+        if (variants.some(v => name === `${baseName} (${v.toLowerCase()})`)) {
+            aliases.push(baseName);
+        }
+    }
+    return aliases;
+}
+
+function getExercisePB(exerciseName) {
+    const aliases = getExerciseAliases(exerciseName);
+    let pb = null;
+    getStorage().forEach(workout => {
+        if (!workout.exercises) return;
+        workout.exercises.forEach(ex => {
+            if (!aliases.includes(ex.name)) return;
+            ex.sets.forEach(s => {
+                const w = parseFloat(String(s.weight).replace(',', '.'));
+                if (!isNaN(w) && w >= 0 && (pb === null || w > pb.weight)) {
+                    pb = { weight: w, reps: s.reps };
+                }
+            });
+        });
+    });
+    return pb;
+}
+
 // ── LIGHTBOX ─────────────────────────────────────────
 function openLightbox(src, e) {
     e.stopPropagation();
@@ -1386,6 +2211,188 @@ function closeLightbox() {
     document.getElementById('lightbox').classList.remove('open');
 }
 
+// ── WORKOUT TITLE ─────────────────────────────────────
+function getExerciseMuscleGroup(name) {
+    for (const [type, data] of Object.entries(WORKOUTS)) {
+        if (!data.groups) continue;
+        for (const group of data.groups) {
+            if (group.exercises.includes(name)) return group.label;
+        }
+    }
+    return null;
+}
+
+function generateWorkoutTitle() {
+    const groups = [];
+    document.querySelectorAll('.ex-card').forEach(card => {
+        const name = card.dataset.baseName || card.querySelector('.ex-name').textContent;
+        const group = getExerciseMuscleGroup(name);
+        if (group && !groups.includes(group)) groups.push(group);
+    });
+    if (groups.length === 0) return WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType;
+    if (groups.length === 1) return groups[0];
+    return groups.slice(0, -1).join(', ') + ' & ' + groups[groups.length - 1];
+}
+
+// ── ADD EXERCISE MODAL ────────────────────────────────
+function getLastExerciseData(name) {
+    const aliases = getExerciseAliases(name);
+    const sorted = [...localWorkouts].sort((a, b) => new Date(b.date) - new Date(a.date));
+    for (const w of sorted) {
+        if (!w.exercises) continue;
+        const ex = w.exercises.find(e => aliases.includes(e.name));
+        if (ex) return ex;
+    }
+    return null;
+}
+
+function openAddExerciseModal() {
+    const body = document.getElementById('modal-ex-body');
+    // Behåll custom-raden, rensa övningar
+    const customRow = body.querySelector('.modal-custom-row');
+    body.innerHTML = '';
+    body.appendChild(customRow);
+    document.getElementById('custom-ex-input').value = '';
+
+    Object.entries(WORKOUTS).forEach(([type, data]) => {
+        if (!data.groups || data.groups.length === 0) return;
+        const catHdr = document.createElement('div');
+        catHdr.className = 'modal-cat-header';
+        catHdr.style.color = data.color;
+        catHdr.textContent = data.title;
+        body.appendChild(catHdr);
+
+        data.groups.forEach(group => {
+            group.exercises.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'modal-ex-item';
+                item.innerHTML = `<span class="ex-cat-dot" style="background:${data.color}"></span><span>${name}</span>`;
+                item.onclick = () => addExerciseToWorkout(name);
+                body.appendChild(item);
+            });
+        });
+    });
+
+    document.getElementById('add-exercise-modal').classList.add('open');
+    document.getElementById('custom-ex-input').focus();
+}
+
+function closeAddExerciseModal() {
+    document.getElementById('add-exercise-modal').classList.remove('open');
+}
+
+function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('add-exercise-modal')) closeAddExerciseModal();
+}
+
+function addExerciseToWorkout(name) {
+    const prevEx = getLastExerciseData(name);
+    const card = buildExerciseCard(name, prevEx);
+    document.getElementById('exercises-list').appendChild(card);
+    closeAddExerciseModal();
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    saveDraft();
+}
+
+function addCustomExercise() {
+    const input = document.getElementById('custom-ex-input');
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    addExerciseToWorkout(name);
+}
+
+// ── DRAFT (auto-spara pågående pass) ──────────────────
+const DRAFT_KEY = 'traning_draft';
+let _suppressDraft = false;
+
+function saveDraft() {
+    if (_suppressDraft) return;
+    if (document.getElementById('screen-workout').classList.contains('active')) {
+        const exercises = [];
+        document.querySelectorAll('.ex-card').forEach(card => {
+            const name = card.dataset.baseName || card.querySelector('.ex-name').textContent;
+            const effectiveName = card.dataset.effectiveName || '';
+            const m = effectiveName.match(/\(([^)]+)\)$/);
+            const variant = m ? m[1] : null;
+            const sets = [];
+            card.querySelectorAll('.set-row').forEach(row => {
+                const inp = row.querySelectorAll('.set-input');
+                sets.push({ weight: inp[0].value, reps: inp[1].value });
+            });
+            exercises.push({ name, variant, sets });
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ kind: 'workout', workoutType: currentType, exercises, ts: Date.now() }));
+    } else if (document.getElementById('screen-cardio').classList.contains('active')) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+            kind: 'cardio',
+            activity: selectedActivity,
+            time: document.getElementById('cardio-time').value,
+            kcal: document.getElementById('cardio-kcal').value,
+            ts: Date.now()
+        }));
+    }
+}
+
+function restoreWorkoutDraft() {
+    try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (draft.kind !== 'workout' || draft.workoutType !== currentType) return;
+        if (Date.now() - draft.ts > 86400000) return; // max 24h
+        _suppressDraft = true;
+        let anyRestored = false;
+        draft.exercises.forEach(draftEx => {
+            document.querySelectorAll('.ex-card').forEach(card => {
+                const cardName = card.dataset.baseName || card.querySelector('.ex-name').textContent;
+                if (cardName !== draftEx.name) return;
+                if (draftEx.variant) {
+                    const sel = card.querySelector('.variant-select');
+                    if (sel && sel.value !== draftEx.variant) { sel.value = draftEx.variant; changeVariant(sel); }
+                }
+                const btn = card.querySelector('.add-set-btn');
+                let rows = card.querySelectorAll('.set-row');
+                while (rows.length < draftEx.sets.length) { addSet(btn); rows = card.querySelectorAll('.set-row'); }
+                rows = card.querySelectorAll('.set-row');
+                for (let i = rows.length - 1; i >= draftEx.sets.length; i--) deleteSet(rows[i].querySelector('.del-set'));
+                card.querySelectorAll('.set-row').forEach((row, i) => {
+                    const s = draftEx.sets[i];
+                    if (!s) return;
+                    const inp = row.querySelectorAll('.set-input');
+                    if (s.weight && s.weight !== '0') inp[0].value = s.weight;
+                    if (s.reps)   { inp[1].value = s.reps; anyRestored = true; }
+                });
+            });
+        });
+        _suppressDraft = false;
+        if (anyRestored) toast('Pågående pass återställt ✓');
+    } catch (e) { _suppressDraft = false; }
+}
+
+function restoreCardioDraft() {
+    try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        if (draft.kind !== 'cardio') return;
+        if (Date.now() - draft.ts > 86400000) return;
+        _suppressDraft = true;
+        let restored = false;
+        if (draft.activity) {
+            const el = document.querySelector(`.act-card[onclick*="'${draft.activity}'"]`);
+            if (el) { selectActivity(el, draft.activity); restored = true; }
+        }
+        if (draft.time) { document.getElementById('cardio-time').value = draft.time; restored = true; }
+        if (draft.kcal) { document.getElementById('cardio-kcal').value = draft.kcal; restored = true; }
+        _suppressDraft = false;
+        if (restored) toast('Pågående pass återställt ✓');
+    } catch (e) { _suppressDraft = false; }
+}
+
+function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+}
+
 // ── TOAST ────────────────────────────────────────────
 function toast(msg, isError = false) {
     const el = document.getElementById('toast');
@@ -1394,5 +2401,6 @@ function toast(msg, isError = false) {
     setTimeout(() => el.classList.remove('show'), 2400);
 }
 </script>
+<div class="signature">Made by: David Hefner</div>
 </body>
 </html>
