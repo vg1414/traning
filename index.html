@@ -1281,6 +1281,21 @@ const VARIANT_EXERCISES = {
     'Sidolyft':      ['Hantlar', 'Cable'],
 };
 
+// Gemensam färgmappning (används i statistik, diagram etc.)
+const TYPE_COLORS = {
+    brost: '#ef4444', rygg: '#3b82f6', axlar: '#a855f7',
+    cardio: '#4ade80', ben: '#eab308', helkropp: '#facc15',
+    'Bröst':'#ef4444', 'Triceps':'#f97316', 'Rygg':'#3b82f6', 'Biceps':'#34d399',
+    'Axlar':'#a855f7', 'Mage':'#f472b6', 'Ben':'#eab308', 'Rumpa':'#84cc16',
+    'Cardio':'#4ade80', 'Helkropp':'#facc15'
+};
+const TYPE_LABELS = {
+    'Bröst':'Bröst', 'Triceps':'Triceps', 'Rygg':'Rygg', 'Biceps':'Biceps',
+    'Axlar':'Axlar', 'Mage':'Mage', 'Ben':'Ben', 'Rumpa':'Rumpa',
+    'Cardio':'Cardio', 'Helkropp':'Helkropp',
+    brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', ben:'Ben', helkropp:'Helkropp'
+};
+
 // Gamla övningsnamn → nytt namn (visas i historiken med nytt namn)
 const EXERCISE_RENAMES = {
     'Drag curl': 'Low cable chest',
@@ -1391,15 +1406,16 @@ function startWorkout(type) {
     const list = document.getElementById('exercises-list');
     list.innerHTML = '';
 
-    const _allHistory = getStorage();
+    const _sortedHistory = [...getStorage()].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const _lastPerformedCache = {};
     function _getLastPerformed(name) {
-        const sorted = [..._allHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
-        for (const w of sorted) {
+        if (name in _lastPerformedCache) return _lastPerformedCache[name];
+        for (const w of _sortedHistory) {
             if (w.exercises && w.exercises.some(e => e.name === name)) {
-                return new Date(w.date).getTime();
+                return (_lastPerformedCache[name] = new Date(w.date).getTime());
             }
         }
-        return 0;
+        return (_lastPerformedCache[name] = 0);
     }
 
     (data.groups || []).forEach(group => {
@@ -1421,18 +1437,18 @@ function startWorkout(type) {
 }
 
 function editWorkout(id) {
-    const w = localWorkouts.find(w => w.id === id);
-    if (!w) return;
+    const workout = localWorkouts.find(entry => entry.id === id);
+    if (!workout) return;
 
-    editingWorkout = w;
-    currentType = w.type;
-    const data = WORKOUTS[w.type];
+    editingWorkout = workout;
+    currentType = workout.type;
+    const data = WORKOUTS[workout.type];
     if (!data) return;
 
     document.getElementById('workout-title').textContent = data.title;
     document.getElementById('workout-badge').textContent = data.title;
     document.getElementById('workout-badge').style.background = data.color;
-    document.getElementById('workout-date').textContent = new Date(w.date).toLocaleDateString('sv-SE');
+    document.getElementById('workout-date').textContent = new Date(workout.date).toLocaleDateString('sv-SE');
     document.getElementById('prev-session-info').textContent = '✏️ Redigerar – datum ändras ej';
     document.querySelector('.save-btn').textContent = 'Spara ändringar';
 
@@ -1446,11 +1462,11 @@ function editWorkout(id) {
         list.appendChild(hdr);
 
         group.exercises.forEach(name => {
-            let savedEx = w.exercises.find(e => e.name === name);
+            let savedEx = workout.exercises.find(e => e.name === name);
             let initialVariant = null;
             if (!savedEx && VARIANT_EXERCISES[name]) {
                 for (const v of VARIANT_EXERCISES[name]) {
-                    const found = w.exercises.find(e => e.name === `${name} (${v.toLowerCase()})`);
+                    const found = workout.exercises.find(e => e.name === `${name} (${v.toLowerCase()})`);
                     if (found) { savedEx = found; initialVariant = v.toLowerCase(); break; }
                 }
             }
@@ -1510,14 +1526,19 @@ function showHistory() {
 }
 
 // ── STATISTICS ───────────────────────────────────────
-function getExerciseType(name) {
+function findExerciseInfo(name) {
     for (const [type, data] of Object.entries(WORKOUTS)) {
         if (!data.groups) continue;
         for (const group of data.groups) {
-            if (group.exercises.includes(name)) return type;
+            if (group.exercises.includes(name)) return { type, group: group.label };
         }
     }
     return null;
+}
+
+function getExerciseType(name) {
+    const info = findExerciseInfo(name);
+    return info ? info.type : null;
 }
 
 // Räknar övningar per muskelgrupp (Bröst, Triceps, Biceps, Mage…) för proportionell färguppdelning
@@ -1538,18 +1559,6 @@ function calcBreakdown(ws) {
 }
 
 function buildPieChart(breakdown) {
-    const TYPE_COLORS = {
-        'Bröst':'#ef4444', 'Triceps':'#f97316', 'Rygg':'#3b82f6', 'Biceps':'#34d399',
-        'Axlar':'#a855f7', 'Mage':'#f472b6', 'Ben':'#eab308', 'Rumpa':'#84cc16',
-        'Cardio':'#4ade80', 'Helkropp':'#facc15',
-        brost:'#ef4444', rygg:'#3b82f6', axlar:'#a855f7', cardio:'#4ade80', ben:'#eab308', helkropp:'#facc15'
-    };
-    const TYPE_LABELS = {
-        'Bröst':'Bröst', 'Triceps':'Triceps', 'Rygg':'Rygg', 'Biceps':'Biceps',
-        'Axlar':'Axlar', 'Mage':'Mage', 'Ben':'Ben', 'Rumpa':'Rumpa',
-        'Cardio':'Cardio', 'Helkropp':'Helkropp',
-        brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', ben:'Ben', helkropp:'Helkropp'
-    };
     const total = Object.values(breakdown).reduce((s, v) => s + v, 0);
     if (total === 0) return '';
     const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]).filter(([, v]) => v > 0);
@@ -1744,13 +1753,6 @@ function showStats() {
 }
 
 function buildBarChart(data, highlightIdx = -1) {
-    const TYPE_COLORS = {
-        brost: '#ef4444', rygg: '#3b82f6', axlar: '#a855f7',
-        cardio: '#4ade80', ben: '#eab308', helkropp: '#facc15',
-        'Bröst':'#ef4444', 'Triceps':'#f97316', 'Rygg':'#3b82f6', 'Biceps':'#34d399',
-        'Axlar':'#a855f7', 'Mage':'#f472b6', 'Ben':'#eab308', 'Rumpa':'#84cc16',
-        'Cardio':'#4ade80', 'Helkropp':'#facc15'
-    };
     const TYPE_ORDER = ['brost', 'rygg', 'axlar', 'ben', 'helkropp', 'cardio',
         'Bröst', 'Triceps', 'Rygg', 'Biceps', 'Axlar', 'Mage', 'Ben', 'Rumpa', 'Helkropp', 'Cardio'];
     const maxCount = Math.max(...data.map(d => d.count), 1);
@@ -1872,7 +1874,7 @@ function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null, 
 
     const imgUrl = EXERCISE_IMAGES[effectiveName] || EXERCISE_IMAGES[name];
     const imgHtml = imgUrl
-        ? `<img class="ex-thumb" src="${imgUrl}" alt="${name}" onclick="openLightbox('${imgUrl}',event)" title="Klicka för att förstora">`
+        ? `<img class="ex-thumb" src="${imgUrl}" alt="${name}" data-fullsrc="${imgUrl.replace(/"/g, '&quot;')}" onclick="openLightbox(this.dataset.fullsrc,event)" title="Klicka för att förstora">`
         : '';
 
     const pb = getExercisePB(effectiveName);
@@ -1938,21 +1940,29 @@ function changeVariant(select) {
     const prevEx = prev ? prev.exercises.find(e => aliases.includes(e.name)) : null;
     const prevSets = prevEx ? prevEx.sets : [];
 
+    const noWeight = card.dataset.noWeight === 'true';
     card.querySelectorAll('.set-row').forEach((row, i) => {
         const prevSet = prevSets[i];
         const tds = row.querySelectorAll('td');
-        const wInput = tds[1].querySelector('.set-input');
-        const rInput = tds[2].querySelector('.set-input');
-        let wHint = tds[1].querySelector('.prev-val');
-        let rHint = tds[2].querySelector('.prev-val');
+        // noWeight-övningar har layout: [set-num] [reps (colspan)] [delete] – ingen viktkolumn
+        const wTd = noWeight ? null : tds[1];
+        const rTd = noWeight ? tds[1] : tds[2];
+        const wInput = wTd ? wTd.querySelector('.set-input') : null;
+        const rInput = rTd ? rTd.querySelector('.set-input') : null;
+        let wHint = wTd ? wTd.querySelector('.prev-val') : null;
+        let rHint = rTd ? rTd.querySelector('.prev-val') : null;
 
         if (prevSet) {
-            if (!wHint) { wHint = document.createElement('div'); wHint.className = 'prev-val'; tds[1].appendChild(wHint); }
-            if (!rHint) { rHint = document.createElement('div'); rHint.className = 'prev-val'; tds[2].appendChild(rHint); }
-            wHint.textContent = `Förra: ${prevSet.weight} kg`;
-            rHint.textContent = `Förra: ${prevSet.reps}`;
-            if (wInput) wInput.placeholder = prevSet.weight;
-            if (rInput) rInput.placeholder = prevSet.reps;
+            if (wTd) {
+                if (!wHint) { wHint = document.createElement('div'); wHint.className = 'prev-val'; wTd.appendChild(wHint); }
+                wHint.textContent = `Förra: ${prevSet.weight} kg`;
+                if (wInput) wInput.placeholder = prevSet.weight;
+            }
+            if (rTd) {
+                if (!rHint) { rHint = document.createElement('div'); rHint.className = 'prev-val'; rTd.appendChild(rHint); }
+                rHint.textContent = `Förra: ${prevSet.reps}`;
+                if (rInput) rInput.placeholder = prevSet.reps;
+            }
         } else {
             if (wHint) wHint.textContent = '';
             if (rHint) rHint.textContent = '';
@@ -1966,7 +1976,7 @@ function changeVariant(select) {
     const img = card.querySelector('.ex-thumb');
     if (img && imgUrl) {
         img.src = imgUrl;
-        img.setAttribute('onclick', `openLightbox('${imgUrl}',event)`);
+        img.dataset.fullsrc = imgUrl;
     }
     saveDraft();
 }
@@ -2196,10 +2206,21 @@ function deleteWorkout(id) {
         .catch(() => toast('Kunde inte radera!', true));
 }
 
+const _prevCache = {};
+let _prevCacheVersion = 0;
+
 function getPrevious(type) {
-    return getStorage()
+    const version = localWorkouts.length;
+    if (_prevCacheVersion !== version) {
+        _prevCacheVersion = version;
+        for (const key in _prevCache) delete _prevCache[key];
+    }
+    if (type in _prevCache) return _prevCache[type];
+    const result = getStorage()
         .filter(w => w.type === type)
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+    _prevCache[type] = result;
+    return result;
 }
 
 function getExerciseAliases(name) {
@@ -2246,13 +2267,8 @@ function closeLightbox() {
 
 // ── WORKOUT TITLE ─────────────────────────────────────
 function getExerciseMuscleGroup(name) {
-    for (const [type, data] of Object.entries(WORKOUTS)) {
-        if (!data.groups) continue;
-        for (const group of data.groups) {
-            if (group.exercises.includes(name)) return group.label;
-        }
-    }
-    return null;
+    const info = findExerciseInfo(name);
+    return info ? info.group : null;
 }
 
 function generateWorkoutTitle() {

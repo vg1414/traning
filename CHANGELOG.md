@@ -1,5 +1,14 @@
 # Ändringslogg
 
+## 2026-02-27 (6)
+- Kodoptimering: lyft ut TYPE_COLORS/TYPE_LABELS som globala konstanter (var duplicerade 3 gånger)
+- Kodoptimering: slå ihop getExerciseType och getExerciseMuscleGroup till gemensam findExerciseInfo
+- Buggfix: changeVariant kunde krascha på övningar utan viktkolumn (noWeight)
+- Buggfix: XSS-risk i openLightbox – bild-URL sparas nu i data-attribut istället för inline onclick
+- Buggfix: variabelshadowing i editWorkout (w skuggade sig själv)
+- Prestandaförbättring: _getLastPerformed sorterar nu bara en gång + cachar resultat
+- Prestandaförbättring: getPrevious cachar resultat per typ, invalideras vid dataändring
+
 ## 2026-02-27 (5)
 - Swipe-to-back på iPhone: svep från vänster skärmkant för att navigera bakåt
 
