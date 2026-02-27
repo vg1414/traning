@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-27 (5)
+- Swipe-to-back på iPhone: svep från vänster skärmkant för att navigera bakåt
+
 ## 2026-02-27 (4)
 - Demo-användare tillagd i användarval med 72 fake-träningspass (14 veckors data)
 
