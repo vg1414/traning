@@ -1642,7 +1642,8 @@ function showStats() {
         const ws = getWeekStart(now); ws.setDate(ws.getDate() - i * 7);
         const we = new Date(ws); we.setDate(we.getDate() + 7);
         const ww = workouts.filter(w => { const d = new Date(w.date); return d >= ws && d < we; });
-        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count: ww.length, breakdown: calcBreakdown(ww) });
+        const wbd = {}; ww.forEach(w => { wbd[w.type] = (wbd[w.type] || 0) + 1; });
+        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count: ww.length, breakdown: wbd });
     }
 
     // ── Månadsdata (senaste 12) ──
@@ -1651,7 +1652,8 @@ function showStats() {
         const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
         const mw = workouts.filter(w => { const d = new Date(w.date); return d >= ms && d < me; });
-        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count: mw.length, breakdown: calcBreakdown(mw) });
+        const mbd = {}; mw.forEach(w => { mbd[w.type] = (mbd[w.type] || 0) + 1; });
+        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count: mw.length, breakdown: mbd });
     }
 
     // ── Cirkeldiagram (totalt) ──
