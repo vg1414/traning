@@ -2105,24 +2105,25 @@ function closeLightbox() {
 }
 
 // ── WORKOUT TITLE ─────────────────────────────────────
-function getExerciseCategory(name) {
+function getExerciseMuscleGroup(name) {
     for (const [type, data] of Object.entries(WORKOUTS)) {
         if (!data.groups) continue;
         for (const group of data.groups) {
-            if (group.exercises.includes(name)) return type;
+            if (group.exercises.includes(name)) return group.label;
         }
     }
     return null;
 }
 
 function generateWorkoutTitle() {
-    const categories = [currentType];
+    const groups = [];
     document.querySelectorAll('.ex-card').forEach(card => {
         const name = card.dataset.baseName || card.querySelector('.ex-name').textContent;
-        const cat = getExerciseCategory(name);
-        if (cat && !categories.includes(cat)) categories.push(cat);
+        const group = getExerciseMuscleGroup(name);
+        if (group && !groups.includes(group)) groups.push(group);
     });
-    return categories.map(type => WORKOUTS[type] ? WORKOUTS[type].title : type).join(' + ');
+    if (groups.length === 0) return WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType;
+    return groups.join(' & ');
 }
 
 // ── ADD EXERCISE MODAL ────────────────────────────────
