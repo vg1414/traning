@@ -1,5 +1,10 @@
 # Ändringslogg
 
+## 2026-02-27
+- Auto-spara pågående pass: data återställs automatiskt om sidan laddas om under träning
+- Lägg till övning från annan kategori: ny knapp i passvyn öppnar ett panel med alla övningar grupperade per kategori samt möjlighet att skriva eget övningsnamn
+- Viktkolumnen borttagen för Plankan (sek), Sidoplanka (sek) och Hjulet
+
 ## 2026-02-25 (10)
 - Buggfix: PB och förifyllda vikter fungerar nu korrekt även efter namnbyten på övningar
 
