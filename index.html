@@ -845,6 +845,19 @@
         .modal-ex-item:hover { background: var(--surface2); }
         .ex-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+        /* ── PIE CHART ── */
+        .pie-wrap { display: flex; justify-content: center; margin: 12px 0 18px; }
+        .pie-chart {
+            width: 150px; height: 150px; border-radius: 50%;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+        }
+        .pie-labels {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 7px 12px;
+            font-size: 13px;
+        }
+        .pie-label { display: flex; align-items: center; gap: 6px; }
+        .pie-pct { color: var(--muted); font-size: 12px; margin-left: auto; padding-left: 4px; }
+
         /* ── CHART LEGEND ── */
         .chart-legend {
             display: flex; flex-wrap: wrap; gap: 6px 14px;
@@ -1493,6 +1506,43 @@ function showHistory() {
 }
 
 // ── STATISTICS ───────────────────────────────────────
+// Räknar övningar per kategori (ej sessioner) för proportionell färguppdelning
+function calcBreakdown(ws) {
+    const bd = {};
+    ws.forEach(w => {
+        if (w.exercises && w.exercises.length > 0) {
+            w.exercises.forEach(ex => {
+                const baseName = ex.name.replace(/\s*\([^)]+\)\s*$/, '');
+                const type = getExerciseCategory(baseName) || getExerciseCategory(ex.name) || w.type;
+                bd[type] = (bd[type] || 0) + 1;
+            });
+        } else {
+            bd[w.type] = (bd[w.type] || 0) + 1;
+        }
+    });
+    return bd;
+}
+
+function buildPieChart(breakdown) {
+    const TYPE_COLORS = { brost:'#ff6b6b', rygg:'#4fc3f7', axlar:'#c084fc', cardio:'#4ade80', ben:'#fb923c', helkropp:'#facc15' };
+    const TYPE_LABELS = { brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', ben:'Ben', helkropp:'Helkropp' };
+    const total = Object.values(breakdown).reduce((s, v) => s + v, 0);
+    if (total === 0) return '';
+    const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]).filter(([, v]) => v > 0);
+    let cum = 0;
+    const stops = entries.map(([type, count]) => {
+        const pct = (count / total) * 100;
+        const s = `${TYPE_COLORS[type] || '#58a6ff'} ${cum.toFixed(2)}% ${(cum + pct).toFixed(2)}%`;
+        cum += pct;
+        return s;
+    });
+    const labels = entries.map(([type, count]) => {
+        const pct = Math.round((count / total) * 100);
+        return `<div class="pie-label"><span class="legend-dot" style="background:${TYPE_COLORS[type]||'#58a6ff'}"></span><span>${TYPE_LABELS[type]||type}</span><span class="pie-pct">${pct}%</span></div>`;
+    }).join('');
+    return `<div class="pie-wrap"><div class="pie-chart" style="background:conic-gradient(${stops.join(',')});"></div></div><div class="pie-labels">${labels}</div>`;
+}
+
 function getISOWeek(date) {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
@@ -1576,14 +1626,13 @@ function showStats() {
     // ── Veckodagsfördelning ──
     const DAY_NAMES = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
     const dayCounts = [0,0,0,0,0,0,0];
-    const dayBreakdowns = Array.from({length: 7}, () => ({}));
+    const dayWorkouts = Array.from({length: 7}, () => []);
     workouts.forEach(w => {
-        const d = new Date(w.date).getDay();
-        const idx = d === 0 ? 6 : d - 1;
+        const idx = (new Date(w.date).getDay() + 6) % 7;
         dayCounts[idx]++;
-        dayBreakdowns[idx][w.type] = (dayBreakdowns[idx][w.type] || 0) + 1;
+        dayWorkouts[idx].push(w);
     });
-    const weekdayData = DAY_NAMES.map((label, i) => ({ label, count: dayCounts[i], breakdown: dayBreakdowns[i] }));
+    const weekdayData = DAY_NAMES.map((label, i) => ({ label, count: dayCounts[i], breakdown: calcBreakdown(dayWorkouts[i]) }));
     const maxDayIdx = dayCounts.indexOf(Math.max(...dayCounts));
     const minDayIdx = dayCounts.indexOf(Math.min(...dayCounts));
 
@@ -1593,9 +1642,7 @@ function showStats() {
         const ws = getWeekStart(now); ws.setDate(ws.getDate() - i * 7);
         const we = new Date(ws); we.setDate(we.getDate() + 7);
         const ww = workouts.filter(w => { const d = new Date(w.date); return d >= ws && d < we; });
-        const breakdown = {};
-        ww.forEach(w => { breakdown[w.type] = (breakdown[w.type] || 0) + 1; });
-        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count: ww.length, breakdown });
+        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count: ww.length, breakdown: calcBreakdown(ww) });
     }
 
     // ── Månadsdata (senaste 12) ──
@@ -1604,10 +1651,11 @@ function showStats() {
         const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
         const mw = workouts.filter(w => { const d = new Date(w.date); return d >= ms && d < me; });
-        const breakdown = {};
-        mw.forEach(w => { breakdown[w.type] = (breakdown[w.type] || 0) + 1; });
-        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count: mw.length, breakdown });
+        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count: mw.length, breakdown: calcBreakdown(mw) });
     }
+
+    // ── Cirkeldiagram (totalt) ──
+    const overallBreakdown = calcBreakdown(workouts);
 
     const avgPerWeek = (weeklyData.reduce((s, w) => s + w.count, 0) / 12).toFixed(1);
 
@@ -1626,6 +1674,11 @@ function showStats() {
             <div class="fun-stat-card"><span class="fun-stat-emoji">📈</span><div class="fun-stat-val">${avgPerWeek}</div><div class="fun-stat-desc">Snitt/vecka</div></div>
             <div class="fun-stat-card"><span class="fun-stat-emoji">⏰</span><div class="fun-stat-val" style="font-size:15px">${favTime}</div><div class="fun-stat-desc">Träningstid</div></div>
             <div class="fun-stat-card"><span class="fun-stat-emoji">😴</span><div class="fun-stat-val">${longestBreak}</div><div class="fun-stat-desc">Längsta vilan (dgr)</div></div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">Fördelning muskelgrupper – totalt</div>
+            ${buildPieChart(overallBreakdown)}
         </div>
 
         <div class="chart-legend">
