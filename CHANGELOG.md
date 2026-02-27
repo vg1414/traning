@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-27 (2)
+- Buggfix: statistiksidan fungerar igen – saknad funktion `getExerciseCategory` ersatt med `getExerciseType`
+
 ## 2026-02-27
 - Auto-spara pågående pass: data återställs automatiskt om sidan laddas om under träning
 - Lägg till övning från annan kategori: ny knapp i passvyn öppnar ett panel med alla övningar grupperade per kategori samt möjlighet att skriva eget övningsnamn
