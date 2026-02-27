@@ -1928,7 +1928,7 @@ function saveWorkout() {
         id:    editingWorkout ? editingWorkout.id   : Date.now(),
         date:  editingWorkout ? editingWorkout.date : new Date().toISOString(),
         type: currentType,
-        title: WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType,
+        title: generateWorkoutTitle(),
         exercises
     });
 
@@ -2102,6 +2102,27 @@ function openLightbox(src, e) {
 }
 function closeLightbox() {
     document.getElementById('lightbox').classList.remove('open');
+}
+
+// ── WORKOUT TITLE ─────────────────────────────────────
+function getExerciseCategory(name) {
+    for (const [type, data] of Object.entries(WORKOUTS)) {
+        if (!data.groups) continue;
+        for (const group of data.groups) {
+            if (group.exercises.includes(name)) return type;
+        }
+    }
+    return null;
+}
+
+function generateWorkoutTitle() {
+    const categories = [currentType];
+    document.querySelectorAll('.ex-card').forEach(card => {
+        const name = card.dataset.baseName || card.querySelector('.ex-name').textContent;
+        const cat = getExerciseCategory(name);
+        if (cat && !categories.includes(cat)) categories.push(cat);
+    });
+    return categories.map(type => WORKOUTS[type] ? WORKOUTS[type].title : type).join(' + ');
 }
 
 // ── ADD EXERCISE MODAL ────────────────────────────────
