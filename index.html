@@ -895,6 +895,10 @@
                 <span class="u-avatar">👨</span>
                 <div class="u-name">David</div>
             </div>
+            <div class="user-card" style="border-color:#58a6ff" onclick="selectUser('Demo')">
+                <span class="u-avatar">🤖</span>
+                <div class="u-name">Demo</div>
+            </div>
         </div>
     </div>
 </div>
@@ -1516,26 +1520,36 @@ function getExerciseType(name) {
     return null;
 }
 
-// Räknar övningar per kategori (ej sessioner) för proportionell färguppdelning
+// Räknar övningar per muskelgrupp (Bröst, Triceps, Biceps, Mage…) för proportionell färguppdelning
 function calcBreakdown(ws) {
     const bd = {};
     ws.forEach(w => {
         if (w.exercises && w.exercises.length > 0) {
             w.exercises.forEach(ex => {
                 const baseName = ex.name.replace(/\s*\([^)]+\)\s*$/, '');
-                const type = getExerciseType(baseName) || getExerciseType(ex.name) || w.type;
-                bd[type] = (bd[type] || 0) + 1;
+                const group = getExerciseMuscleGroup(baseName) || getExerciseMuscleGroup(ex.name) || w.type;
+                bd[group] = (bd[group] || 0) + 1;
             });
         } else {
-            bd[w.type] = (bd[w.type] || 0) + 1;
+            bd[w.type === 'cardio' ? 'Cardio' : w.type] = (bd[w.type === 'cardio' ? 'Cardio' : w.type] || 0) + 1;
         }
     });
     return bd;
 }
 
 function buildPieChart(breakdown) {
-    const TYPE_COLORS = { brost:'#ff6b6b', rygg:'#4fc3f7', axlar:'#c084fc', cardio:'#4ade80', ben:'#fb923c', helkropp:'#facc15' };
-    const TYPE_LABELS = { brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', ben:'Ben', helkropp:'Helkropp' };
+    const TYPE_COLORS = {
+        'Bröst':'#ef4444', 'Triceps':'#f97316', 'Rygg':'#3b82f6', 'Biceps':'#34d399',
+        'Axlar':'#a855f7', 'Mage':'#f472b6', 'Ben':'#eab308', 'Rumpa':'#84cc16',
+        'Cardio':'#4ade80', 'Helkropp':'#facc15',
+        brost:'#ef4444', rygg:'#3b82f6', axlar:'#a855f7', cardio:'#4ade80', ben:'#eab308', helkropp:'#facc15'
+    };
+    const TYPE_LABELS = {
+        'Bröst':'Bröst', 'Triceps':'Triceps', 'Rygg':'Rygg', 'Biceps':'Biceps',
+        'Axlar':'Axlar', 'Mage':'Mage', 'Ben':'Ben', 'Rumpa':'Rumpa',
+        'Cardio':'Cardio', 'Helkropp':'Helkropp',
+        brost:'Bröst', rygg:'Rygg', axlar:'Axlar', cardio:'Cardio', ben:'Ben', helkropp:'Helkropp'
+    };
     const total = Object.values(breakdown).reduce((s, v) => s + v, 0);
     if (total === 0) return '';
     const entries = Object.entries(breakdown).sort((a, b) => b[1] - a[1]).filter(([, v]) => v > 0);
@@ -1694,12 +1708,16 @@ function showStats() {
         </div>
 
         <div class="chart-legend">
-            <span><span class="legend-dot" style="background:#ff6b6b"></span>Bröst</span>
-            <span><span class="legend-dot" style="background:#4fc3f7"></span>Rygg</span>
-            <span><span class="legend-dot" style="background:#c084fc"></span>Axlar</span>
-            <span><span class="legend-dot" style="background:#fb923c"></span>Ben</span>
-            <span><span class="legend-dot" style="background:#facc15"></span>Helkropp</span>
+            <span><span class="legend-dot" style="background:#ef4444"></span>Bröst</span>
+            <span><span class="legend-dot" style="background:#f97316"></span>Triceps</span>
+            <span><span class="legend-dot" style="background:#3b82f6"></span>Rygg</span>
+            <span><span class="legend-dot" style="background:#34d399"></span>Biceps</span>
+            <span><span class="legend-dot" style="background:#a855f7"></span>Axlar</span>
+            <span><span class="legend-dot" style="background:#f472b6"></span>Mage</span>
+            <span><span class="legend-dot" style="background:#eab308"></span>Ben</span>
+            <span><span class="legend-dot" style="background:#84cc16"></span>Rumpa</span>
             <span><span class="legend-dot" style="background:#4ade80"></span>Cardio</span>
+            <span><span class="legend-dot" style="background:#facc15"></span>Helkropp</span>
         </div>
 
         <div class="chart-section">
@@ -1727,10 +1745,14 @@ function showStats() {
 
 function buildBarChart(data, highlightIdx = -1) {
     const TYPE_COLORS = {
-        brost: '#ff6b6b', rygg: '#4fc3f7', axlar: '#c084fc',
-        cardio: '#4ade80', ben: '#fb923c', helkropp: '#facc15'
+        brost: '#ef4444', rygg: '#3b82f6', axlar: '#a855f7',
+        cardio: '#4ade80', ben: '#eab308', helkropp: '#facc15',
+        'Bröst':'#ef4444', 'Triceps':'#f97316', 'Rygg':'#3b82f6', 'Biceps':'#34d399',
+        'Axlar':'#a855f7', 'Mage':'#f472b6', 'Ben':'#eab308', 'Rumpa':'#84cc16',
+        'Cardio':'#4ade80', 'Helkropp':'#facc15'
     };
-    const TYPE_ORDER = ['brost', 'rygg', 'axlar', 'ben', 'helkropp', 'cardio'];
+    const TYPE_ORDER = ['brost', 'rygg', 'axlar', 'ben', 'helkropp', 'cardio',
+        'Bröst', 'Triceps', 'Rygg', 'Biceps', 'Axlar', 'Mage', 'Ben', 'Rumpa', 'Helkropp', 'Cardio'];
     const maxCount = Math.max(...data.map(d => d.count), 1);
     const BAR_MAX_H = 100;
 
@@ -1742,11 +1764,12 @@ function buildBarChart(data, highlightIdx = -1) {
         if (d.breakdown && d.count > 0) {
             const types = TYPE_ORDER.filter(t => d.breakdown[t]);
             Object.keys(d.breakdown).forEach(t => { if (!TYPE_ORDER.includes(t)) types.push(t); });
+            const totalBd = types.reduce((s, t) => s + (d.breakdown[t] || 0), 0);
             let assignedH = 0;
             const segments = types.map((type, idx) => {
                 const segH = idx === types.length - 1
                     ? h - assignedH
-                    : Math.round((d.breakdown[type] / d.count) * h);
+                    : Math.round((d.breakdown[type] / totalBd) * h);
                 assignedH += segH;
                 return `<div style="height:${segH}px;background:${TYPE_COLORS[type] || '#58a6ff'};width:100%;"></div>`;
             }).join('');
