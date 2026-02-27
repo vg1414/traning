@@ -845,6 +845,16 @@
         .modal-ex-item:hover { background: var(--surface2); }
         .ex-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
+        /* ── CHART LEGEND ── */
+        .chart-legend {
+            display: flex; flex-wrap: wrap; gap: 6px 14px;
+            font-size: 11px; color: var(--muted); margin-bottom: 16px;
+        }
+        .legend-dot {
+            display: inline-block; width: 8px; height: 8px;
+            border-radius: 50%; margin-right: 4px; flex-shrink: 0;
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 440px) {
             .workout-grid { grid-template-columns: 1fr; }
@@ -1566,11 +1576,14 @@ function showStats() {
     // ── Veckodagsfördelning ──
     const DAY_NAMES = ['Mån','Tis','Ons','Tor','Fre','Lör','Sön'];
     const dayCounts = [0,0,0,0,0,0,0];
+    const dayBreakdowns = Array.from({length: 7}, () => ({}));
     workouts.forEach(w => {
         const d = new Date(w.date).getDay();
-        dayCounts[d === 0 ? 6 : d - 1]++;
+        const idx = d === 0 ? 6 : d - 1;
+        dayCounts[idx]++;
+        dayBreakdowns[idx][w.type] = (dayBreakdowns[idx][w.type] || 0) + 1;
     });
-    const weekdayData = DAY_NAMES.map((label, i) => ({ label, count: dayCounts[i] }));
+    const weekdayData = DAY_NAMES.map((label, i) => ({ label, count: dayCounts[i], breakdown: dayBreakdowns[i] }));
     const maxDayIdx = dayCounts.indexOf(Math.max(...dayCounts));
     const minDayIdx = dayCounts.indexOf(Math.min(...dayCounts));
 
@@ -1579,8 +1592,10 @@ function showStats() {
     for (let i = 11; i >= 0; i--) {
         const ws = getWeekStart(now); ws.setDate(ws.getDate() - i * 7);
         const we = new Date(ws); we.setDate(we.getDate() + 7);
-        const count = workouts.filter(w => { const d = new Date(w.date); return d >= ws && d < we; }).length;
-        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count });
+        const ww = workouts.filter(w => { const d = new Date(w.date); return d >= ws && d < we; });
+        const breakdown = {};
+        ww.forEach(w => { breakdown[w.type] = (breakdown[w.type] || 0) + 1; });
+        weeklyData.push({ label: `v.${getISOWeek(ws)}`, count: ww.length, breakdown });
     }
 
     // ── Månadsdata (senaste 12) ──
@@ -1588,8 +1603,10 @@ function showStats() {
     for (let i = 11; i >= 0; i--) {
         const ms = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const me = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
-        const count = workouts.filter(w => { const d = new Date(w.date); return d >= ms && d < me; }).length;
-        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count });
+        const mw = workouts.filter(w => { const d = new Date(w.date); return d >= ms && d < me; });
+        const breakdown = {};
+        mw.forEach(w => { breakdown[w.type] = (breakdown[w.type] || 0) + 1; });
+        monthlyData.push({ label: ms.toLocaleDateString('sv-SE', { month: 'short' }), count: mw.length, breakdown });
     }
 
     const avgPerWeek = (weeklyData.reduce((s, w) => s + w.count, 0) / 12).toFixed(1);
@@ -1609,6 +1626,15 @@ function showStats() {
             <div class="fun-stat-card"><span class="fun-stat-emoji">📈</span><div class="fun-stat-val">${avgPerWeek}</div><div class="fun-stat-desc">Snitt/vecka</div></div>
             <div class="fun-stat-card"><span class="fun-stat-emoji">⏰</span><div class="fun-stat-val" style="font-size:15px">${favTime}</div><div class="fun-stat-desc">Träningstid</div></div>
             <div class="fun-stat-card"><span class="fun-stat-emoji">😴</span><div class="fun-stat-val">${longestBreak}</div><div class="fun-stat-desc">Längsta vilan (dgr)</div></div>
+        </div>
+
+        <div class="chart-legend">
+            <span><span class="legend-dot" style="background:#ff6b6b"></span>Bröst</span>
+            <span><span class="legend-dot" style="background:#4fc3f7"></span>Rygg</span>
+            <span><span class="legend-dot" style="background:#c084fc"></span>Axlar</span>
+            <span><span class="legend-dot" style="background:#fb923c"></span>Ben</span>
+            <span><span class="legend-dot" style="background:#facc15"></span>Helkropp</span>
+            <span><span class="legend-dot" style="background:#4ade80"></span>Cardio</span>
         </div>
 
         <div class="chart-section">
@@ -1635,14 +1661,38 @@ function showStats() {
 }
 
 function buildBarChart(data, highlightIdx = -1) {
+    const TYPE_COLORS = {
+        brost: '#ff6b6b', rygg: '#4fc3f7', axlar: '#c084fc',
+        cardio: '#4ade80', ben: '#fb923c', helkropp: '#facc15'
+    };
+    const TYPE_ORDER = ['brost', 'rygg', 'axlar', 'ben', 'helkropp', 'cardio'];
     const maxCount = Math.max(...data.map(d => d.count), 1);
     const BAR_MAX_H = 100;
+
     return '<div class="bar-chart">' + data.map((d, i) => {
         const h = Math.round((d.count / maxCount) * BAR_MAX_H);
         const hl = i === highlightIdx;
+
+        let barHtml;
+        if (d.breakdown && d.count > 0) {
+            const types = TYPE_ORDER.filter(t => d.breakdown[t]);
+            Object.keys(d.breakdown).forEach(t => { if (!TYPE_ORDER.includes(t)) types.push(t); });
+            let assignedH = 0;
+            const segments = types.map((type, idx) => {
+                const segH = idx === types.length - 1
+                    ? h - assignedH
+                    : Math.round((d.breakdown[type] / d.count) * h);
+                assignedH += segH;
+                return `<div style="height:${segH}px;background:${TYPE_COLORS[type] || '#58a6ff'};width:100%;"></div>`;
+            }).join('');
+            barHtml = `<div style="height:${h}px;width:65%;max-width:30px;border-radius:3px 3px 0 0;overflow:hidden;display:flex;flex-direction:column-reverse;${h === 0 ? '' : 'min-height:2px;'}">${segments}</div>`;
+        } else {
+            barHtml = `<div class="bar-col" style="height:${h}px${hl ? ';background:linear-gradient(to top,#cc4444,#ff6b6b)' : ''}"></div>`;
+        }
+
         return `<div class="bar-group">
             <div class="bar-val" style="${hl ? 'color:#ff6b6b' : ''}">${d.count > 0 ? d.count : ''}</div>
-            <div class="bar-col" style="height:${h}px${hl ? ';background:linear-gradient(to top,#cc4444,#ff6b6b)' : ''}"></div>
+            ${barHtml}
             <div class="bar-lbl">${d.label}</div>
         </div>`;
     }).join('') + '</div>';
