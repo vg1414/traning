@@ -2123,7 +2123,8 @@ function generateWorkoutTitle() {
         if (group && !groups.includes(group)) groups.push(group);
     });
     if (groups.length === 0) return WORKOUTS[currentType] ? WORKOUTS[currentType].title : currentType;
-    return groups.join(' & ');
+    if (groups.length === 1) return groups[0];
+    return groups.slice(0, -1).join(', ') + ' & ' + groups[groups.length - 1];
 }
 
 // ── ADD EXERCISE MODAL ────────────────────────────────
