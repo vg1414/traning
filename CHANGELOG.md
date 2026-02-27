@@ -1,5 +1,12 @@
 # Ändringslogg
 
+## 2026-02-27 (4)
+- Demo-användare tillagd i användarval med 72 fake-träningspass (14 veckors data)
+
+## 2026-02-27 (3)
+- Statistikfärger åtgärdade: varje muskelgrupp har nu unik kulör (Triceps=orange, Biceps=emerald, Mage=rosa etc.)
+- Veckodagsstaplar uppdelade i färgsegment per muskelgrupp
+
 ## 2026-02-27 (2)
 - Buggfix: statistiksidan fungerar igen – saknad funktion `getExerciseCategory` ersatt med `getExerciseType`
 
