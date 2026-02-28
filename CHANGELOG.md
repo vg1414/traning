@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-02-28
+- Ny app-ikon och favicon baserade på cover.jpg (utan text): personen med skivstången visas som ikon
+
 ## 2026-02-27 (6)
 - Kodoptimering: lyft ut TYPE_COLORS/TYPE_LABELS som globala konstanter (var duplicerade 3 gånger)
 - Kodoptimering: slå ihop getExerciseType och getExerciseMuscleGroup till gemensam findExerciseInfo
