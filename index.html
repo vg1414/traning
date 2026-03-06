@@ -963,6 +963,27 @@
         </div>
         <div id="exercises-list"></div>
         <button class="add-ex-btn" onclick="openAddExerciseModal()">＋ Lägg till övning</button>
+        <button class="add-ex-btn" id="workout-cardio-toggle-btn" onclick="toggleWorkoutCardio()" style="color:var(--c-cardio);margin-bottom:4px;">＋ Lägg till cardio</button>
+        <div id="workout-cardio-fields" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Cardio</div>
+            <div class="activity-grid" style="margin-bottom:16px;">
+                <div class="act-card" onclick="selectWorkoutActivity(this,'cykel')"><span class="icon">🚴</span><span>Cykel</span></div>
+                <div class="act-card" onclick="selectWorkoutActivity(this,'promenad')"><span class="icon">🚶</span><span>Promenad</span></div>
+                <div class="act-card" onclick="selectWorkoutActivity(this,'crosstrainer')"><span class="icon">🎿</span><span>Crosstrainer</span></div>
+            </div>
+            <div class="form-row">
+                <label>Tid (minuter)</label>
+                <input type="number" id="workout-cardio-time" placeholder="30" min="1" inputmode="numeric">
+            </div>
+            <div class="form-row">
+                <label>Kalorier (kcal)</label>
+                <input type="number" id="workout-cardio-kcal" placeholder="200" min="1" inputmode="numeric">
+            </div>
+            <div class="form-row" style="margin-bottom:0">
+                <label>Distans (km) – valfritt</label>
+                <input type="number" id="workout-cardio-km" placeholder="5.0" min="0" step="0.1" inputmode="decimal">
+            </div>
+        </div>
         <button class="save-btn" onclick="saveWorkout()">Spara träningspass</button>
     </div>
 </div>
@@ -1001,6 +1022,11 @@
         <div class="form-row">
             <label>Distans (km) – valfritt</label>
             <input type="number" id="cardio-km" placeholder="5.0" min="0" step="0.1" inputmode="decimal">
+        </div>
+        <button class="add-ex-btn" id="cardio-strength-toggle-btn" onclick="toggleCardioStrength()" style="color:#58a6ff;margin-top:6px;">＋ Lägg till styrka</button>
+        <div id="cardio-strength-fields" style="display:none;margin:8px 0 14px;">
+            <div id="cardio-exercises-list"></div>
+            <button class="add-ex-btn" onclick="openAddExerciseModal()">＋ Lägg till övning</button>
         </div>
         <button class="save-btn-cardio" onclick="saveCardio()">Spara Cardio</button>
     </div>
@@ -1317,6 +1343,7 @@ let localWorkouts = [];
 let unsubscribeListener = null;
 let editingWorkout = null;
 let editingCardio = null;
+let selectedWorkoutActivity = null;
 
 // ── INIT ─────────────────────────────────────────────
 document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
@@ -1333,6 +1360,10 @@ document.getElementById('exercises-list').addEventListener('input', saveDraft);
 document.getElementById('cardio-time').addEventListener('input', saveDraft);
 document.getElementById('cardio-kcal').addEventListener('input', saveDraft);
 document.getElementById('cardio-km').addEventListener('input', saveDraft);
+document.getElementById('workout-cardio-time').addEventListener('input', saveDraft);
+document.getElementById('workout-cardio-kcal').addEventListener('input', saveDraft);
+document.getElementById('workout-cardio-km').addEventListener('input', saveDraft);
+document.getElementById('cardio-exercises-list').addEventListener('input', saveDraft);
 
 // ── NAVIGATION ───────────────────────────────────────
 function showScreen(id) {
@@ -1380,9 +1411,15 @@ function goHome() {
     selectedDifficulty = 0;
     editingWorkout = null;
     editingCardio = null;
+    selectedWorkoutActivity = null;
     document.querySelector('.save-btn').textContent = 'Spara träningspass';
     document.querySelector('.save-btn-cardio').textContent = 'Spara Cardio';
     document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Cardio';
+    document.getElementById('workout-cardio-fields').style.display = 'none';
+    document.getElementById('workout-cardio-toggle-btn').textContent = '＋ Lägg till cardio';
+    document.getElementById('cardio-exercises-list').innerHTML = '';
+    document.getElementById('cardio-strength-fields').style.display = 'none';
+    document.getElementById('cardio-strength-toggle-btn').textContent = '＋ Lägg till styrka';
 }
 
 function startWorkout(type) {
@@ -1397,6 +1434,9 @@ function startWorkout(type) {
         document.getElementById('cardio-km').value = '';
         document.querySelector('.save-btn-cardio').textContent = 'Spara Cardio';
         document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Cardio';
+        document.getElementById('cardio-exercises-list').innerHTML = '';
+        document.getElementById('cardio-strength-fields').style.display = 'none';
+        document.getElementById('cardio-strength-toggle-btn').textContent = '＋ Lägg till styrka';
         showScreen('screen-cardio');
         restoreCardioDraft();
         return;
@@ -1416,6 +1456,14 @@ function startWorkout(type) {
     } else {
         document.getElementById('prev-session-info').textContent = '';
     }
+
+    selectedWorkoutActivity = null;
+    document.querySelectorAll('#workout-cardio-fields .act-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('workout-cardio-fields').style.display = 'none';
+    document.getElementById('workout-cardio-toggle-btn').textContent = '＋ Lägg till cardio';
+    document.getElementById('workout-cardio-time').value = '';
+    document.getElementById('workout-cardio-kcal').value = '';
+    document.getElementById('workout-cardio-km').value = '';
 
     const list = document.getElementById('exercises-list');
     list.innerHTML = '';
@@ -1488,6 +1536,26 @@ function editWorkout(id) {
             list.appendChild(buildExerciseCard(name, null, null, savedEx ? savedEx.sets : [], initialVariant));
         });
     });
+
+    // Restore cardio section if workout has cardio
+    selectedWorkoutActivity = null;
+    document.querySelectorAll('#workout-cardio-fields .act-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('workout-cardio-fields').style.display = 'none';
+    document.getElementById('workout-cardio-toggle-btn').textContent = '＋ Lägg till cardio';
+    document.getElementById('workout-cardio-time').value = '';
+    document.getElementById('workout-cardio-kcal').value = '';
+    document.getElementById('workout-cardio-km').value = '';
+
+    if (workout.cardio) {
+        document.getElementById('workout-cardio-fields').style.display = 'block';
+        document.getElementById('workout-cardio-toggle-btn').textContent = '− Ta bort cardio';
+        selectedWorkoutActivity = workout.cardio.activity;
+        const actEl = document.querySelector(`#workout-cardio-fields .act-card[onclick*="'${workout.cardio.activity}'"]`);
+        if (actEl) actEl.classList.add('selected');
+        document.getElementById('workout-cardio-time').value = workout.cardio.time || '';
+        document.getElementById('workout-cardio-kcal').value = workout.cardio.kcal || '';
+        document.getElementById('workout-cardio-km').value = workout.cardio.km || '';
+    }
 
     showScreen('screen-workout');
 }
@@ -2056,6 +2124,41 @@ function deleteSet(btn) {
     saveDraft();
 }
 
+// ── WORKOUT CARDIO TOGGLE ─────────────────────────────
+function toggleWorkoutCardio() {
+    const fields = document.getElementById('workout-cardio-fields');
+    const btn = document.getElementById('workout-cardio-toggle-btn');
+    const isOpen = fields.style.display !== 'none';
+    fields.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? '＋ Lägg till cardio' : '− Ta bort cardio';
+    if (isOpen) {
+        selectedWorkoutActivity = null;
+        document.querySelectorAll('#workout-cardio-fields .act-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('workout-cardio-time').value = '';
+        document.getElementById('workout-cardio-kcal').value = '';
+        document.getElementById('workout-cardio-km').value = '';
+    }
+    saveDraft();
+}
+
+function selectWorkoutActivity(el, activity) {
+    document.querySelectorAll('#workout-cardio-fields .act-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedWorkoutActivity = activity;
+    saveDraft();
+}
+
+// ── CARDIO STRENGTH TOGGLE ────────────────────────────
+function toggleCardioStrength() {
+    const fields = document.getElementById('cardio-strength-fields');
+    const btn = document.getElementById('cardio-strength-toggle-btn');
+    const isOpen = fields.style.display !== 'none';
+    fields.style.display = isOpen ? 'none' : 'block';
+    btn.textContent = isOpen ? '＋ Lägg till styrka' : '− Ta bort styrka';
+    if (isOpen) document.getElementById('cardio-exercises-list').innerHTML = '';
+    saveDraft();
+}
+
 // ── CARDIO ───────────────────────────────────────────
 function editCardio(id) {
     const workout = localWorkouts.find(w => w.id === id);
@@ -2071,6 +2174,20 @@ function editCardio(id) {
     document.getElementById('cardio-km').value = workout.km || '';
     document.querySelector('.save-btn-cardio').textContent = 'Spara ändringar';
     document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Redigera Cardio';
+
+    // Reset strength section then restore if exercises exist
+    document.getElementById('cardio-exercises-list').innerHTML = '';
+    document.getElementById('cardio-strength-fields').style.display = 'none';
+    document.getElementById('cardio-strength-toggle-btn').textContent = '＋ Lägg till styrka';
+    if (workout.exercises && workout.exercises.length > 0) {
+        document.getElementById('cardio-strength-fields').style.display = 'block';
+        document.getElementById('cardio-strength-toggle-btn').textContent = '− Ta bort styrka';
+        const list = document.getElementById('cardio-exercises-list');
+        workout.exercises.forEach(ex => {
+            list.appendChild(buildExerciseCard(ex.name, null, null, ex.sets));
+        });
+    }
+
     showScreen('screen-cardio');
 }
 
@@ -2105,13 +2222,32 @@ function saveWorkout() {
         toast('Fyll i minst en övning!', true); return;
     }
 
-    saveToStorage({
+    let workoutCardio = null;
+    if (document.getElementById('workout-cardio-fields').style.display !== 'none' && selectedWorkoutActivity) {
+        const cTime = document.getElementById('workout-cardio-time').value.trim();
+        const cKcal = document.getElementById('workout-cardio-kcal').value.trim();
+        const cKm   = document.getElementById('workout-cardio-km').value.trim();
+        if (cTime && cKcal) {
+            const CLABELS = { cykel: 'Cykel', promenad: 'Promenad', crosstrainer: 'Crosstrainer' };
+            workoutCardio = {
+                activity: selectedWorkoutActivity,
+                activityLabel: CLABELS[selectedWorkoutActivity],
+                time: parseInt(cTime),
+                kcal: parseInt(cKcal),
+            };
+            if (cKm !== '') workoutCardio.km = parseFloat(cKm);
+        }
+    }
+
+    const entry = {
         id:    editingWorkout ? editingWorkout.id   : Date.now(),
         date:  editingWorkout ? editingWorkout.date : new Date().toISOString(),
         type: currentType,
         title: generateWorkoutTitle(),
         exercises
-    });
+    };
+    if (workoutCardio) entry.cardio = workoutCardio;
+    saveToStorage(entry);
 
     clearDraft();
     toast(editingWorkout ? 'Pass uppdaterat!' : 'Träningspass sparat!');
@@ -2141,6 +2277,20 @@ function saveCardio() {
         kcal:          parseInt(kcal),
     };
     if (km !== '') entry.km = parseFloat(km);
+
+    const cardioExercises = [];
+    document.querySelectorAll('#cardio-exercises-list .ex-card').forEach(card => {
+        const name = card.dataset.effectiveName || card.querySelector('.ex-name').textContent;
+        const sets = [];
+        card.querySelectorAll('.set-row').forEach(row => {
+            const inputs = row.querySelectorAll('.set-input');
+            const weight = inputs[0].value.trim().replace(',', '.');
+            const reps   = inputs[1].value.trim();
+            if (weight !== '' || reps !== '') sets.push({ weight: weight || '0', reps: reps || '0' });
+        });
+        if (sets.length > 0) cardioExercises.push({ name, sets });
+    });
+    if (cardioExercises.length > 0) entry.exercises = cardioExercises;
 
     saveToStorage(entry);
 
@@ -2175,6 +2325,19 @@ function buildHistoryItem(w, i) {
                 <strong>${w.time}</strong> min &nbsp;|&nbsp;
                 <strong>${w.kcal}</strong> kcal${kmPart}
             </div>`;
+        if (w.exercises && w.exercises.length > 0) {
+            bodyHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--surface2);">`;
+            bodyHtml += (w.exercises || []).map(ex => `
+                <div class="hist-ex">
+                    <div class="hist-ex-name">${EXERCISE_RENAMES[ex.name] || ex.name}</div>
+                    <div class="hist-sets">
+                        ${ex.sets.map((s, si) => `
+                            <span class="hist-set-pill">${si+1}. ${s.weight} kg × ${s.reps}</span>
+                        `).join('')}
+                    </div>
+                </div>`).join('');
+            bodyHtml += `</div>`;
+        }
     } else {
         bodyHtml = (w.exercises || []).map(ex => `
             <div class="hist-ex">
@@ -2185,6 +2348,18 @@ function buildHistoryItem(w, i) {
                     `).join('')}
                 </div>
             </div>`).join('');
+        if (w.cardio) {
+            const ICONS = { cykel: '🚴', promenad: '🚶', crosstrainer: '🎿' };
+            const kmPart = w.cardio.km != null ? ` &nbsp;|&nbsp; <strong>${w.cardio.km}</strong> km` : '';
+            bodyHtml += `
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--surface2);">
+                    <div class="hist-cardio-info">
+                        ${ICONS[w.cardio.activity] || ''} <strong>${w.cardio.activityLabel}</strong> &nbsp;|&nbsp;
+                        <strong>${w.cardio.time}</strong> min &nbsp;|&nbsp;
+                        <strong>${w.cardio.kcal}</strong> kcal${kmPart}
+                    </div>
+                </div>`;
+        }
     }
 
     let editBtn = '';
@@ -2377,7 +2552,10 @@ function handleModalOverlayClick(e) {
 function addExerciseToWorkout(name) {
     const prevEx = getLastExerciseData(name);
     const card = buildExerciseCard(name, prevEx);
-    document.getElementById('exercises-list').appendChild(card);
+    const targetId = document.getElementById('screen-cardio').classList.contains('active')
+        ? 'cardio-exercises-list'
+        : 'exercises-list';
+    document.getElementById(targetId).appendChild(card);
     closeAddExerciseModal();
     card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     saveDraft();
@@ -2410,14 +2588,38 @@ function saveDraft() {
             });
             exercises.push({ name, variant, sets });
         });
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ kind: 'workout', workoutType: currentType, exercises, ts: Date.now() }));
+        const cardioOpen = document.getElementById('workout-cardio-fields').style.display !== 'none';
+        const draftCardio = cardioOpen ? {
+            open: true,
+            activity: selectedWorkoutActivity,
+            time: document.getElementById('workout-cardio-time').value,
+            kcal: document.getElementById('workout-cardio-kcal').value,
+            km:   document.getElementById('workout-cardio-km').value,
+        } : null;
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ kind: 'workout', workoutType: currentType, exercises, cardio: draftCardio, ts: Date.now() }));
     } else if (document.getElementById('screen-cardio').classList.contains('active') && !editingCardio) {
+        const strengthOpen = document.getElementById('cardio-strength-fields').style.display !== 'none';
+        const cardioExDraft = [];
+        document.querySelectorAll('#cardio-exercises-list .ex-card').forEach(card => {
+            const name = card.dataset.baseName || card.querySelector('.ex-name').textContent;
+            const effectiveName = card.dataset.effectiveName || '';
+            const m = effectiveName.match(/\(([^)]+)\)$/);
+            const variant = m ? m[1] : null;
+            const sets = [];
+            card.querySelectorAll('.set-row').forEach(row => {
+                const inp = row.querySelectorAll('.set-input');
+                sets.push({ weight: inp[0].value, reps: inp[1].value });
+            });
+            cardioExDraft.push({ name, variant, sets });
+        });
         localStorage.setItem(DRAFT_KEY, JSON.stringify({
             kind: 'cardio',
             activity: selectedActivity,
             time: document.getElementById('cardio-time').value,
             kcal: document.getElementById('cardio-kcal').value,
             km:   document.getElementById('cardio-km').value,
+            strengthOpen,
+            exercises: strengthOpen ? cardioExDraft : [],
             ts: Date.now()
         }));
     }
@@ -2454,6 +2656,18 @@ function restoreWorkoutDraft() {
                 });
             });
         });
+        if (draft.cardio && draft.cardio.open) {
+            document.getElementById('workout-cardio-fields').style.display = 'block';
+            document.getElementById('workout-cardio-toggle-btn').textContent = '− Ta bort cardio';
+            if (draft.cardio.activity) {
+                const actEl = document.querySelector(`#workout-cardio-fields .act-card[onclick*="'${draft.cardio.activity}'"]`);
+                if (actEl) selectWorkoutActivity(actEl, draft.cardio.activity);
+            }
+            if (draft.cardio.time) document.getElementById('workout-cardio-time').value = draft.cardio.time;
+            if (draft.cardio.kcal) document.getElementById('workout-cardio-kcal').value = draft.cardio.kcal;
+            if (draft.cardio.km)   document.getElementById('workout-cardio-km').value   = draft.cardio.km;
+            anyRestored = true;
+        }
         _suppressDraft = false;
         if (anyRestored) toast('Pågående pass återställt ✓');
     } catch (e) { _suppressDraft = false; }
@@ -2475,6 +2689,17 @@ function restoreCardioDraft() {
         if (draft.time) { document.getElementById('cardio-time').value = draft.time; restored = true; }
         if (draft.kcal) { document.getElementById('cardio-kcal').value = draft.kcal; restored = true; }
         if (draft.km)   { document.getElementById('cardio-km').value = draft.km; }
+        if (draft.strengthOpen && draft.exercises && draft.exercises.length > 0) {
+            document.getElementById('cardio-strength-fields').style.display = 'block';
+            document.getElementById('cardio-strength-toggle-btn').textContent = '− Ta bort styrka';
+            const list = document.getElementById('cardio-exercises-list');
+            list.innerHTML = '';
+            draft.exercises.forEach(draftEx => {
+                const card = buildExerciseCard(draftEx.name, null, null, draftEx.sets, draftEx.variant || null);
+                list.appendChild(card);
+            });
+            restored = true;
+        }
         _suppressDraft = false;
         if (restored) toast('Pågående pass återställt ✓');
     } catch (e) { _suppressDraft = false; }
