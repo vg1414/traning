@@ -998,6 +998,10 @@
             <label>Kalorier (kcal)</label>
             <input type="number" id="cardio-kcal" placeholder="350" min="1" inputmode="numeric">
         </div>
+        <div class="form-row">
+            <label>Distans (km) – valfritt</label>
+            <input type="number" id="cardio-km" placeholder="5.0" min="0" step="0.1" inputmode="decimal">
+        </div>
         <button class="save-btn-cardio" onclick="saveCardio()">Spara Cardio</button>
     </div>
 </div>
@@ -1312,6 +1316,7 @@ let selectedActivity = null;
 let localWorkouts = [];
 let unsubscribeListener = null;
 let editingWorkout = null;
+let editingCardio = null;
 
 // ── INIT ─────────────────────────────────────────────
 document.getElementById('home-date').textContent = new Date().toLocaleDateString('sv-SE', {
@@ -1327,6 +1332,7 @@ if (_savedUser) {
 document.getElementById('exercises-list').addEventListener('input', saveDraft);
 document.getElementById('cardio-time').addEventListener('input', saveDraft);
 document.getElementById('cardio-kcal').addEventListener('input', saveDraft);
+document.getElementById('cardio-km').addEventListener('input', saveDraft);
 
 // ── NAVIGATION ───────────────────────────────────────
 function showScreen(id) {
@@ -1373,16 +1379,24 @@ function goHome() {
     currentProgram = null;
     selectedDifficulty = 0;
     editingWorkout = null;
+    editingCardio = null;
     document.querySelector('.save-btn').textContent = 'Spara träningspass';
+    document.querySelector('.save-btn-cardio').textContent = 'Spara Cardio';
+    document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Cardio';
 }
 
 function startWorkout(type) {
     currentType = type;
 
     if (type === 'cardio') {
+        editingCardio = null;
         document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
+        selectedActivity = null;
         document.getElementById('cardio-time').value = '';
         document.getElementById('cardio-kcal').value = '';
+        document.getElementById('cardio-km').value = '';
+        document.querySelector('.save-btn-cardio').textContent = 'Spara Cardio';
+        document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Cardio';
         showScreen('screen-cardio');
         restoreCardioDraft();
         return;
@@ -2043,6 +2057,23 @@ function deleteSet(btn) {
 }
 
 // ── CARDIO ───────────────────────────────────────────
+function editCardio(id) {
+    const workout = localWorkouts.find(w => w.id === id);
+    if (!workout) return;
+
+    editingCardio = workout;
+    document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
+    selectedActivity = workout.activity;
+    const el = document.querySelector(`.act-card[onclick*="'${workout.activity}'"]`);
+    if (el) el.classList.add('selected');
+    document.getElementById('cardio-time').value = workout.time || '';
+    document.getElementById('cardio-kcal').value = workout.kcal || '';
+    document.getElementById('cardio-km').value = workout.km || '';
+    document.querySelector('.save-btn-cardio').textContent = 'Spara ändringar';
+    document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Redigera Cardio';
+    showScreen('screen-cardio');
+}
+
 function selectActivity(el, activity) {
     document.querySelectorAll('.act-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
@@ -2093,24 +2124,29 @@ function saveCardio() {
 
     const time = document.getElementById('cardio-time').value.trim();
     const kcal = document.getElementById('cardio-kcal').value.trim();
+    const km   = document.getElementById('cardio-km').value.trim();
 
     if (!time || !kcal) { toast('Fyll i tid och kalorier!', true); return; }
 
     const LABELS = { cykel: 'Cykel', promenad: 'Promenad', crosstrainer: 'Crosstrainer' };
 
-    saveToStorage({
-        id: Date.now(),
-        date: new Date().toISOString(),
-        type: 'cardio',
-        title: 'Cardio',
-        activity: selectedActivity,
+    const entry = {
+        id:            editingCardio ? editingCardio.id   : Date.now(),
+        date:          editingCardio ? editingCardio.date : new Date().toISOString(),
+        type:          'cardio',
+        title:         'Cardio',
+        activity:      selectedActivity,
         activityLabel: LABELS[selectedActivity],
-        time: parseInt(time),
-        kcal: parseInt(kcal)
-    });
+        time:          parseInt(time),
+        kcal:          parseInt(kcal),
+    };
+    if (km !== '') entry.km = parseFloat(km);
+
+    saveToStorage(entry);
 
     clearDraft();
-    toast('Cardio sparat!');
+    toast(editingCardio ? 'Cardio uppdaterat!' : 'Cardio sparat!');
+    editingCardio = null;
     setTimeout(goHome, 1600);
 }
 
@@ -2132,11 +2168,12 @@ function buildHistoryItem(w, i) {
             </div>`;
     } else if (w.type === 'cardio') {
         const ICONS = { cykel: '🚴', promenad: '🚶', crosstrainer: '🎿' };
+        const kmPart = w.km != null ? ` &nbsp;|&nbsp; <strong>${w.km}</strong> km` : '';
         bodyHtml = `
             <div class="hist-cardio-info">
                 ${ICONS[w.activity] || ''} <strong>${w.activityLabel}</strong> &nbsp;|&nbsp;
                 <strong>${w.time}</strong> min &nbsp;|&nbsp;
-                <strong>${w.kcal}</strong> kcal
+                <strong>${w.kcal}</strong> kcal${kmPart}
             </div>`;
     } else {
         bodyHtml = (w.exercises || []).map(ex => `
@@ -2150,9 +2187,12 @@ function buildHistoryItem(w, i) {
             </div>`).join('');
     }
 
-    const editBtn = (!w.isProgram && w.type !== 'cardio' && WORKOUTS[w.type])
-        ? `<button class="hist-edit-btn" onclick="event.stopPropagation(); editWorkout(${w.id})" title="Redigera">✏️</button>`
-        : '';
+    let editBtn = '';
+    if (!w.isProgram && w.type === 'cardio') {
+        editBtn = `<button class="hist-edit-btn" onclick="event.stopPropagation(); editCardio(${w.id})" title="Redigera">✏️</button>`;
+    } else if (!w.isProgram && WORKOUTS[w.type]) {
+        editBtn = `<button class="hist-edit-btn" onclick="event.stopPropagation(); editWorkout(${w.id})" title="Redigera">✏️</button>`;
+    }
 
     return `
         <div class="hist-item">
@@ -2371,12 +2411,13 @@ function saveDraft() {
             exercises.push({ name, variant, sets });
         });
         localStorage.setItem(DRAFT_KEY, JSON.stringify({ kind: 'workout', workoutType: currentType, exercises, ts: Date.now() }));
-    } else if (document.getElementById('screen-cardio').classList.contains('active')) {
+    } else if (document.getElementById('screen-cardio').classList.contains('active') && !editingCardio) {
         localStorage.setItem(DRAFT_KEY, JSON.stringify({
             kind: 'cardio',
             activity: selectedActivity,
             time: document.getElementById('cardio-time').value,
             kcal: document.getElementById('cardio-kcal').value,
+            km:   document.getElementById('cardio-km').value,
             ts: Date.now()
         }));
     }
@@ -2433,6 +2474,7 @@ function restoreCardioDraft() {
         }
         if (draft.time) { document.getElementById('cardio-time').value = draft.time; restored = true; }
         if (draft.kcal) { document.getElementById('cardio-kcal').value = draft.kcal; restored = true; }
+        if (draft.km)   { document.getElementById('cardio-km').value = draft.km; }
         _suppressDraft = false;
         if (restored) toast('Pågående pass återställt ✓');
     } catch (e) { _suppressDraft = false; }

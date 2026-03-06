@@ -1,5 +1,9 @@
 # Ändringslogg
 
+## 2026-03-06
+- Cardiopass kan nu redigeras i efterhand via ✏️-knappen i historiken
+- Nytt distansfält (km) på cardio-formuläret (valfritt), visas i historiken
+
 ## 2026-02-28
 - Ny app-ikon och favicon baserade på cover.jpg (utan text): personen med skivstången visas som ikon
 
