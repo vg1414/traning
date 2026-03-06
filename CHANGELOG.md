@@ -1,5 +1,9 @@
 # Ändringslogg
 
+## 2026-03-06 (3)
+- Ny app-ikon (favicon + apple-touch-icon): Gemini_Generated_Image_ecnev6ecnev6ecne.png
+- Borttagna oanvända filer: bg1.jpeg, bg2.jpeg, cover.jpg, favicon.jpeg, favicon.png, index_old.html, preview-filer
+
 ## 2026-03-06 (2)
 - Helt ny design: bg3.jpeg som fast bakgrund, glassmorphism-stil på alla komponenter
 - Inloggningssidan redesignad (Noir Glass) med Bebas Neue-typografi och teal-accenter
