@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Träningslogg</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="icon-v2.png">
+    <link rel="icon" type="image/jpeg" href="favicon.jpeg">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon.jpeg">
     <meta name="theme-color" content="#0d1117">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Träningslogg">
@@ -450,38 +450,41 @@
         .user-select-body h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
         .user-select-body p  { color: var(--muted); font-size: 15px; margin-bottom: 44px; }
 
-        .user-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        .user-dropdown-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .user-card {
+        .user-dropdown {
             background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 18px;
-            padding: 36px 16px 28px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 16px;
+            width: 100%;
             cursor: pointer;
-            text-align: center;
-            transition: all 0.22s;
-            position: relative;
-            overflow: hidden;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            transition: border-color 0.15s;
         }
-        .user-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--uc);
-            opacity: 0;
-            transition: opacity 0.2s;
+        .user-dropdown:focus { outline: none; border-color: #58a6ff; }
+        .user-dropdown option { background: #1c2128; }
+        .user-select-btn {
+            background: #1f6feb;
+            border: none;
+            color: #fff;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .user-card:hover { border-color: var(--uc); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.45); }
-        .user-card:hover::before { opacity: 1; }
-        .user-card:active { transform: translateY(0); }
-        .u-avatar { font-size: 54px; display: block; margin-bottom: 14px; }
-        .u-name { font-size: 22px; font-weight: 700; color: var(--uc); }
-        .user-card-emma  { --uc: #f472b6; }
-        .user-card-david { --uc: #38bdf8; }
+        .user-select-btn:hover { background: #388bfd; }
 
         .switch-user-btn {
             background: none;
@@ -886,19 +889,14 @@
     <div class="user-select-body">
         <h2>Vem tränar idag?</h2>
         <p>Välj din profil för att komma igång</p>
-        <div class="user-grid">
-            <div class="user-card user-card-emma" onclick="selectUser('Emma')">
-                <span class="u-avatar">👩</span>
-                <div class="u-name">Emma</div>
-            </div>
-            <div class="user-card user-card-david" onclick="selectUser('David')">
-                <span class="u-avatar">👨</span>
-                <div class="u-name">David</div>
-            </div>
-            <div class="user-card" style="border-color:#58a6ff" onclick="selectUser('Demo')">
-                <span class="u-avatar">🤖</span>
-                <div class="u-name">Demo</div>
-            </div>
+        <div class="user-dropdown-wrap">
+            <select id="user-select-dropdown" class="user-dropdown">
+                <option value="">— Välj användare —</option>
+                <option value="Emma">👩 Emma</option>
+                <option value="David">👨 David</option>
+                <option value="Demo">🤖 Demo</option>
+            </select>
+            <button class="user-select-btn" onclick="confirmUserSelect()">Kom igång →</button>
         </div>
     </div>
 </div>
@@ -1393,6 +1391,12 @@ function selectUser(name, silent = false) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('screen-home').classList.add('active');
     }
+}
+
+function confirmUserSelect() {
+    const val = document.getElementById('user-select-dropdown').value;
+    if (!val) { toast('Välj en användare först!', true); return; }
+    selectUser(val);
 }
 
 function switchUser() {
@@ -2290,7 +2294,19 @@ function saveCardio() {
         });
         if (sets.length > 0) cardioExercises.push({ name, sets });
     });
-    if (cardioExercises.length > 0) entry.exercises = cardioExercises;
+    if (cardioExercises.length > 0) {
+        entry.exercises = cardioExercises;
+        const groups = [];
+        cardioExercises.forEach(ex => {
+            const baseName = ex.name.replace(/\s*\([^)]+\)\s*$/, '');
+            const group = getExerciseMuscleGroup(baseName) || getExerciseMuscleGroup(ex.name);
+            if (group && !groups.includes(group)) groups.push(group);
+        });
+        const strengthLabel = groups.length === 0 ? 'Styrka'
+            : groups.length === 1 ? groups[0]
+            : groups.slice(0, -1).join(', ') + ' & ' + groups[groups.length - 1];
+        entry.title = `${LABELS[selectedActivity]} + ${strengthLabel}`;
+    }
 
     saveToStorage(entry);
 
@@ -2551,7 +2567,7 @@ function handleModalOverlayClick(e) {
 
 function addExerciseToWorkout(name) {
     const prevEx = getLastExerciseData(name);
-    const card = buildExerciseCard(name, prevEx);
+    const card = buildExerciseCard(name, prevEx, null, prevEx ? prevEx.sets : null);
     const targetId = document.getElementById('screen-cardio').classList.contains('active')
         ? 'cardio-exercises-list'
         : 'exercises-list';
