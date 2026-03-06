@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Träningslogg</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/jpeg" href="favicon.jpeg">
     <link rel="apple-touch-icon" sizes="180x180" href="favicon.jpeg">
     <meta name="theme-color" content="#0d1117">
@@ -18,34 +20,60 @@
         input[type=number] { -moz-appearance: textfield; }
 
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --surface2: #21262d;
-            --border: #30363d;
-            --text: #e6edf3;
-            --muted: #8b949e;
-            --c-brost: #ff6b6b;
-            --c-rygg: #4fc3f7;
-            --c-axlar: #c084fc;
+            --bg:       #050c14;
+            --surface:  rgba(8,18,26,0.55);
+            --surface2: rgba(255,255,255,0.04);
+            --border:   rgba(0,210,180,0.18);
+            --border2:  rgba(255,255,255,0.07);
+            --text:     #ddecea;
+            --muted:    rgba(140,185,180,0.6);
+            --accent:   #00d4b4;
+            --accent2:  #0096aa;
+            --c-brost:  #ff6b6b;
+            --c-rygg:   #4fc3f7;
+            --c-axlar:  #c084fc;
             --c-cardio: #4ade80;
-            --c-ben: #fb923c;
+            --c-ben:    #fb923c;
             --c-helkropp: #facc15;
+            --glass: blur(16px) saturate(1.5);
         }
 
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
         }
 
+        /* ── FIXED BACKGROUND ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background: url('bg3.jpeg') center/cover no-repeat;
+            filter: brightness(0.7) saturate(1.25);
+            animation: bg-drift 25s ease-in-out infinite alternate;
+        }
+        body::after {
+            content: '';
+            position: fixed; inset: 0; z-index: 1;
+            background: radial-gradient(ellipse at 50% 30%, rgba(0,180,160,0.06) 0%, rgba(5,12,20,0.5) 80%);
+        }
+        @keyframes bg-drift {
+            from { transform: scale(1.04); }
+            to   { transform: scale(1.08) translateX(-1%); }
+        }
+
         /* ── SCREENS ── */
-        .screen { display: none; min-height: 100vh; }
+        .screen { display: none; min-height: 100vh; position: relative; z-index: 2; }
+        #screen-user { display: none; min-height: 100dvh; align-items: center; justify-content: center; z-index: 2; }
+        #screen-user.active { display: flex; }
         .screen.active { display: block; }
 
         /* ── HEADER ── */
         .top-bar {
-            background: var(--surface);
+            background: rgba(5,12,20,0.7);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
             border-bottom: 1px solid var(--border);
             padding: 14px 20px;
             display: flex;
@@ -55,76 +83,100 @@
             top: 0;
             z-index: 10;
         }
-        .top-bar h1 { font-size: 18px; font-weight: 600; flex: 1; }
+        .top-bar h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px; letter-spacing: 2.5px;
+            color: rgba(220,240,238,0.9);
+            flex: 1;
+            display: flex; align-items: center; gap: 9px;
+        }
+        .top-bar h1::before {
+            content: '';
+            display: inline-block;
+            width: 3px; height: 17px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent2));
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(0,212,180,0.5);
+            flex-shrink: 0;
+        }
         .top-bar h1 span { color: var(--muted); font-weight: 400; }
 
         .btn-icon {
-            background: none;
+            background: rgba(255,255,255,0.05);
             border: 1px solid var(--border);
             color: var(--muted);
             cursor: pointer;
             padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 18px;
+            border-radius: 8px;
+            font-size: 16px;
             line-height: 1;
             transition: all 0.15s;
         }
-        .btn-icon:hover { background: var(--surface2); color: var(--text); }
+        .btn-icon:hover { background: rgba(0,212,180,0.1); color: var(--accent); border-color: rgba(0,212,180,0.35); }
 
         /* ── HOME ── */
         .home-body {
             max-width: 560px;
             margin: 0 auto;
-            padding: 32px 20px 40px;
+            padding: 28px 20px 60px;
         }
 
         .home-greeting {
-            text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
-        .home-greeting h2 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
-        .home-greeting p { color: var(--muted); font-size: 14px; }
+        .home-greeting h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 36px; letter-spacing: 2px;
+            color: #fff; line-height: 1;
+            margin-bottom: 4px;
+        }
+        .home-greeting h2 span { color: var(--accent); }
+        .home-greeting p { color: var(--muted); font-size: 13px; font-weight: 300; }
 
         .workout-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 10px;
         }
 
         .wcard {
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 26px 16px 22px;
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border2);
+            border-radius: 16px;
+            padding: 22px 16px 18px;
             cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
+            transition: all 0.22s cubic-bezier(0.22,1,0.36,1);
             position: relative;
             overflow: hidden;
         }
-        .wcard::before {
+        .wcard::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 3px;
+            height: 2px;
             background: var(--accent);
-            opacity: 0;
-            transition: opacity 0.2s;
+            box-shadow: 0 0 10px var(--accent);
+            border-radius: 16px 16px 0 0;
         }
-        .wcard:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-        .wcard:hover::before { opacity: 1; }
+        .wcard:hover { transform: translateY(-3px); border-color: rgba(0,210,180,0.25); }
         .wcard:active { transform: translateY(0); }
 
-        .wcard .icon { font-size: 38px; margin-bottom: 10px; display: block; }
-        .wcard h3 { font-size: 14px; font-weight: 600; color: var(--accent); }
-        .wcard .last-session { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        .wcard .icon { display: none; }
+        .wcard h3 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 19px; letter-spacing: 1.5px;
+            color: #fff; line-height: 1.1;
+        }
+        .wcard .last-session { font-size: 11px; color: var(--muted); margin-top: 6px; font-weight: 300; }
 
-        .wcard-brost { --accent: var(--c-brost); }
-        .wcard-rygg  { --accent: var(--c-rygg); }
-        .wcard-axlar { --accent: var(--c-axlar); }
-        .wcard-cardio{ --accent: var(--c-cardio); }
-        .wcard-ben   { --accent: var(--c-ben); }
+        .wcard-brost  { --accent: var(--c-brost); }
+        .wcard-rygg   { --accent: var(--c-rygg); }
+        .wcard-axlar  { --accent: var(--c-axlar); }
+        .wcard-cardio { --accent: var(--c-cardio); }
+        .wcard-ben    { --accent: var(--c-ben); }
 
         /* ── SIGNATURE ── */
         .signature {
@@ -133,7 +185,7 @@
             left: 0; right: 0;
             text-align: center;
             font-size: 11px;
-            color: #333d47;
+            color: rgba(255,255,255,0.1);
             pointer-events: none;
             z-index: 5;
         }
@@ -141,31 +193,39 @@
         .history-btn {
             width: 100%;
             background: var(--surface);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
             border: 1px solid var(--border);
             color: var(--muted);
             padding: 13px;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
+            letter-spacing: 0.3px;
         }
-        .history-btn:hover { background: var(--surface2); color: var(--text); border-color: #58a6ff; }
+        .history-btn:hover { background: rgba(0,212,180,0.08); color: var(--accent); border-color: rgba(0,212,180,0.35); }
 
         .programs-btn {
             width: 100%;
-            background: linear-gradient(135deg, #f59e0b, #f97316);
-            border: none;
-            color: #000;
-            padding: 20px;
+            background: rgba(0,212,180,0.08);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid rgba(0,212,180,0.25);
+            color: rgba(0,212,180,0.9);
+            padding: 16px;
             border-radius: 12px;
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 10px;
-            box-shadow: 0 4px 16px rgba(245,158,11,0.3);
+            margin-top: 0;
+            letter-spacing: 0.5px;
         }
-        .programs-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,158,11,0.4); }
+        .programs-btn:hover { background: rgba(0,212,180,0.14); border-color: rgba(0,212,180,0.45); }
         .programs-btn:active { transform: translateY(0); }
 
         /* ── PROGRAM SESSION ── */
@@ -176,8 +236,10 @@
         }
         .prog-session-card {
             background: var(--surface);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 24px 20px 20px;
             margin-bottom: 16px;
             text-align: center;
@@ -188,15 +250,21 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 4px;
+            height: 2px;
             background: var(--pc);
         }
-        .prog-session-emoji { font-size: 48px; display: block; margin-bottom: 12px; }
-        .prog-session-name { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+        .prog-session-emoji { display: none; }
+        .prog-session-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 26px; letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
         .prog-session-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
         .prog-ex-list {
             background: var(--surface);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 4px 16px;
@@ -204,7 +272,7 @@
         }
         .prog-ex-item {
             padding: 10px 0;
-            border-bottom: 1px solid var(--surface2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             font-size: 14px;
         }
         .prog-ex-item:last-child { border-bottom: none; }
@@ -338,14 +406,16 @@
 
         .ex-card {
             background: var(--surface);
-            border: 1px solid var(--border);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border2);
             border-radius: 12px;
             margin-bottom: 14px;
             overflow: hidden;
         }
         .ex-header {
             padding: 13px 16px;
-            border-bottom: 1px solid var(--surface2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -365,7 +435,7 @@
         }
 
         .sets-table { width: 100%; border-collapse: collapse; }
-        .sets-table thead tr { background: var(--bg); }
+        .sets-table thead tr { background: rgba(0,0,0,0.25); }
         .sets-table th {
             color: var(--muted);
             font-size: 11px;
@@ -377,12 +447,12 @@
         }
         .sets-table th:last-child { width: 40px; }
 
-        .set-row td { padding: 7px 14px; border-bottom: 1px solid var(--surface2); }
+        .set-row td { padding: 7px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
         .set-row:last-child td { border-bottom: none; }
         .set-num { color: var(--muted); font-size: 13px; width: 32px; }
 
         .set-input {
-            background: var(--bg);
+            background: rgba(0,0,0,0.3);
             border: 1px solid var(--border);
             color: var(--text);
             border-radius: 6px;
@@ -390,10 +460,11 @@
             font-size: 16px;
             width: 88px;
             transition: border-color 0.15s;
+            font-family: 'DM Sans', sans-serif;
         }
-        .set-input:focus { outline: none; border-color: #58a6ff; }
-        .set-input:not(:placeholder-shown) { border-color: #2ea043; }
-        .set-input:focus:not(:placeholder-shown) { border-color: #58a6ff; }
+        .set-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,212,180,0.12); }
+        .set-input:not(:placeholder-shown) { border-color: rgba(0,212,180,0.45); }
+        .set-input:focus:not(:placeholder-shown) { border-color: var(--accent); }
 
         .prev-val { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
@@ -415,76 +486,174 @@
             width: 100%;
             background: none;
             border: none;
-            border-top: 1px dashed var(--border);
-            color: #58a6ff;
+            border-top: 1px dashed rgba(0,212,180,0.2);
+            color: var(--accent);
             cursor: pointer;
             padding: 10px;
             font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
             transition: background 0.15s;
+            opacity: 0.8;
         }
-        .add-set-btn:hover { background: var(--surface2); }
+        .add-set-btn:hover { background: rgba(0,212,180,0.06); opacity: 1; }
 
         .save-btn {
             width: 100%;
-            background: #238636;
+            background: linear-gradient(135deg, #00c4a8 0%, #0088a8 100%);
             border: none;
             color: #fff;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
             font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(0,180,160,0.3);
+            letter-spacing: 0.3px;
         }
-        .save-btn:hover { background: #2ea043; }
-        .save-btn:active { background: #1a7f37; }
+        .save-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,180,160,0.45); }
+        .save-btn:active { transform: translateY(0); }
 
         /* ── USER SELECT ── */
-        .user-select-body {
-            max-width: 440px;
-            margin: 0 auto;
-            padding: 56px 24px 40px;
-            text-align: center;
+        /* ── LOGIN SCREEN ── */
+        #screen-user {
+            background: url('bg3.jpeg') center/cover no-repeat;
+            background-color: #050c14;
         }
-        .user-select-body h2 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-        .user-select-body p  { color: var(--muted); font-size: 15px; margin-bottom: 44px; }
-
+        #screen-user::before {
+            content: '';
+            position: fixed; inset: 0;
+            background: radial-gradient(ellipse at 50% 60%, rgba(0,180,160,0.04) 0%, rgba(0,0,0,0.25) 100%);
+            pointer-events: none; z-index: 0;
+        }
+        .user-select-body {
+            position: relative; z-index: 1;
+            max-width: 400px;
+            width: 92vw;
+            margin: 0 auto;
+            padding: 48px 40px 44px;
+            background: rgba(6,14,20,0.18);
+            backdrop-filter: blur(14px) saturate(1.4);
+            -webkit-backdrop-filter: blur(14px) saturate(1.4);
+            border: 1px solid rgba(0,210,180,0.28);
+            border-radius: 24px;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.15), 0 40px 80px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+            animation: login-rise 0.7s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        @keyframes login-rise {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .login-logo-line {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 36px;
+        }
+        .login-logo-mark {
+            width: 3px; height: 22px;
+            background: linear-gradient(to bottom, #00d4b4, #0096aa);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(0,212,180,0.6);
+            flex-shrink: 0;
+        }
+        .login-logo-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 3px;
+            color: rgba(220,240,238,0.85);
+        }
+        .user-select-body h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 46px;
+            letter-spacing: 3px;
+            color: #fff;
+            line-height: 1;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+        }
+        .user-select-body p {
+            color: rgba(180,210,205,0.6);
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            margin-bottom: 32px;
+        }
+        .login-field-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+            color: rgba(0,212,180,0.8);
+            margin-bottom: 10px;
+        }
         .user-dropdown-wrap {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
         .user-dropdown {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 10px;
-            padding: 14px 16px;
-            font-size: 16px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(0,212,180,0.3);
+            color: #e8f4f2;
+            border-radius: 12px;
+            padding: 15px 44px 15px 18px;
+            font-size: 15px;
             width: 100%;
             cursor: pointer;
             appearance: none;
             -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b949e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300d4b4' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 14px center;
-            transition: border-color 0.15s;
+            background-position: right 16px center;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: var(--font, inherit);
         }
-        .user-dropdown:focus { outline: none; border-color: #58a6ff; }
-        .user-dropdown option { background: #1c2128; }
+        .user-dropdown:focus {
+            outline: none;
+            border-color: rgba(0,212,180,0.7);
+            box-shadow: 0 0 0 3px rgba(0,212,180,0.12);
+        }
+        .user-dropdown option { background: #0d1a1f; color: #e8f4f2; }
         .user-select-btn {
-            background: #1f6feb;
+            background: linear-gradient(135deg, #00c4a8 0%, #0088a8 100%);
             border: none;
             color: #fff;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 24px rgba(0,180,160,0.35);
+            letter-spacing: 0.5px;
         }
-        .user-select-btn:hover { background: #388bfd; }
+        .user-select-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 32px rgba(0,180,160,0.5);
+        }
+        .login-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 28px 0; }
+        .login-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(0,212,180,0.1);
+            border: 1px solid rgba(0,212,180,0.2);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            color: rgba(0,212,180,0.9);
+            font-weight: 500;
+        }
+        .login-badge-dot {
+            width: 6px; height: 6px;
+            background: #00d4b4;
+            border-radius: 50%;
+            animation: badge-pulse 2s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
 
         .switch-user-btn {
             background: none;
@@ -514,47 +683,53 @@
         }
         .act-card {
             background: var(--surface);
-            border: 2px solid var(--border);
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 20px 10px 16px;
+            padding: 18px 10px 15px;
             cursor: pointer;
             text-align: center;
             transition: all 0.2s;
         }
-        .act-card:hover { border-color: var(--c-cardio); background: var(--surface2); }
-        .act-card.selected { border-color: var(--c-cardio); background: rgba(74,222,128,0.08); }
-        .act-card .icon { font-size: 30px; display: block; margin-bottom: 8px; }
-        .act-card span { font-size: 13px; color: var(--muted); transition: color 0.2s; }
-        .act-card.selected span { color: var(--c-cardio); font-weight: 600; }
+        .act-card:hover { border-color: rgba(0,212,180,0.4); background: rgba(0,212,180,0.06); }
+        .act-card.selected { border-color: var(--accent); background: rgba(0,212,180,0.1); box-shadow: 0 0 0 1px rgba(0,212,180,0.25); }
+        .act-card .icon { display: none; }
+        .act-card span { font-size: 13px; color: var(--muted); transition: color 0.2s; font-family: 'DM Sans', sans-serif; }
+        .act-card.selected span { color: var(--accent); font-weight: 600; }
 
         .form-row { margin-bottom: 18px; }
-        .form-row label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+        .form-row label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
         .form-row input {
-            background: var(--surface);
+            background: rgba(0,0,0,0.3);
             border: 1px solid var(--border);
             color: var(--text);
-            border-radius: 8px;
-            padding: 12px 14px;
+            border-radius: 10px;
+            padding: 13px 14px;
             width: 100%;
             font-size: 16px;
-            transition: border-color 0.15s;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
-        .form-row input:focus { outline: none; border-color: var(--c-cardio); }
+        .form-row input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,180,0.1); }
 
         .save-btn-cardio {
-            background: #166534;
+            background: linear-gradient(135deg, #00c4a8 0%, #0088a8 100%);
             border: none;
             color: #fff;
             width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
             font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(0,180,160,0.3);
+            letter-spacing: 0.3px;
         }
-        .save-btn-cardio:hover { background: #15803d; }
+        .save-btn-cardio:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(0,180,160,0.45); }
 
         /* ── HISTORY ── */
         .history-body {
@@ -566,9 +741,11 @@
 
         .hist-item {
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            margin-bottom: 12px;
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border2);
+            border-radius: 14px;
+            margin-bottom: 10px;
             overflow: hidden;
         }
         .hist-header {
@@ -580,8 +757,8 @@
             border-bottom: 1px solid transparent;
             transition: border-color 0.2s;
         }
-        .hist-header.open { border-bottom-color: var(--surface2); }
-        .hist-title { font-weight: 600; flex: 1; }
+        .hist-header.open { border-bottom-color: rgba(255,255,255,0.05); }
+        .hist-title { font-weight: 600; flex: 1; font-size: 14px; }
         .hist-date { font-size: 12px; color: var(--muted); }
         .hist-chevron { color: var(--muted); font-size: 12px; transition: transform 0.2s; }
         .hist-header.open .hist-chevron { transform: rotate(180deg); }
@@ -590,39 +767,42 @@
             border: 1px solid var(--border);
             color: var(--muted);
             cursor: pointer;
-            font-size: 13px;
-            padding: 6px 12px;
+            font-size: 12px;
+            padding: 5px 10px;
             border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
             transition: all 0.15s;
         }
-        .hist-delete-btn:hover { color: #f85149; border-color: #f85149; background: rgba(248,81,73,0.08); }
+        .hist-delete-btn:hover { color: #f85149; border-color: rgba(248,81,73,0.5); background: rgba(248,81,73,0.08); }
 
         .hist-edit-btn {
             background: none;
             border: none;
             color: var(--muted);
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             padding: 2px 6px;
             border-radius: 4px;
             transition: all 0.15s;
             line-height: 1;
             flex-shrink: 0;
         }
-        .hist-edit-btn:hover { color: #58a6ff; background: rgba(88,166,255,0.1); }
+        .hist-edit-btn:hover { color: var(--accent); background: rgba(0,212,180,0.1); }
 
         .hist-body { display: none; padding: 14px 16px; }
         .hist-body.open { display: block; }
 
         .hist-ex { margin-bottom: 12px; }
         .hist-ex:last-child { margin-bottom: 0; }
-        .hist-ex-name { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--muted); }
-        .hist-sets { display: flex; gap: 8px; flex-wrap: wrap; }
+        .hist-ex-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--muted); letter-spacing: 0.3px; }
+        .hist-sets { display: flex; gap: 6px; flex-wrap: wrap; }
         .hist-set-pill {
-            background: var(--surface2);
+            background: rgba(0,212,180,0.08);
+            border: 1px solid rgba(0,212,180,0.15);
             border-radius: 6px;
             padding: 4px 10px;
-            font-size: 13px;
+            font-size: 12px;
+            color: rgba(200,235,230,0.85);
         }
 
         .hist-cardio-info { font-size: 14px; color: var(--muted); }
@@ -631,11 +811,11 @@
         /* ── HISTORY WEEK GROUPS ── */
         .week-group { margin-bottom: 24px; }
         .week-header {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
-            color: var(--muted);
+            color: rgba(0,212,180,0.6);
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1.5px;
             padding: 0 2px 10px;
             display: flex;
             align-items: center;
@@ -657,8 +837,10 @@
         }
         .stat-card {
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border2);
+            border-radius: 14px;
             padding: 18px 12px;
             text-align: center;
         }
@@ -667,8 +849,10 @@
 
         .chart-section {
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border2);
+            border-radius: 14px;
             padding: 18px 16px 14px;
             margin-bottom: 14px;
         }
@@ -729,8 +913,10 @@
         }
         .fun-stat-card {
             background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px solid var(--border2);
+            border-radius: 14px;
             padding: 14px 8px 12px;
             text-align: center;
         }
@@ -744,7 +930,7 @@
             bottom: 24px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: #238636;
+            background: linear-gradient(135deg, #00c4a8, #0088a8);
             color: #fff;
             padding: 11px 22px;
             border-radius: 8px;
@@ -763,8 +949,10 @@
             display: block;
             width: 100%;
             background: var(--surface);
-            border: 1px dashed var(--border);
-            color: #58a6ff;
+            backdrop-filter: var(--glass);
+            -webkit-backdrop-filter: var(--glass);
+            border: 1px dashed rgba(0,212,180,0.25);
+            color: var(--accent);
             padding: 13px;
             border-radius: 10px;
             font-size: 14px;
@@ -773,12 +961,12 @@
             transition: all 0.2s;
             margin-bottom: 10px;
         }
-        .add-ex-btn:hover { background: var(--surface2); border-color: #58a6ff; }
+        .add-ex-btn:hover { background: rgba(0,212,180,0.07); border-color: rgba(0,212,180,0.5); }
 
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.72);
+            background: rgba(0,0,0,0.75);
             display: none;
             align-items: flex-end;
             justify-content: center;
@@ -786,7 +974,9 @@
         }
         .modal-overlay.open { display: flex; }
         .modal-box {
-            background: var(--surface);
+            background: rgba(8,18,28,0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid var(--border);
             border-radius: 16px 16px 0 0;
             width: 100%;
@@ -820,21 +1010,23 @@
             padding: 14px 0 12px;
             border-bottom: 1px solid var(--border);
             position: sticky; top: 0;
-            background: var(--surface); z-index: 1;
+            background: rgba(8,18,28,0.95); backdrop-filter: blur(8px); z-index: 1;
         }
         .modal-custom-input {
             flex: 1;
-            background: var(--bg); border: 1px solid var(--border);
+            background: rgba(0,0,0,0.35); border: 1px solid var(--border);
             color: var(--text); border-radius: 8px;
             padding: 10px 12px; font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
         }
-        .modal-custom-input:focus { outline: none; border-color: #58a6ff; }
+        .modal-custom-input:focus { outline: none; border-color: var(--accent); }
         .modal-add-btn {
-            background: #1f6feb; border: none; color: #fff;
+            background: linear-gradient(135deg, #00c4a8, #0088a8); border: none; color: #fff;
             border-radius: 8px; padding: 10px 16px;
             font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
+            font-family: 'DM Sans', sans-serif;
         }
-        .modal-add-btn:hover { background: #388bfd; }
+        .modal-add-btn:hover { filter: brightness(1.1); }
         .modal-cat-header {
             font-size: 11px; font-weight: 700;
             text-transform: uppercase; letter-spacing: 0.8px;
@@ -883,20 +1075,27 @@
 
 <!-- ════════ USER SELECT ════════ -->
 <div id="screen-user" class="screen active">
-    <div class="top-bar">
-        <h1>Träningslogg</h1>
-    </div>
     <div class="user-select-body">
-        <h2>Vem tränar idag?</h2>
-        <p>Välj din profil för att komma igång</p>
+        <div class="login-logo-line">
+            <div class="login-logo-mark"></div>
+            <span class="login-logo-text">TRÄNINGSLOGG</span>
+        </div>
+        <h2>VEM TRÄNAR?</h2>
+        <p>Välj din profil för att fortsätta</p>
+        <div class="login-field-label">Din profil</div>
         <div class="user-dropdown-wrap">
             <select id="user-select-dropdown" class="user-dropdown">
                 <option value="">— Välj användare —</option>
-                <option value="Emma">👩 Emma</option>
-                <option value="David">👨 David</option>
-                <option value="Demo">🤖 Demo</option>
+                <option value="Emma">Emma</option>
+                <option value="David">David</option>
+                <option value="Demo">Demo</option>
             </select>
             <button class="user-select-btn" onclick="confirmUserSelect()">Kom igång →</button>
+        </div>
+        <div class="login-divider"></div>
+        <div class="login-badge">
+            <div class="login-badge-dot"></div>
+            Synkad med molnet
         </div>
     </div>
 </div>
@@ -905,7 +1104,7 @@
 <div id="screen-home" class="screen">
     <div class="top-bar">
         <h1>Träningslogg</h1>
-        <button class="switch-user-btn" onclick="switchUser()" title="Byt användare">⇄ Byt</button>
+        <button class="switch-user-btn" onclick="switchUser()" title="Byt användare">Byt</button>
     </div>
     <div class="home-body">
         <div class="home-greeting">
@@ -914,35 +1113,30 @@
         </div>
         <div class="workout-grid">
             <div class="wcard wcard-brost" onclick="startWorkout('brost')">
-                <span class="icon">💪</span>
                 <h3>Bröst & Triceps</h3>
                 <div class="last-session" id="last-brost"></div>
             </div>
             <div class="wcard wcard-rygg" onclick="startWorkout('rygg')">
-                <span class="icon">🏋️</span>
                 <h3>Rygg & Biceps</h3>
                 <div class="last-session" id="last-rygg"></div>
             </div>
             <div class="wcard wcard-axlar" onclick="startWorkout('axlar')">
-                <span class="icon">🔆</span>
                 <h3>Axlar & Mage</h3>
                 <div class="last-session" id="last-axlar"></div>
             </div>
             <div class="wcard wcard-cardio" onclick="startWorkout('cardio')">
-                <span class="icon">🏃</span>
                 <h3>Cardio</h3>
                 <div class="last-session" id="last-cardio"></div>
             </div>
             <div class="wcard wcard-ben" onclick="startWorkout('ben')">
-                <span class="icon">🦵</span>
                 <h3>Ben & Rumpa</h3>
                 <div class="last-session" id="last-ben"></div>
             </div>
         </div>
-        <button class="programs-btn" onclick="startRandomHelkropp()">🎲 &nbsp; Slumpa helkroppspass</button>
+        <button class="programs-btn" onclick="startRandomHelkropp()">Slumpa helkroppspass</button>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-            <button class="history-btn" onclick="showHistory()">📋 &nbsp; Historik</button>
-            <button class="history-btn" onclick="showStats()">📊 &nbsp; Statistik</button>
+            <button class="history-btn" onclick="showHistory()">Historik</button>
+            <button class="history-btn" onclick="showStats()">Statistik</button>
         </div>
     </div>
 </div>
@@ -965,9 +1159,9 @@
         <div id="workout-cardio-fields" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;">
             <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">Cardio</div>
             <div class="activity-grid" style="margin-bottom:16px;">
-                <div class="act-card" onclick="selectWorkoutActivity(this,'cykel')"><span class="icon">🚴</span><span>Cykel</span></div>
-                <div class="act-card" onclick="selectWorkoutActivity(this,'promenad')"><span class="icon">🚶</span><span>Promenad</span></div>
-                <div class="act-card" onclick="selectWorkoutActivity(this,'crosstrainer')"><span class="icon">🎿</span><span>Crosstrainer</span></div>
+                <div class="act-card" onclick="selectWorkoutActivity(this,'cykel')"><span>Cykel</span></div>
+                <div class="act-card" onclick="selectWorkoutActivity(this,'promenad')"><span>Promenad</span></div>
+                <div class="act-card" onclick="selectWorkoutActivity(this,'crosstrainer')"><span>Crosstrainer</span></div>
             </div>
             <div class="form-row">
                 <label>Tid (minuter)</label>
@@ -996,15 +1190,12 @@
         <h2>Välj aktivitet</h2>
         <div class="activity-grid">
             <div class="act-card" onclick="selectActivity(this,'cykel')">
-                <span class="icon">🚴</span>
                 <span>Cykel</span>
             </div>
             <div class="act-card" onclick="selectActivity(this,'promenad')">
-                <span class="icon">🚶</span>
                 <span>Promenad</span>
             </div>
             <div class="act-card" onclick="selectActivity(this,'crosstrainer')">
-                <span class="icon">🎿</span>
                 <span>Crosstrainer</span>
             </div>
         </div>
@@ -1373,7 +1564,7 @@ function showScreen(id) {
 function selectUser(name, silent = false) {
     currentUser = name;
     localStorage.setItem('traning_current_user', name);
-    document.getElementById('home-greeting-name').textContent = `Hej, ${name}! 💪`;
+    document.getElementById('home-greeting-name').innerHTML = `Hej, <span>${name}!</span>`;
 
     if (unsubscribeListener) unsubscribeListener();
     unsubscribeListener = userRef()
@@ -1515,7 +1706,7 @@ function editWorkout(id) {
     document.getElementById('workout-badge').textContent = data.title;
     document.getElementById('workout-badge').style.background = data.color;
     document.getElementById('workout-date').textContent = new Date(workout.date).toLocaleDateString('sv-SE');
-    document.getElementById('prev-session-info').textContent = '✏️ Redigerar – datum ändras ej';
+    document.getElementById('prev-session-info').textContent = 'Redigerar – datum ändras ej';
     document.querySelector('.save-btn').textContent = 'Spara ändringar';
 
     const list = document.getElementById('exercises-list');
@@ -1785,16 +1976,16 @@ function showStats() {
             <div class="stat-card"><div class="stat-value">${totalCount}</div><div class="stat-label">Totalt</div></div>
             <div class="stat-card"><div class="stat-value">${thisWeek}</div><div class="stat-label">Den här veckan</div></div>
             <div class="stat-card"><div class="stat-value">${thisMonth}</div><div class="stat-label">Den här månaden</div></div>
-            <div class="stat-card"><div class="stat-value">${weekStreak}</div><div class="stat-label">Veckor i rad 🔥</div></div>
+            <div class="stat-card"><div class="stat-value">${weekStreak}</div><div class="stat-label">Veckor i rad</div></div>
         </div>
 
         <div class="fun-stats-grid">
-            <div class="fun-stat-card"><span class="fun-stat-emoji">🏆</span><div class="fun-stat-val">${recordWeek}</div><div class="fun-stat-desc">Rekordvecka</div></div>
-            <div class="fun-stat-card"><span class="fun-stat-emoji">🔥</span><div class="fun-stat-val">${maxDayStreak}</div><div class="fun-stat-desc">Dagar i rad</div></div>
-            <div class="fun-stat-card"><span class="fun-stat-emoji">💪</span><div class="fun-stat-val" style="font-size:17px">${favTypeLabel}</div><div class="fun-stat-desc">Favoritpass</div></div>
-            <div class="fun-stat-card"><span class="fun-stat-emoji">📈</span><div class="fun-stat-val">${avgPerWeek}</div><div class="fun-stat-desc">Snitt/vecka</div></div>
-            <div class="fun-stat-card"><span class="fun-stat-emoji">⏰</span><div class="fun-stat-val" style="font-size:15px">${favTime}</div><div class="fun-stat-desc">Träningstid</div></div>
-            <div class="fun-stat-card"><span class="fun-stat-emoji">😴</span><div class="fun-stat-val">${longestBreak}</div><div class="fun-stat-desc">Längsta vilan (dgr)</div></div>
+            <div class="fun-stat-card"><div class="fun-stat-val">${recordWeek}</div><div class="fun-stat-desc">Rekordvecka</div></div>
+            <div class="fun-stat-card"><div class="fun-stat-val">${maxDayStreak}</div><div class="fun-stat-desc">Dagar i rad</div></div>
+            <div class="fun-stat-card"><div class="fun-stat-val" style="font-size:17px">${favTypeLabel}</div><div class="fun-stat-desc">Favoritpass</div></div>
+            <div class="fun-stat-card"><div class="fun-stat-val">${avgPerWeek}</div><div class="fun-stat-desc">Snitt/vecka</div></div>
+            <div class="fun-stat-card"><div class="fun-stat-val" style="font-size:15px">${favTime}</div><div class="fun-stat-desc">Träningstid</div></div>
+            <div class="fun-stat-card"><div class="fun-stat-val">${longestBreak}</div><div class="fun-stat-desc">Längsta vilan (dgr)</div></div>
         </div>
 
         <div class="chart-section">
@@ -1885,10 +2076,9 @@ function startRandomHelkropp() {
     const card = document.getElementById('prog-session-card');
     card.style.setProperty('--pc', prog.color);
     card.innerHTML = `
-        <span class="prog-session-emoji">${prog.emoji}</span>
         <div class="prog-session-name">${prog.title}</div>
         <div class="prog-session-sub">${prog.subtitle}</div>
-        <div class="prog-session-sub">⏱ ${prog.duration}</div>
+        <div class="prog-session-sub">${prog.duration}</div>
     `;
 
     const exList = document.getElementById('prog-ex-list');
@@ -1909,7 +2099,7 @@ function setDifficulty(n) {
 }
 
 function updateStars(n) {
-    const labels = ['Hur jobbigt var det?', 'Väldigt lätt 😴', 'Lätt 🙂', 'Lagom 💪', 'Tungt 😤', 'Extremt jobbigt 🔥'];
+    const labels = ['Hur jobbigt var det?', 'Väldigt lätt', 'Lätt', 'Lagom', 'Tungt', 'Extremt jobbigt'];
     document.querySelectorAll('.diff-star').forEach((s, i) => {
         s.classList.toggle('active', i < n);
     });
@@ -2328,16 +2518,15 @@ function buildHistoryItem(w, i) {
         const stars = '★'.repeat(w.difficulty) + '☆'.repeat(5 - w.difficulty);
         bodyHtml = `
             <div class="hist-prog-row">
-                ${w.emoji || ''} ${w.title}<br>
+                ${w.title}<br>
                 <span class="hist-prog-stars">${stars}</span>
                 <span style="font-size:12px;margin-left:6px;">Svårighet ${w.difficulty}/5</span>
             </div>`;
     } else if (w.type === 'cardio') {
-        const ICONS = { cykel: '🚴', promenad: '🚶', crosstrainer: '🎿' };
         const kmPart = w.km != null ? ` &nbsp;|&nbsp; <strong>${w.km}</strong> km` : '';
         bodyHtml = `
             <div class="hist-cardio-info">
-                ${ICONS[w.activity] || ''} <strong>${w.activityLabel}</strong> &nbsp;|&nbsp;
+                <strong>${w.activityLabel}</strong> &nbsp;|&nbsp;
                 <strong>${w.time}</strong> min &nbsp;|&nbsp;
                 <strong>${w.kcal}</strong> kcal${kmPart}
             </div>`;
@@ -2365,12 +2554,11 @@ function buildHistoryItem(w, i) {
                 </div>
             </div>`).join('');
         if (w.cardio) {
-            const ICONS = { cykel: '🚴', promenad: '🚶', crosstrainer: '🎿' };
             const kmPart = w.cardio.km != null ? ` &nbsp;|&nbsp; <strong>${w.cardio.km}</strong> km` : '';
             bodyHtml += `
-                <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--surface2);">
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05);">
                     <div class="hist-cardio-info">
-                        ${ICONS[w.cardio.activity] || ''} <strong>${w.cardio.activityLabel}</strong> &nbsp;|&nbsp;
+                        <strong>${w.cardio.activityLabel}</strong> &nbsp;|&nbsp;
                         <strong>${w.cardio.time}</strong> min &nbsp;|&nbsp;
                         <strong>${w.cardio.kcal}</strong> kcal${kmPart}
                     </div>
@@ -2380,9 +2568,9 @@ function buildHistoryItem(w, i) {
 
     let editBtn = '';
     if (!w.isProgram && w.type === 'cardio') {
-        editBtn = `<button class="hist-edit-btn" onclick="event.stopPropagation(); editCardio(${w.id})" title="Redigera">✏️</button>`;
+        editBtn = `<button class="hist-edit-btn" onclick="event.stopPropagation(); editCardio(${w.id})" title="Redigera">Redigera</button>`;
     } else if (!w.isProgram && WORKOUTS[w.type]) {
-        editBtn = `<button class="hist-edit-btn" onclick="event.stopPropagation(); editWorkout(${w.id})" title="Redigera">✏️</button>`;
+        editBtn = `<button class="hist-edit-btn" onclick="event.stopPropagation(); editWorkout(${w.id})" title="Redigera">Redigera</button>`;
     }
 
     return `
@@ -2396,7 +2584,7 @@ function buildHistoryItem(w, i) {
             <div class="hist-body">
                 ${bodyHtml}
                 <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--surface2);text-align:right;">
-                    <button class="hist-delete-btn" onclick="deleteWorkout(${w.id})" title="Ta bort">🗑 Ta bort pass</button>
+                    <button class="hist-delete-btn" onclick="deleteWorkout(${w.id})" title="Ta bort">Ta bort pass</button>
                 </div>
             </div>
         </div>`;
@@ -2410,7 +2598,15 @@ function toggleHistory(header) {
 // ── HOME CARD LAST SESSION ────────────────────────────
 function updateLastSessions() {
     ['brost', 'rygg', 'axlar', 'cardio', 'ben'].forEach(type => {
-        const prev = getPrevious(type);
+        let prev;
+        if (type === 'cardio') {
+            // Inkludera även styrkepass som har cardio-sektion
+            prev = getStorage()
+                .filter(w => w.type === 'cardio' || w.cardio)
+                .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+        } else {
+            prev = getPrevious(type);
+        }
         const el = document.getElementById(`last-${type}`);
         if (prev) {
             const d = new Date(prev.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });

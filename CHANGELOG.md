@@ -1,5 +1,11 @@
 # Ändringslogg
 
+## 2026-03-06 (2)
+- Helt ny design: bg3.jpeg som fast bakgrund, glassmorphism-stil på alla komponenter
+- Inloggningssidan redesignad (Noir Glass) med Bebas Neue-typografi och teal-accenter
+- Alla emojis borttagna från hela appen för ett proffsigare utseende
+- Buggfix: "Senast"-datum för cardio visade fel datum
+
 ## 2026-03-06
 - Cardiopass kan nu redigeras i efterhand via ✏️-knappen i historiken
 - Nytt distansfält (km) på cardio-formuläret (valfritt), visas i historiken
