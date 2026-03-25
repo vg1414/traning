@@ -17,7 +17,7 @@
 
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
+        input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
         :root {
             --bg:       #050c14;
@@ -434,31 +434,34 @@
             cursor: pointer;
         }
 
-        .sets-table { width: 100%; border-collapse: collapse; }
+        .sets-table { width: auto; border-collapse: collapse; }
         .sets-table thead tr { background: rgba(0,0,0,0.25); }
+        .sets-table th, .set-row td {
+            padding: 5px 4px;
+            vertical-align: middle;
+        }
         .sets-table th {
             color: var(--muted);
             font-size: 11px;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 8px 14px;
             text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
-        .sets-table th:last-child { width: 40px; }
-
-        .set-row td { padding: 7px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .set-row td { border-bottom: 1px solid rgba(255,255,255,0.04); }
         .set-row:last-child td { border-bottom: none; }
-        .set-num { color: var(--muted); font-size: 13px; width: 32px; }
+        .set-num { color: var(--muted); font-size: 13px; text-align: center; }
 
         .set-input {
             background: rgba(0,0,0,0.3);
             border: 1px solid var(--border);
             color: var(--text);
             border-radius: 6px;
-            padding: 6px 10px;
+            padding: 6px 8px;
             font-size: 16px;
-            width: 88px;
+            width: 72px;
+            text-align: center;
             transition: border-color 0.15s;
             font-family: 'DM Sans', sans-serif;
         }
@@ -473,8 +476,8 @@
             border: none;
             color: var(--muted);
             cursor: pointer;
-            font-size: 20px;
-            padding: 8px 12px;
+            font-size: 18px;
+            padding: 4px 6px;
             border-radius: 4px;
             line-height: 1;
             transition: all 0.15s;
@@ -1330,7 +1333,7 @@ const WORKOUTS = {
         color: '#c084fc',
         groups: [
             { label: 'Axlar', exercises: ['Militärpress', 'Sidolyft', 'Framlyft', 'Face pull'] },
-            { label: 'Mage', exercises: ['Plankan (sek)', 'Sidoplanka (sek)', 'Dead bug', 'Hjulet', 'Liggande benlyft'] }
+            { label: 'Mage', exercises: ['Plankan (sek)', 'Sidoplanka (sek)', 'Dead bug', 'Hjulet', 'Liggande benlyft', 'Sidoböj'] }
         ]
     },
     ben: {
@@ -1473,6 +1476,7 @@ const EXERCISE_IMAGES = {
     'Sidoplanka (sek)':     'https://fitnessprogramer.com/wp-content/uploads/2021/02/Side-Plank-1.png',
     'Hjulet':               'https://i5.walmartimages.com/asr/90b2c6cd-1ae5-4bbc-bd73-27272266f0cc.4249099862bc92bf028c4c2c86877dcb.jpeg',
     'Liggande benlyft':     'https://www.traningsplatsen.se/wp-content/uploads/2017/03/benlyft-p%C3%A5-rygg.jpg',
+    'Sidoböj':              'https://static.strengthlevel.com/images/exercises/dumbbell-side-bend/dumbbell-side-bend-800.jpg',
     // Nya övningar
     'High to low cable flyes (drag curl)': 'https://www.puregym.com/media/0c2ijzzq/cable-chest-flyes.jpg?quality=80',
     'Low to high cable fly':        'https://cdn.shopify.com/s/files/1/1633/7705/files/cable_flys_low_480x480.jpg',
@@ -2188,10 +2192,10 @@ function buildExerciseCard(name, prevEx, templateEx = null, currentSets = null, 
         <table class="sets-table">
             <thead>
                 <tr>
-                    <th style="width:36px">Set</th>
-                    ${noWeight ? '' : '<th>Vikt (kg)</th>'}
-                    <th>Reps</th>
-                    <th></th>
+                    <th style="width:28px;text-align:center">Set</th>
+                    ${noWeight ? '' : '<th style="width:72px;text-align:center">Vikt (kg)</th>'}
+                    <th style="width:72px;text-align:center">Reps</th>
+                    <th style="width:28px"></th>
                 </tr>
             </thead>
             <tbody class="sets-body"></tbody>
@@ -2297,7 +2301,7 @@ function addSet(btn, prevSet = null, templateEx = null, currentSet = null) {
     if (noWeight) {
         tr.innerHTML = `
             <td class="set-num">${num}</td>
-            <td colspan="2">
+            <td>
                 <input class="set-input" type="hidden" value="0">
                 <input class="set-input" type="number"
                        placeholder="${prevReps || suggestReps || '0'}" min="0" inputmode="numeric"
