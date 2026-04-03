@@ -1266,8 +1266,8 @@
 </div>
 
 <!-- ════════ ADD EXERCISE MODAL ════════ -->
-<div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
-    <div class="modal-box" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+<div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)" ontouchend="handleModalOverlayClick(event)">
+    <div class="modal-box" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()">
         <div class="modal-header">
             <h3>Lägg till övning</h3>
             <button class="modal-close" onclick="closeAddExerciseModal()">×</button>
@@ -1276,7 +1276,7 @@
             <div class="modal-custom-row">
                 <input class="modal-custom-input" id="custom-ex-input" placeholder="Skriv eget övningsnamn..." maxlength="60"
                     onkeydown="if(event.key==='Enter') addCustomExercise()">
-                <button class="modal-add-btn" onclick="addCustomExercise()" ontouchend="event.preventDefault(); addCustomExercise()">Lägg till</button>
+                <button class="modal-add-btn" onclick="addCustomExercise()">Lägg till</button>
             </div>
         </div>
     </div>
