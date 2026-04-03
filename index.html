@@ -1267,7 +1267,7 @@
 
 <!-- ════════ ADD EXERCISE MODAL ════════ -->
 <div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
-    <div class="modal-box">
+    <div class="modal-box" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()">
         <div class="modal-header">
             <h3>Lägg till övning</h3>
             <button class="modal-close" onclick="closeAddExerciseModal()">×</button>
@@ -1325,7 +1325,7 @@ const WORKOUTS = {
         color: '#4fc3f7',
         groups: [
             { label: 'Rygg', exercises: ['Latsdrag', 'Sittande rodd', 'Hyperextensions'] },
-            { label: 'Biceps', exercises: ['Preacher curl', 'Bakåtlutad bicepcurl', 'Cable curl', 'One arm cable curl'] }
+            { label: 'Biceps', exercises: ['Preacher curl', 'Bakåtlutad bicepcurl', 'Cable curl', 'One arm cable curl', 'Inclined Hammercurls'] }
         ]
     },
     axlar: {
@@ -1466,6 +1466,7 @@ const EXERCISE_IMAGES = {
     'Bakåtlutad bicepcurl': 'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Incline-Dumbbell-Curl_7debf468-cd34-49bc-8933-7f4b087e6cca_600x600.png?v=1612137309',
     'Cable curl':           'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Rope-Cable-Curl_6216e254-5f77-462c-9954-ea210fff8a70_600x600.png?v=1612137195',
     'One arm cable curl':   'https://fitnessprogramer.com/wp-content/uploads/2021/02/One-Arm-Cable-Curl.gif',
+    'Inclined Hammercurls': 'https://dumbbellsdirect.com/cdn/shop/articles/Incline_Hammer_Curls__Stretch_Strengthen_Build_Thicker_Arms.jpg',
     // Axlar & Mage
     'Militärpress':         'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Shoulder-Press_da0aa742-620a-45f7-9277-78137d38ff28_600x600.png?v=1612138495',
     'Sidolyft':             'https://cdn.shopify.com/s/files/1/0269/5551/3900/files/Dumbbell-Lateral-Raise_31c81eee-81c4-4ffe-890d-ee13dd5bbf20_600x600.png?v=1612138523',
@@ -1717,24 +1718,11 @@ function editWorkout(id) {
     const list = document.getElementById('exercises-list');
     list.innerHTML = '';
 
-    (data.groups || []).forEach(group => {
-        const hdr = document.createElement('div');
-        hdr.className = 'ex-section-head';
-        hdr.textContent = group.label;
-        list.appendChild(hdr);
-
-        group.exercises.forEach(name => {
-            let savedEx = workout.exercises.find(e => e.name === name);
-            let initialVariant = null;
-            if (!savedEx && VARIANT_EXERCISES[name]) {
-                for (const v of VARIANT_EXERCISES[name]) {
-                    const found = workout.exercises.find(e => e.name === `${name} (${v.toLowerCase()})`);
-                    if (found) { savedEx = found; initialVariant = v.toLowerCase(); break; }
-                }
-            }
-            // currentSets = [] for unlogged exercises (starts empty), savedEx.sets if logged
-            list.appendChild(buildExerciseCard(name, null, null, savedEx ? savedEx.sets : [], initialVariant));
-        });
+    // I edit-läge: visa bara sparade övningar
+    workout.exercises.forEach(ex => {
+        const baseName = ex.name.replace(/ \([^)]+\)$/, '');
+        const variant = ex.name !== baseName ? ex.name.match(/\(([^)]+)\)$/)?.[1] : null;
+        list.appendChild(buildExerciseCard(baseName, null, null, ex.sets, variant ? variant.toLowerCase() : null));
     });
 
     // Restore cardio section if workout has cardio
@@ -2880,6 +2868,7 @@ function saveDraft() {
 
 function restoreWorkoutDraft() {
     try {
+        if (editingWorkout) return;
         const raw = localStorage.getItem(DRAFT_KEY);
         if (!raw) return;
         const draft = JSON.parse(raw);

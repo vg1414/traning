@@ -1,5 +1,10 @@
 # Ändringslogg
 
+## 2026-04-03
+- Inclined Hammercurls tillagd som bicepsövning i Rygg & Biceps
+- Buggfix: edit-läget visade hela övningslistan istället för bara körda övningar
+- Buggfix: modal för egen övning stängdes vid tryck på inputfältet på iPhone
+
 ## 2026-03-06 (3)
 - Ny app-ikon (favicon + apple-touch-icon): Gemini_Generated_Image_ecnev6ecnev6ecne.png
 - Borttagna oanvända filer: bg1.jpeg, bg2.jpeg, cover.jpg, favicon.jpeg, favicon.png, index_old.html, preview-filer
