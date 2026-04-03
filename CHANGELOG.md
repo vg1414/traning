@@ -1,6 +1,9 @@
 # Ändringslogg
 
 ## 2026-04-03
+- Mid Cable Chest Fly tillagd som bröstövning med bild
+
+
 - Inclined Hammercurls tillagd som bicepsövning i Rygg & Biceps
 - Buggfix: edit-läget visade hela övningslistan istället för bara körda övningar
 - Buggfix: modal för egen övning stängdes vid tryck på inputfältet på iPhone
