@@ -404,6 +404,38 @@
         .session-date { font-size: 13px; color: var(--muted); }
         .prev-session-info { font-size: 12px; color: var(--muted); margin-left: auto; font-style: italic; }
 
+        .edit-date-row {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0 4px;
+            padding: 10px 14px;
+            background: rgba(0,212,180,0.06);
+            border: 1px solid rgba(0,212,180,0.22);
+            border-radius: 10px;
+        }
+        .edit-date-row.visible { display: flex; }
+        .edit-date-row label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+        .edit-date-row input[type="date"] {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            color-scheme: dark;
+        }
+
         .ex-card {
             background: var(--surface);
             backdrop-filter: var(--glass);
@@ -1156,6 +1188,10 @@
             <span class="session-date" id="workout-date"></span>
             <span class="prev-session-info" id="prev-session-info"></span>
         </div>
+        <div class="edit-date-row" id="workout-edit-date-row">
+            <label>Datum</label>
+            <input type="date" id="workout-edit-date">
+        </div>
         <div id="exercises-list"></div>
         <button class="add-ex-btn" onclick="openAddExerciseModal()">＋ Lägg till övning</button>
         <button class="add-ex-btn" id="workout-cardio-toggle-btn" onclick="toggleWorkoutCardio()" style="color:var(--c-cardio);margin-bottom:4px;">＋ Lägg till cardio</button>
@@ -1190,6 +1226,10 @@
         <h1>Cardio</h1>
     </div>
     <div class="cardio-body">
+        <div class="edit-date-row" id="cardio-edit-date-row">
+            <label>Datum</label>
+            <input type="date" id="cardio-edit-date">
+        </div>
         <h2>Välj aktivitet</h2>
         <div class="activity-grid">
             <div class="act-card" onclick="selectActivity(this,'cykel')">
@@ -1270,13 +1310,13 @@
     <div class="modal-box" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()">
         <div class="modal-header">
             <h3>Lägg till övning</h3>
-            <button class="modal-close" onclick="closeAddExerciseModal()">×</button>
+            <button class="modal-close" onclick="closeAddExerciseModal()" ontouchend="event.stopPropagation();event.preventDefault();closeAddExerciseModal()">×</button>
         </div>
         <div class="modal-body" id="modal-ex-body">
             <div class="modal-custom-row">
                 <input class="modal-custom-input" id="custom-ex-input" placeholder="Skriv eget övningsnamn..." maxlength="60"
                     onkeydown="if(event.key==='Enter') addCustomExercise()">
-                <button class="modal-add-btn" onclick="addCustomExercise()">Lägg till</button>
+                <button class="modal-add-btn" onclick="addCustomExercise()" ontouchend="event.stopPropagation();event.preventDefault();addCustomExercise()">Lägg till</button>
             </div>
         </div>
     </div>
@@ -1622,6 +1662,8 @@ function goHome() {
     document.getElementById('cardio-exercises-list').innerHTML = '';
     document.getElementById('cardio-strength-fields').style.display = 'none';
     document.getElementById('cardio-strength-toggle-btn').textContent = '＋ Lägg till styrka';
+    document.getElementById('cardio-edit-date-row').classList.remove('visible');
+    document.getElementById('workout-edit-date-row').classList.remove('visible');
 }
 
 function startWorkout(type) {
@@ -1651,6 +1693,7 @@ function startWorkout(type) {
     document.getElementById('workout-badge').textContent = data.title;
     document.getElementById('workout-badge').style.background = data.color;
     document.getElementById('workout-date').textContent = new Date().toLocaleDateString('sv-SE');
+    document.getElementById('workout-edit-date-row').classList.remove('visible');
 
     if (prev) {
         const d = new Date(prev.date).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
@@ -1713,8 +1756,11 @@ function editWorkout(id) {
     document.getElementById('workout-badge').textContent = data.title;
     document.getElementById('workout-badge').style.background = data.color;
     document.getElementById('workout-date').textContent = new Date(workout.date).toLocaleDateString('sv-SE');
-    document.getElementById('prev-session-info').textContent = 'Redigerar – datum ändras ej';
+    document.getElementById('prev-session-info').textContent = '';
     document.querySelector('.save-btn').textContent = 'Spara ändringar';
+    const wDateRow = document.getElementById('workout-edit-date-row');
+    wDateRow.classList.add('visible');
+    document.getElementById('workout-edit-date').value = new Date(workout.date).toISOString().slice(0, 10);
 
     const list = document.getElementById('exercises-list');
     list.innerHTML = '';
@@ -2380,6 +2426,9 @@ function editCardio(id) {
     document.getElementById('cardio-km').value = workout.km || '';
     document.querySelector('.save-btn-cardio').textContent = 'Spara ändringar';
     document.getElementById('screen-cardio').querySelector('.top-bar h1').textContent = 'Redigera Cardio';
+    const cDateRow = document.getElementById('cardio-edit-date-row');
+    cDateRow.classList.add('visible');
+    document.getElementById('cardio-edit-date').value = new Date(workout.date).toISOString().slice(0, 10);
 
     // Reset strength section then restore if exercises exist
     document.getElementById('cardio-exercises-list').innerHTML = '';
@@ -2445,9 +2494,20 @@ function saveWorkout() {
         }
     }
 
+    let workoutDate = new Date().toISOString();
+    if (editingWorkout) {
+        const editedDateVal = document.getElementById('workout-edit-date').value;
+        if (editedDateVal) {
+            const [y, m, d] = editedDateVal.split('-').map(Number);
+            const orig = new Date(editingWorkout.date);
+            workoutDate = new Date(y, m - 1, d, orig.getHours(), orig.getMinutes(), orig.getSeconds()).toISOString();
+        } else {
+            workoutDate = editingWorkout.date;
+        }
+    }
     const entry = {
         id:    editingWorkout ? editingWorkout.id   : Date.now(),
-        date:  editingWorkout ? editingWorkout.date : new Date().toISOString(),
+        date:  workoutDate,
         type: currentType,
         title: generateWorkoutTitle(),
         exercises
@@ -2472,9 +2532,20 @@ function saveCardio() {
 
     const LABELS = { cykel: 'Cykel', promenad: 'Promenad', crosstrainer: 'Crosstrainer' };
 
+    let cardioDate = new Date().toISOString();
+    if (editingCardio) {
+        const editedDateVal = document.getElementById('cardio-edit-date').value;
+        if (editedDateVal) {
+            const [y, m, d] = editedDateVal.split('-').map(Number);
+            const orig = new Date(editingCardio.date);
+            cardioDate = new Date(y, m - 1, d, orig.getHours(), orig.getMinutes(), orig.getSeconds()).toISOString();
+        } else {
+            cardioDate = editingCardio.date;
+        }
+    }
     const entry = {
         id:            editingCardio ? editingCardio.id   : Date.now(),
-        date:          editingCardio ? editingCardio.date : new Date().toISOString(),
+        date:          cardioDate,
         type:          'cardio',
         title:         'Cardio',
         activity:      selectedActivity,
@@ -2775,6 +2846,7 @@ function openAddExerciseModal() {
                 item.className = 'modal-ex-item';
                 item.innerHTML = `<span class="ex-cat-dot" style="background:${data.color}"></span><span>${name}</span>`;
                 item.onclick = () => addExerciseToWorkout(name);
+                item.ontouchend = (e) => { e.stopPropagation(); e.preventDefault(); addExerciseToWorkout(name); };
                 body.appendChild(item);
             });
         });
