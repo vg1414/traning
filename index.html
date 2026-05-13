@@ -1021,8 +1021,6 @@
             display: flex;
             flex-direction: column;
             animation: slideUp 0.22s ease;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
         }
         @keyframes slideUp {
             from { transform: translateY(40px); opacity: 0.4; }
@@ -1077,6 +1075,8 @@
             padding: 9px 10px; border-radius: 8px; cursor: pointer;
             font-size: 14px; transition: background 0.12s;
             display: flex; align-items: center; gap: 10px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,212,180,0.15);
         }
         .modal-ex-item:hover { background: var(--surface2); }
         .ex-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -1328,8 +1328,8 @@
 </div>
 
 <!-- ════════ ADD EXERCISE MODAL ════════ -->
-<div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
-    <div class="modal-box" onclick="event.stopPropagation()">
+<div id="add-exercise-modal" class="modal-overlay">
+    <div class="modal-box">
         <div class="modal-header">
             <h3>Hantera övningar</h3>
             <button class="modal-close" onclick="closeAddExerciseModal()" ontouchend="event.stopPropagation();event.preventDefault();closeAddExerciseModal()">×</button>
@@ -2876,14 +2876,9 @@ function openAddExerciseModal() {
             const item = document.createElement('div');
             item.className = 'modal-ex-item';
             item.innerHTML = `<span class="ex-cat-dot" style="background:var(--accent)"></span><span style="flex:1">${name}</span><button class="modal-ex-delete" title="Ta bort">×</button>`;
-            const nameSpan = item.querySelector('span:nth-child(2)');
             const delBtn = item.querySelector('.modal-ex-delete');
-            nameSpan.onclick = () => addExerciseToWorkout(name);
-            nameSpan.ontouchend = (e) => { e.stopPropagation(); e.preventDefault(); addExerciseToWorkout(name); };
             item.onclick = (e) => { if (!e.target.classList.contains('modal-ex-delete')) addExerciseToWorkout(name); };
-            item.ontouchend = (e) => { if (!e.target.classList.contains('modal-ex-delete')) { e.stopPropagation(); e.preventDefault(); addExerciseToWorkout(name); } };
             delBtn.onclick = (e) => { e.stopPropagation(); deleteCustomExercise(name); };
-            delBtn.ontouchend = (e) => { e.stopPropagation(); e.preventDefault(); deleteCustomExercise(name); };
             body.appendChild(item);
         });
     }
@@ -2902,7 +2897,6 @@ function openAddExerciseModal() {
                 item.className = 'modal-ex-item';
                 item.innerHTML = `<span class="ex-cat-dot" style="background:${data.color}"></span><span>${name}</span>`;
                 item.onclick = () => addExerciseToWorkout(name);
-                item.ontouchend = (e) => { e.stopPropagation(); e.preventDefault(); addExerciseToWorkout(name); };
                 body.appendChild(item);
             });
         });
@@ -2917,6 +2911,7 @@ function closeAddExerciseModal() {
 
 function handleModalOverlayClick(e) {
     if (e.target === document.getElementById('add-exercise-modal')) closeAddExerciseModal();
+    // kept for potential future use
 }
 
 function addExerciseToWorkout(name) {
