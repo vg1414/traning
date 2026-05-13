@@ -1007,21 +1007,19 @@
             inset: 0;
             background: rgba(0,0,0,0.75);
             display: none;
+            align-items: flex-end;
+            justify-content: center;
             z-index: 150;
         }
-        .modal-overlay.open { display: block; }
+        .modal-overlay.open { display: flex; }
         .modal-box {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            margin: 0 auto;
+            position: relative;
             background: #0a1520;
             border: 1px solid var(--border);
             border-radius: 16px 16px 0 0;
             width: 100%;
             max-width: 680px;
-            max-height: 82vh;
+            max-height: 82dvh;
             display: flex;
             flex-direction: column;
         }
@@ -1359,7 +1357,7 @@
 
 <script>
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260513-8';
+const APP_VERSION = '20260513-9';
 (function checkForUpdate() {
     if (!location.hostname.includes('github.io')) return;
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
@@ -2917,10 +2915,20 @@ function openAddExerciseModal() {
     });
 
     document.getElementById('add-exercise-modal').classList.add('open');
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.dataset.scrollY = scrollY;
 }
 
 function closeAddExerciseModal() {
     document.getElementById('add-exercise-modal').classList.remove('open');
+    const scrollY = parseInt(document.body.dataset.scrollY || '0');
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY);
 }
 
 function handleModalOverlayClick(e) {
