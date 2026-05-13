@@ -1021,7 +1021,6 @@
             max-height: 82vh;
             display: flex;
             flex-direction: column;
-            animation: slideUp 0.22s ease;
         }
         @keyframes slideUp {
             from { transform: translateY(40px); opacity: 0.4; }
@@ -1357,7 +1356,7 @@
 
 <script>
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260513-6';
+const APP_VERSION = '20260513-7';
 (function checkForUpdate() {
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
         .then(r => r.text())
