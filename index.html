@@ -1021,6 +1021,8 @@
             display: flex;
             flex-direction: column;
             animation: slideUp 0.22s ease;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
         @keyframes slideUp {
             from { transform: translateY(40px); opacity: 0.4; }
@@ -1043,17 +1045,19 @@
         .modal-body { overflow-y: auto; padding: 0 16px 32px; flex: 1; }
         .modal-custom-row {
             display: flex; gap: 8px;
-            padding: 14px 0 12px;
+            padding: 10px 16px 12px;
             border-bottom: 1px solid var(--border);
-            position: sticky; top: 0;
-            background: rgba(8,18,28,0.95); backdrop-filter: blur(8px); z-index: 1;
+            flex-shrink: 0;
         }
         .modal-custom-input {
             flex: 1;
             background: rgba(0,0,0,0.35); border: 1px solid var(--border);
             color: var(--text); border-radius: 8px;
-            padding: 10px 12px; font-size: 15px;
+            padding: 10px 12px; font-size: 16px;
             font-family: 'DM Sans', sans-serif;
+            touch-action: manipulation;
+            -webkit-user-select: text;
+            user-select: text;
         }
         .modal-custom-input:focus { outline: none; border-color: var(--accent); }
         .modal-add-btn {
@@ -1061,6 +1065,7 @@
             border-radius: 8px; padding: 10px 16px;
             font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap;
             font-family: 'DM Sans', sans-serif;
+            touch-action: manipulation;
         }
         .modal-add-btn:hover { filter: brightness(1.1); }
         .modal-cat-header {
@@ -1323,18 +1328,18 @@
 </div>
 
 <!-- ════════ ADD EXERCISE MODAL ════════ -->
-<div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)" ontouchend="handleModalOverlayClick(event)">
-    <div class="modal-box" onclick="event.stopPropagation()" ontouchend="event.stopPropagation()">
+<div id="add-exercise-modal" class="modal-overlay" onclick="handleModalOverlayClick(event)">
+    <div class="modal-box" onclick="event.stopPropagation()">
         <div class="modal-header">
             <h3>Hantera övningar</h3>
             <button class="modal-close" onclick="closeAddExerciseModal()" ontouchend="event.stopPropagation();event.preventDefault();closeAddExerciseModal()">×</button>
         </div>
+        <div class="modal-custom-row">
+            <input class="modal-custom-input" id="custom-ex-input" placeholder="Skriv eget övningsnamn..." maxlength="60"
+                onkeydown="if(event.key==='Enter') addCustomExercise()">
+            <button class="modal-add-btn" onclick="addCustomExercise()">Lägg till</button>
+        </div>
         <div class="modal-body" id="modal-ex-body">
-            <div class="modal-custom-row">
-                <input class="modal-custom-input" id="custom-ex-input" placeholder="Skriv eget övningsnamn..." maxlength="60"
-                    onkeydown="if(event.key==='Enter') addCustomExercise()">
-                <button class="modal-add-btn" onclick="addCustomExercise()" ontouchend="event.stopPropagation();event.preventDefault();addCustomExercise()">Lägg till</button>
-            </div>
         </div>
     </div>
 </div>
