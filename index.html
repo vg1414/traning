@@ -1007,12 +1007,15 @@
             inset: 0;
             background: rgba(0,0,0,0.75);
             display: none;
-            align-items: flex-end;
-            justify-content: center;
             z-index: 150;
         }
-        .modal-overlay.open { display: flex; }
+        .modal-overlay.open { display: block; }
         .modal-box {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
             background: #0a1520;
             border: 1px solid var(--border);
             border-radius: 16px 16px 0 0;
@@ -1356,8 +1359,9 @@
 
 <script>
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260513-7';
+const APP_VERSION = '20260513-8';
 (function checkForUpdate() {
+    if (!location.hostname.includes('github.io')) return;
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
         .then(r => r.text())
         .then(html => {
