@@ -1,5 +1,9 @@
 # Ändringslogg
 
+## 2026-05-13 (2)
+- Buggfix: auto-reload loopade sig själv vid lokal körning (kontrollerar nu bara version på GitHub Pages)
+- Buggfix: modal-box använder nu direkt `position: fixed; bottom: 0` istället för flex-centrering, vilket fixar iOS touch-koordinatfel
+
 ## 2026-05-13
 - Buggfix: egna övningar fungerar nu på mobil (touch-blockering i modal åtgärdad)
 - Ny funktion: × på varje övningskort för att ta bort övning under pågående pass
