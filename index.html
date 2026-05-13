@@ -2860,9 +2860,7 @@ function getLastExerciseData(name) {
 
 function openAddExerciseModal() {
     const body = document.getElementById('modal-ex-body');
-    const customRow = body.querySelector('.modal-custom-row');
     body.innerHTML = '';
-    body.appendChild(customRow);
     document.getElementById('custom-ex-input').value = '';
 
     // Egna övningar
@@ -3129,6 +3127,6 @@ function toast(msg, isError = false) {
     }, { passive: true });
 })();
 </script>
-<div class="signature">Made by: David Hefner</div>
+<div class="signature">Made by: David Hefner &nbsp;·&nbsp; v1.0</div>
 </body>
 </html>
