@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-05-13 (3)
+- Footer-text och versionsnummer gjorda tydligare (större font, högre opacity)
+
 ## 2026-05-13 (2)
 - Buggfix: auto-reload loopade sig själv vid lokal körning (kontrollerar nu bara version på GitHub Pages)
 - Buggfix: modal-box använder nu direkt `position: fixed; bottom: 0` istället för flex-centrering, vilket fixar iOS touch-koordinatfel
