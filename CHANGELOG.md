@@ -1,5 +1,11 @@
 # Ändringslogg
 
+## 2026-05-13
+- Buggfix: egna övningar fungerar nu på mobil (touch-blockering i modal åtgärdad)
+- Ny funktion: × på varje övningskort för att ta bort övning under pågående pass
+- Ny funktion: egna övningar sparas nu i Firestore och synkas mellan alla enheter
+- Modal för övningar döpt om till "Hantera övningar" med möjlighet att ta bort egna övningar
+
 ## 2026-04-03 (2)
 - Buggfix: "Lägg till"-knappen och textfältet i modal fungerar nu korrekt på iPhone (touch-händelser blockeras från att bubbla upp till overlay)
 
