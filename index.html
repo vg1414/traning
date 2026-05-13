@@ -1355,6 +1355,18 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
+// ── AUTO-UPPDATERING ──────────────────────────────────
+const APP_VERSION = '20260513-5';
+(function checkForUpdate() {
+    fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
+        .then(r => r.text())
+        .then(html => {
+            const m = html.match(/APP_VERSION = '([^']+)'/);
+            if (m && m[1] !== APP_VERSION) location.reload(true);
+        })
+        .catch(() => {});
+})();
+
 // ── FIREBASE ──────────────────────────────────────────
 const firebaseConfig = {
     apiKey: "AIzaSyBIRuqAwzaG9LZz2XjYlBNTZhEMk8RrR-8",
