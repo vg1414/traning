@@ -3139,6 +3139,7 @@ function toast(msg, isError = false) {
     }, { passive: true });
 })();
 </script>
-<div class="signature">Made by: David Hefner &nbsp;·&nbsp; v1.0</div>
+<div class="signature">Made by: David Hefner &nbsp;·&nbsp; <span id="footer-version"></span></div>
+<script>document.getElementById('footer-version').textContent = 'v' + APP_VERSION;</script>
 </body>
 </html>
