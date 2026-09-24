@@ -1,5 +1,29 @@
 # Ändringslogg
 
+## 2026-09-24 – Stor uppfräschning (bokmärke före: git-tagg `fore-uppfrasch-2026-09-24`)
+- Ny design av passvyn: övningar visas som hopfällda kort med förra resultatet, fäll ut för att logga
+- Större inmatningsrutor, förra passets värden som gråa förslag, Enter hoppar till nästa ruta
+- "↺ Som förra" fyller i alla set från förra gången, PB och liten viktkurva per övning
+- Egna övningar: välj muskelgrupp, typ (vikt/bara reps) och bildlänk – dyker upp i passlistan
+- Redigera övningar (bild, grupp, typ, dölj) direkt från kortet eller övningsväljaren
+- Sök i övningsväljaren, "Skapa" direkt från sökrutan
+- Välj datum även för nya pass (logga i efterhand)
+- Startsida: veckoremsa med dagens pass, "X dagar sedan" per kategori, banner för pågående pass
+- Splash screen med bakgrundsbilden vid start
+- Firande när ett pass sparas: konfetti/emoji-regn (varierar), uppräknade siffror, nya personbästa, roliga jämförelser (totalt lyft, förbränd energi), märken (veckor i rad, pass denna vecka, jubileer, comeback) och ett peppcitat
+- Inloggningssidan borttagen – appen används bara av David
+- Buggfix: Plankan m.fl. sparades som tomma 0-set varje pass
+- Buggfix: redigering förstörde namn med parentes, t.ex. "Plankan (sek)"
+- Buggfix: dubbeltryck på Spara skapade dubbletter
+- Buggfix: fel aktivitet markerades vid redigering av cardio
+- Buggfix: datum kunde hoppa en dag bakåt vid redigering (UTC)
+- Buggfix: "Förra"-värden uppdaterades inte efter redigering
+- Buggfix: redigerade pass kunde läcka in i nästa nya pass via utkastet
+- Buggfix: tillagda övningar försvann vid omladdning mitt i passet
+- Buggfix: historiken hoppade till toppen och fälldes ihop vid synk/radering
+- Buggfix: svep på startsidan loggade ut användaren
+- Buggfix: "Veckor i rad" visade 0 innan veckans första pass; snitt/vecka räknas från första passet
+
 ## 2026-05-13 (3)
 - Footer-text och versionsnummer gjorda tydligare (större font, högre opacity)
 

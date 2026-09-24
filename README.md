@@ -6,22 +6,28 @@ En mobilanpassad träningslogg-app byggd som en enda HTML-fil. Spårar styrkepas
 
 ## Funktioner
 
-- **Styrkepass** – Bröst & Triceps, Rygg & Biceps, Axlar & Mage med övningar sorterade per muskelgrupp
-- **Cardio** – Cykel, promenad, crosstrainer med tid och kcal
-- **Helkroppspass** – Slumpmässiga färdiga program med svårighetsgrad
-- **Förra passets vikter** visas som referens när du loggar
-- **Redigera gamla pass** – Lägg till glömda övningar utan att ändra tidsstämpeln
-- **Historik** – Alla pass i omvänd ordning, grupperade per vecka
-- **Statistik** – Stapeldiagram per vecka/månad, veckodagsfördelning, rekordvecka, dagar i rad m.m.
-- **Firebase-synk** – Realtidssynk mellan enheter, två profiler (David / Emma)
-- **Offline-stöd** – Fungerar utan internet via Firebase persistence
+- **Styrkepass** – Bröst & Triceps, Rygg & Biceps, Axlar & Mage, Ben & Rumpa. Övningarna visas som hopfällda kort (senast gjorda överst) med förra resultatet – fäll ut och logga
+- **Snabb loggning** – förra passets vikter/reps som gråa förslag, Enter hoppar till nästa ruta, "↺ Som förra" fyller i allt
+- **PB och viktkurva** per övning
+- **Egna övningar** – skapa med namn, muskelgrupp, typ (vikt eller bara reps/sek) och bildlänk. Redigera eller dölj även inbyggda övningar
+- **Cardio** – Cykel, promenad, crosstrainer med tid, kcal och km (kan kombineras med styrka)
+- **Helkroppspass** – slumpade färdiga program med svårighetsgrad
+- **Välj datum** – logga pass i efterhand
+- **Pågående pass sparas automatiskt** och kan återupptas från startsidan
+- **Historik** – grupperad per vecka, redigera och ta bort pass
+- **Statistik** – veckor i rad, rekordvecka, fördelning per muskelgrupp, diagram per vecka/månad/veckodag
+- **Firande vid sparat pass** – konfetti, personbästa, roliga jämförelser, veckor i rad och jubileer
+- **Firebase-synk** – realtidssynk mellan enheter, fungerar offline
 
 ## Teknik
 
 - Vanilla HTML/CSS/JavaScript – inga ramverk
-- Firebase Firestore för molnsynk
-- localStorage som fallback
+- Firebase Firestore (`users/david/workouts`, egna övningar i `global/custom_exercises`)
 - PWA-metadata (installerbar på mobil)
+
+## Återgå till tidigare version
+
+Versionen före uppfräschningen 2026-09-24 finns som git-taggen `fore-uppfrasch-2026-09-24`.
 
 ## Träningskategorier
 
