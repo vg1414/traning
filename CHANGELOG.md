@@ -1,6 +1,7 @@
 # Ändringslogg
 
 ## 2026-09-25
+- Parkeringspåminnelse: popup "Har du betalat parkeringen?" när första setet fylls i (en gång per nytt pass), med knapp som öppnar EasyPark
 - Veckoremsan: 👑 på dagar där ett pass satte personbästa
 - Statistik: varje muskelgrupp räknas bara en gång per pass, oavsett antal övningar för gruppen
 - Buggfix: datumknappen öppnar nu kalendern var man än klickar (tidigare bara på texten i Chrome på dator)
