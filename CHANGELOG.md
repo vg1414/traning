@@ -1,6 +1,8 @@
 # Ändringslogg
 
 ## 2026-09-25
+- Buggfix: parkeringspåminnelsen kom inte upp på iPhone – visas nu så fort första setet är ifyllt och man lämnar raden; utkast minns om den visats
+- Appen letar efter ny version även när den öppnas från bakgrunden, och laddar om utan gammal cache
 - Parkeringspåminnelse: popup "Har du betalat parkeringen?" när första setet fylls i (en gång per nytt pass), med knapp som öppnar EasyPark
 - Veckoremsan: 👑 på dagar där ett pass satte personbästa
 - Statistik: varje muskelgrupp räknas bara en gång per pass, oavsett antal övningar för gruppen

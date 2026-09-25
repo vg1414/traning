@@ -688,6 +688,28 @@
         .cel-quote { margin-top: 18px; font-size: 14px; font-style: italic; color: var(--muted); }
         .cel-btn { margin-top: 22px; }
 
+        /* ── PARKERINGSPÅMINNELSE ── */
+        .park-overlay {
+            position: fixed; inset: 0; z-index: 350;
+            display: none; align-items: center; justify-content: center;
+            padding: 24px 20px;
+            background: rgba(2,8,12,0.85);
+        }
+        .park-overlay.open { display: flex; }
+        .park-box {
+            width: 100%; max-width: 340px; text-align: center;
+            background: #0b1822; border: 1px solid rgba(250,204,21,0.45);
+            border-radius: 20px; padding: 26px 20px 20px;
+        }
+        .park-icon { font-size: 54px; line-height: 1; }
+        .park-box h2 { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 1px; margin: 10px 0 4px; color: var(--c-helkropp); }
+        .park-box p { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+        .park-box .save-btn { margin-bottom: 10px; }
+        .park-done {
+            width: 100%; background: none; border: 1px solid var(--line); color: var(--text);
+            border-radius: 14px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;
+        }
+
         /* ── LIGHTBOX ── */
         .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 200; }
         .lightbox.open { display: flex; }
@@ -924,6 +946,17 @@
     <div class="cel-card" id="cel-card"></div>
 </div>
 
+<!-- ════════ PARKERINGSPÅMINNELSE ════════ -->
+<div class="park-overlay" id="park-overlay">
+    <div class="park-box">
+        <div class="park-icon">🅿️</div>
+        <h2>Parkeringen?</h2>
+        <p>Har du betalat parkeringen?</p>
+        <button class="save-btn" onclick="closeParkReminder()">Ja, klart ✓</button>
+        <button class="park-done" onclick="openEasyPark()">Nej – öppna EasyPark</button>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -945,7 +978,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260925-3';
+const APP_VERSION = '20260925-4';
 (function checkForUpdate() {
     if (!location.hostname.includes('github.io')) return;
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
@@ -1309,6 +1342,23 @@ document.addEventListener('input', e => {
     if (card && e.target.matches('.set-row input')) updateCardState(card);
     if (session) saveDraft();
 });
+// Parkeringspåminnelse: visas när första setet (eller cardiotiden) fylls i, en gång per nytt pass.
+// 'change' körs när man lämnar rutan – så popupen inte avbryter mitt i skrivandet.
+document.addEventListener('change', e => {
+    if (!session || session.editing || session.parkShown) return;
+    if (!e.target.matches('.set-row input, #c-time, #w-c-time') || !e.target.value.trim()) return;
+    session.parkShown = true;
+    e.target.blur();
+    $('park-overlay').classList.add('open');
+});
+function closeParkReminder() { $('park-overlay').classList.remove('open'); }
+function openEasyPark() {
+    closeParkReminder();
+    // Försök öppna appen; finns den inte (sidan syns fortfarande efter 1,5 s) → EasyParks webbsida
+    const t = setTimeout(() => { if (!document.hidden) window.location.href = 'https://www.easypark.com/sv-se'; }, 1500);
+    document.addEventListener('visibilitychange', () => clearTimeout(t), { once: true });
+    window.location.href = 'easypark://';
+}
 document.addEventListener('keydown', e => {
     if (e.key !== 'Enter' || !e.target.matches('.set-row input')) return;
     e.preventDefault();
@@ -1905,7 +1955,7 @@ function restoreDraft() {
             renderActs(prefix === 'w' ? 'w-acts' : 'c-acts', c.activity);
             $(ids[0]).value = c.time || ''; $(ids[1]).value = c.kcal || ''; $(ids[2]).value = c.km || '';
         }
-        if (draftHasContent(d)) toast('Pågående pass återställt ✓');
+        if (draftHasContent(d)) { session.parkShown = true; toast('Pågående pass återställt ✓'); }
     } catch (e) {}
     _restoring = false;
     updateSaveBar();
