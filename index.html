@@ -196,6 +196,13 @@
             width: 9px; height: 9px; border-radius: 50%;
             background: var(--dc2); border: 2px solid #0b1822;
         }
+        .wd-crown {
+            position: absolute; top: -6px; left: -2px;
+            font-size: 12px; line-height: 1;
+            transform: rotate(-20deg);
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+            pointer-events: none;
+        }
 
         .draft-banner {
             display: none;
@@ -938,7 +945,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260925-2';
+const APP_VERSION = '20260925-3';
 (function checkForUpdate() {
     if (!location.hostname.includes('github.io')) return;
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
@@ -1220,6 +1227,31 @@ function rebuildIndex() {
         if (!exIndex.has(key)) exIndex.set(key, []);
         exIndex.get(key).push({ id: w.id, date: w.date, sets });
     }));
+    rebuildPBs();
+}
+// Vilka pass som satte ett personbästa (samma regler som firandet): gå igenom passen
+// från äldst till nyast och jämför varje övnings bästa set mot allt som gjorts innan
+let pbWorkouts = new Set();
+function rebuildPBs() {
+    pbWorkouts = new Set();
+    const best = new Map(); // övningsnamn → bästa set hittills
+    const better = (a, b, nw) => !b || (nw ? a.r > b.r : (a.w > b.w || (a.w === b.w && a.r > b.r)));
+    [...workouts].sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(w => {
+        const updates = [];
+        (w.exercises || []).forEach(ex => {
+            const key = EXERCISE_RENAMES[ex.name] || ex.name;
+            const { name } = parseSaved(key);
+            const nw = exMeta(name).noWeight;
+            const cur = bestSet((ex.sets || []).filter(isMeaningful), nw);
+            if (!cur) return;
+            // Varianter jämförs även mot gamla poster utan variant (som exHistory)
+            let prev = best.get(key);
+            if (name !== key && best.has(name) && better(best.get(name), prev, nw)) prev = best.get(name);
+            if (prev && better(cur, prev, nw)) pbWorkouts.add(w.id);
+            updates.push([key, cur, nw]);
+        });
+        updates.forEach(([key, cur, nw]) => { if (better(cur, best.get(key), nw)) best.set(key, cur); });
+    });
 }
 // Historik för en övning (inkl. gamla poster utan variant), exkl. passet som redigeras
 function exHistory(eff) {
@@ -1318,8 +1350,9 @@ function renderHome() {
         if (key === today) cls.push('today');
         if (types.length) cls.push('done');
         if (types.length > 1) cls.push('multi');
+        const crown = dayWs.some(w => pbWorkouts.has(w.id)) ? '<span class="wd-crown" title="Personbästa">👑</span>' : '';
         const style = types.length ? `--dc:${catColor(types[0])};--dc2:${catColor(types[1])}` : '';
-        html += `<div><div class="wd-name">${names[i]}</div><div class="${cls.join(' ')}" style="${style}">${d.getDate()}</div></div>`;
+        html += `<div><div class="wd-name">${names[i]}</div><div class="${cls.join(' ')}" style="${style}">${d.getDate()}${crown}</div></div>`;
     }
     $('week-days').innerHTML = html;
     $('week-count').textContent = weekCount === 1 ? '1 pass' : `${weekCount} pass`;

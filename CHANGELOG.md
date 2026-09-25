@@ -1,6 +1,7 @@
 # Ändringslogg
 
 ## 2026-09-25
+- Veckoremsan: 👑 på dagar där ett pass satte personbästa
 - Statistik: varje muskelgrupp räknas bara en gång per pass, oavsett antal övningar för gruppen
 - Buggfix: datumknappen öppnar nu kalendern var man än klickar (tidigare bara på texten i Chrome på dator)
 - Buggfix: ett gammalt osparat utkast kunde ge ett nytt pass gårdagens datum. Utkastets datum återställs nu bara om det valts manuellt
