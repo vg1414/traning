@@ -773,7 +773,7 @@
     </div>
     <div class="page">
         <div class="session-meta">
-            <label class="date-chip" id="w-date-chip">📅 <span id="w-date-label">Idag</span><input type="date" id="w-date" onchange="onDateChange('w')"></label>
+            <label class="date-chip" id="w-date-chip">📅 <span id="w-date-label">Idag</span><input type="date" id="w-date" onclick="openDate(this)" onchange="onDateChange('w')"></label>
             <span class="meta-note" id="w-note"></span>
         </div>
         <div id="ex-list"></div>
@@ -801,7 +801,7 @@
     </div>
     <div class="page">
         <div class="session-meta">
-            <label class="date-chip" id="c-date-chip">📅 <span id="c-date-label">Idag</span><input type="date" id="c-date" onchange="onDateChange('c')"></label>
+            <label class="date-chip" id="c-date-chip">📅 <span id="c-date-label">Idag</span><input type="date" id="c-date" onclick="openDate(this)" onchange="onDateChange('c')"></label>
         </div>
         <div class="panel" style="margin-top:0">
             <div class="panel-title">Aktivitet</div>
@@ -938,7 +938,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260925-1';
+const APP_VERSION = '20260925-2';
 (function checkForUpdate() {
     if (!location.hostname.includes('github.io')) return;
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
@@ -1439,6 +1439,11 @@ function currentList() { return session && session.mode === 'cardio' ? $('cardio
 function setDateChip(prefix, date) {
     $(`${prefix}-date`).value = localDateStr(date);
     updateDateLabel(prefix);
+}
+// Öppna kalendern uttryckligen – annars öppnas den inte i alla webbläsare
+// när man trycker på den osynliga datumrutan
+function openDate(input) {
+    try { input.showPicker(); } catch (e) {}
 }
 function onDateChange(prefix) {
     if (!$(`${prefix}-date`).value) $(`${prefix}-date`).value = localDateStr(new Date());
@@ -2153,10 +2158,10 @@ function calcBreakdown(ws) {
     const bd = {};
     ws.forEach(w => {
         if (w.exercises && w.exercises.length) {
-            w.exercises.forEach(ex => {
-                const g = exMeta(parseSaved(ex.name).name).group || TYPE_LABELS[w.type] || 'Övrigt';
-                bd[g] = (bd[g] || 0) + 1;
-            });
+            // Varje muskelgrupp räknas max en gång per pass, oavsett antal övningar
+            const groups = new Set(w.exercises.map(ex =>
+                exMeta(parseSaved(ex.name).name).group || TYPE_LABELS[w.type] || 'Övrigt'));
+            groups.forEach(g => { bd[g] = (bd[g] || 0) + 1; });
         } else {
             const key = TYPE_LABELS[w.type] || w.type;
             bd[key] = (bd[key] || 0) + 1;

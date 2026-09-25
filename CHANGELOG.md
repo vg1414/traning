@@ -1,6 +1,8 @@
 # Ändringslogg
 
 ## 2026-09-25
+- Statistik: varje muskelgrupp räknas bara en gång per pass, oavsett antal övningar för gruppen
+- Buggfix: datumknappen öppnar nu kalendern var man än klickar (tidigare bara på texten i Chrome på dator)
 - Buggfix: ett gammalt osparat utkast kunde ge ett nytt pass gårdagens datum. Utkastets datum återställs nu bara om det valts manuellt
 
 ## 2026-09-24 – Stor uppfräschning (bokmärke före: git-tagg `fore-uppfrasch-2026-09-24`)
