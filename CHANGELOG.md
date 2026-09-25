@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-09-25
+- Buggfix: ett gammalt osparat utkast kunde ge ett nytt pass gårdagens datum. Utkastets datum återställs nu bara om det valts manuellt
+
 ## 2026-09-24 – Stor uppfräschning (bokmärke före: git-tagg `fore-uppfrasch-2026-09-24`)
 - Ny design av passvyn: övningar visas som hopfällda kort med förra resultatet, fäll ut för att logga
 - Större inmatningsrutor, förra passets värden som gråa förslag, Enter hoppar till nästa ruta

@@ -938,7 +938,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260924-1';
+const APP_VERSION = '20260925-1';
 (function checkForUpdate() {
     if (!location.hostname.includes('github.io')) return;
     fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
@@ -1851,7 +1851,9 @@ function restoreDraft() {
     _restoring = true;
     try {
         const prefix = session.mode === 'cardio' ? 'c' : 'w';
-        if (d.date) { $(`${prefix}-date`).value = d.date; updateDateLabel(prefix); }
+        // Återställ bara datumet om det valdes manuellt (skiljer sig från dagen utkastet
+        // sparades). Annars gäller dagens datum – ett gammalt utkast ska inte ge gårdagens datum.
+        if (d.date && d.date !== localDateStr(d.ts)) { $(`${prefix}-date`).value = d.date; updateDateLabel(prefix); }
         (d.cards || []).forEach(dc => {
             const card = findOrAddCard(dc.name, dc.open);
             setVariant(card, dc.variant);
