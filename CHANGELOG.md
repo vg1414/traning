@@ -1,6 +1,9 @@
 # Ändringslogg
 
 ## 2026-09-29
+- Kurvan på övningskorten visar totalt lyft per pass (kg × reps) med siffra för senaste passet; tryck för att växla till tyngsta vikten
+- Bekräftelse "Klar med passet?" innan ett nytt pass sparas, så ett råkat-tryck inte avslutar passet
+- Firandet: 45 saker att jämföra totalt lyft med (tidigare 11); slumpar bland det som väger ungefär lika mycket som passet
 - Parkeringspåminnelsen visas nu direkt när man valt pass (styrka, cardio och helkropp) i stället för vid första setet – inte vid redigering, "Slumpa ett annat" eller återupptaget utkast där den redan visats
 
 ## 2026-09-25

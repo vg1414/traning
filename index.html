@@ -340,7 +340,10 @@
 
         .ex-tools { display: flex; align-items: center; gap: 8px; padding: 10px 0 6px; flex-wrap: wrap; }
         .ex-pb { font-size: 12px; color: var(--c-helkropp); font-weight: 600; }
-        .ex-spark { display: flex; align-items: center; }
+        .ex-spark { display: flex; flex-direction: column; align-items: center; gap: 1px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .ex-spark:empty { display: none; }
+        .spark-lbl { font-size: 10px; color: var(--muted); white-space: nowrap; line-height: 1.2; }
+        .spark-lbl b { color: var(--text); font-weight: 600; }
         .ex-tools .spacer { flex: 1; }
         .mini-btn {
             background: var(--surface2); border: 1px solid var(--line);
@@ -957,6 +960,17 @@
     </div>
 </div>
 
+<!-- ════════ BEKRÄFTA SPARA ════════ -->
+<div class="park-overlay" id="confirm-overlay">
+    <div class="park-box">
+        <div class="park-icon">🏁</div>
+        <h2>Klar med passet?</h2>
+        <p id="confirm-sum"></p>
+        <button class="save-btn" onclick="closeConfirmSave(true)">Ja, spara passet</button>
+        <button class="park-done" onclick="closeConfirmSave(false)">Nej, jag kör vidare</button>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -978,7 +992,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260929-1';
+const APP_VERSION = '20260929-2';
 // Kollar om en ny version finns – vid start och varje gång appen kommer tillbaka från
 // bakgrunden. Laddar om med versionen i adressen så att webbläsarens cache inte ger gamla sidan.
 function checkForUpdate() {
@@ -1585,7 +1599,7 @@ function buildCard(name, { open = false } = {}) {
         <div class="ex-body">
             ${variants ? `<div class="variant-row">${variants.map(v => `<button class="chip${v.toLowerCase() === variant ? ' on' : ''}" data-v="${v.toLowerCase()}" onclick="changeVariant(this)">${v}</button>`).join('')}</div>` : ''}
             <div class="ex-tools">
-                <span class="ex-pb"></span><span class="ex-spark"></span><span class="spacer"></span>
+                <span class="ex-pb"></span><span class="ex-spark" onclick="toggleSparkMode()" title="Tryck för att växla totalt / tyngst"></span><span class="spacer"></span>
                 <button class="mini-btn" onclick="fillFromPrev(this.closest('.ex-card'))">↺ Som förra</button>
                 <button class="mini-btn" onclick="openEditor(this.closest('.ex-card').dataset.name)" aria-label="Redigera övning">✎</button>
             </div>
@@ -1676,14 +1690,34 @@ function renderCardInfo(card) {
     });
 }
 
+// Kurvan visar de senaste 10 passen för övningen. Tryck på den för att växla läge:
+// 'total' = totalt lyft i passet (kg × reps för alla set; utan vikt: summan av reps)
+// 'max'   = tyngsta setet i passet (utan vikt: flest reps i ett set)
+let sparkMode = 'total';
+function toggleSparkMode() {
+    sparkMode = sparkMode === 'total' ? 'max' : 'total';
+    document.querySelectorAll('.ex-card').forEach(renderCardInfo); // alla kort byter läge samtidigt
+}
+function sparkValue(h, nw) {
+    const r = s => parseInt(s.reps, 10) || 0;
+    if (sparkMode === 'total') return h.sets.reduce((t, s) => t + (nw ? r(s) : num(s.weight) * r(s)), 0);
+    return Math.max(0, ...h.sets.map(s => nw ? r(s) : num(s.weight)));
+}
 function sparkSVG(hist, nw) {
-    const pts = hist.slice(0, 10).reverse()
-        .map(h => Math.max(...h.sets.map(s => nw ? (parseInt(s.reps, 10) || 0) : num(s.weight))));
-    if (pts.length < 2) return '';
-    const W = 84, H = 24, min = Math.min(...pts), max = Math.max(...pts), rng = max - min || 1;
-    const xy = pts.map((v, i) => [(i / (pts.length - 1)) * (W - 6) + 3, H - 3 - ((v - min) / rng) * (H - 6)]);
-    const last = xy[xy.length - 1];
-    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-label="Utveckling"><polyline points="${xy.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--cc)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.8" fill="var(--cc)"/></svg>`;
+    const pts = hist.slice(0, 10).reverse().map(h => sparkValue(h, nw));
+    if (!pts.length) return '';
+    const v = pts[pts.length - 1];
+    const lbl = sparkMode === 'total'
+        ? `Totalt <b>${fmtThousands(v)}${nw ? '' : ' kg'}</b>`
+        : `${nw ? 'Bäst' : 'Tyngst'} <b>${fmtNum(v)}${nw ? '' : ' kg'}</b>`;
+    let svg = '';
+    if (pts.length >= 2) {
+        const W = 84, H = 24, min = Math.min(...pts), max = Math.max(...pts), rng = max - min || 1;
+        const xy = pts.map((v, i) => [(i / (pts.length - 1)) * (W - 6) + 3, H - 3 - ((v - min) / rng) * (H - 6)]);
+        const last = xy[xy.length - 1];
+        svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" aria-hidden="true"><polyline points="${xy.map(p => p.map(n => n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--cc)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/><circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2.8" fill="var(--cc)"/></svg>`;
+    }
+    return `${svg}<span class="spark-lbl">${lbl}</span>`;
 }
 
 function filledSets(card) {
@@ -1878,7 +1912,26 @@ function saveWorkout() {
             toast('Cardio: välj aktivitet och fyll i minuter + kcal', true); return;
         }
     }
-    persistWorkout(entry, session.editing ? 'Pass uppdaterat ✓' : 'Pass sparat 💪');
+    const nSets = exercises.reduce((s, e) => s + e.sets.length, 0);
+    confirmSave(`${exercises.length} övning${exercises.length === 1 ? '' : 'ar'} · ${nSets} set`,
+        () => persistWorkout(entry, session.editing ? 'Pass uppdaterat ✓' : 'Pass sparat 💪'));
+}
+
+// Fråga "Är du klar?" innan ett nytt pass sparas – så ett råkat-tryck mitt i passet inte avslutar det.
+// Vid redigering av gamla pass sparas direkt som förut.
+let _pendingSave = null;
+function confirmSave(summary, doSave) {
+    if (session.editing) { doSave(); return; }
+    _pendingSave = doSave;
+    $('confirm-sum').textContent = summary;
+    if (document.activeElement) document.activeElement.blur();
+    $('confirm-overlay').classList.add('open');
+}
+function closeConfirmSave(ok) {
+    $('confirm-overlay').classList.remove('open');
+    const f = _pendingSave;
+    _pendingSave = null;
+    if (ok && f) f();
 }
 
 function saveCardio() {
@@ -1902,7 +1955,10 @@ function saveCardio() {
         entry.exercises = exercises;
         entry.title = `${ACT_LABEL[c.activity]} + ${titleFor(exercises) || 'Styrka'}`;
     }
-    persistWorkout(entry, session.editing ? 'Cardio uppdaterat ✓' : 'Cardio sparat 💚');
+    const sum = [`${ACT_LABEL[c.activity]} ${entry.time} min`];
+    if (exercises.length) sum.push(`${exercises.length} övning${exercises.length === 1 ? '' : 'ar'}`);
+    confirmSave(sum.join(' · '),
+        () => persistWorkout(entry, session.editing ? 'Cardio uppdaterat ✓' : 'Cardio sparat 💚'));
 }
 
 // ── UTKAST (auto-spara pågående pass) ────────────────
@@ -2487,13 +2543,33 @@ const CEL_QUOTES = [
 ];
 const CEL_BUTTONS = ['Yes! 💪', 'Tack, jag vet 😎', 'Nästa pass: bring it on', 'Klart för idag ✓'];
 const MILESTONES = [10, 25, 50, 75, 100, 150, 200, 250, 300, 365, 400, 500, 600, 700, 750, 800, 900, 1000];
-// Ungefärlig vikt → något roligt att jämföra totalt lyft med
+// Ungefärlig vikt (kg) → något roligt att jämföra totalt lyft med. Tätt mellan sakerna
+// så att det alltid finns något som väger ungefär lika mycket som passet.
 const WEIGHT_COMPARE = [
-    [100, 'en jättepanda', '🐼'], [250, 'ett piano', '🎹'], [450, 'en isbjörn', '🐻‍❄️'],
-    [700, 'en häst', '🐎'], [1500, 'en bil', '🚗'], [2300, 'en noshörning', '🦏'],
-    [5000, 'en elefant', '🐘'], [8000, 'en T-rex', '🦖'], [12000, 'en dubbeldäckare', '🚌'],
-    [20000, 'en fullastad lastbil', '🚛'], [40000, 'en blåval', '🐋'],
+    [30, 'en golden retriever', '🐕'], [70, 'en känguru', '🦘'], [100, 'en jättepanda', '🐼'],
+    [160, 'en gorilla', '🦍'], [190, 'ett lejon', '🦁'], [220, 'en tiger', '🐅'],
+    [250, 'ett piano', '🎹'], [270, 'en jättesköldpadda', '🐢'], [300, 'en grizzlybjörn', '🐻'],
+    [350, 'en stor motorcykel', '🏍️'], [450, 'en isbjörn', '🐻‍❄️'], [500, 'en konsertflygel', '🎼'],
+    [550, 'en häst', '🐎'], [600, 'en älgtjur', '🫎'], [650, 'en kamel', '🐫'],
+    [750, 'en ko', '🐄'], [900, 'en bisonoxe', '🦬'], [1000, 'en krokodil', '🐊'],
+    [1050, 'en småbil', '🚗'], [1100, 'en vithaj', '🦈'], [1200, 'en giraff', '🦒'],
+    [1400, 'en valross', '🦭'], [1700, 'en kombi', '🚙'], [1800, 'en flodhäst', '🦛'],
+    [2200, 'en pickup', '🛻'], [2300, 'en noshörning', '🦏'], [2600, 'en skåpbil', '🚐'],
+    [3000, 'en helikopter', '🚁'], [3200, 'en sjöelefant', '🦭'], [3500, 'en ambulans', '🚑'],
+    [4000, 'en traktor', '🚜'], [4500, 'en späckhuggare', '🐋'], [5500, 'en elefant', '🐘'],
+    [6500, 'en segelbåt', '⛵'], [8000, 'en T-rex', '🦖'], [9000, 'en grävmaskin', '🏗️'],
+    [11000, 'en stadsbuss', '🚍'], [13000, 'en dubbeldäckare', '🚌'], [15000, 'en brandbil', '🚒'],
+    [18000, 'en valhaj', '🦈'], [20000, 'en fullastad sopbil', '🚛'], [30000, 'en spårvagn', '🚋'],
+    [40000, 'en kaskelot', '🐳'], [60000, 'ett passagerarflygplan', '✈️'], [150000, 'en blåval', '🐋'],
 ];
+// Slumpar bland det som väger inom ±15 % av lyftet; finns inget så nära tas det närmaste
+function pickWeightCompare(volume) {
+    if (volume < 25) return null;
+    const fits = WEIGHT_COMPARE.filter(([kg]) => kg >= volume * 0.85 && kg <= volume * 1.15);
+    if (fits.length) return pick(fits);
+    const off = kg => Math.abs(Math.log(kg / volume));
+    return WEIGHT_COMPARE.reduce((a, b) => off(b[0]) < off(a[0]) ? b : a);
+}
 // Förbränd energi → något som låter imponerande (1 kcal ≈ 1,163 Wh)
 const KCAL_COMPARE = [
     kcal => `Energin du gjort av med räcker för att ladda mobilen <b>${Math.round(kcal * 1.163 / 15)} gånger</b> 📱`,
@@ -2559,12 +2635,10 @@ function buildCelebration(entry) {
             cel.stats.push({ n: exs.length, l: 'Övningar' }, { n: sets, l: 'Set' });
             if (volume > 0) cel.stats.push({ n: volume, l: 'Kg lyft' });
         }
-        const cmp = [...WEIGHT_COMPARE].reverse().find(([kg]) => volume >= kg);
+        const cmp = pickWeightCompare(volume);
         if (cmp) {
-            const times = volume / cmp[0];
-            cel.fun = times >= 2
-                ? `Du har lyft <b>${fmtThousands(volume)} kg</b> totalt – lika mycket som <b>${Math.floor(times)} × ${cmp[1]}</b> ${cmp[2]}`
-                : `Du har lyft <b>${fmtThousands(volume)} kg</b> totalt – ungefär lika mycket som <b>${cmp[1]}</b> ${cmp[2]}`;
+            const [, name, emo] = cmp;
+            cel.fun = `Du har lyft <b>${fmtThousands(volume)} kg</b> totalt – ungefär lika mycket som <b>${name}</b> ${emo}`;
         }
     }
 
