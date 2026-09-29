@@ -978,17 +978,21 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260925-4';
-(function checkForUpdate() {
+const APP_VERSION = '20260925-5';
+// Kollar om en ny version finns – vid start och varje gång appen kommer tillbaka från
+// bakgrunden. Laddar om med versionen i adressen så att webbläsarens cache inte ger gamla sidan.
+function checkForUpdate() {
     if (!location.hostname.includes('github.io')) return;
-    fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now())
+    fetch('https://vg1414.github.io/traning/index.html?_=' + Date.now(), { cache: 'no-store' })
         .then(r => r.text())
         .then(html => {
             const m = html.match(/APP_VERSION = '([^']+)'/);
-            if (m && m[1] !== APP_VERSION) location.reload(true);
+            if (m && m[1] !== APP_VERSION) location.replace(location.pathname + '?v=' + encodeURIComponent(m[1]));
         })
         .catch(() => {});
-})();
+}
+checkForUpdate();
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
 
 // ── FIREBASE ──────────────────────────────────────────
 const firebaseConfig = {
@@ -1342,15 +1346,38 @@ document.addEventListener('input', e => {
     if (card && e.target.matches('.set-row input')) updateCardState(card);
     if (session) saveDraft();
 });
-// Parkeringspåminnelse: visas när första setet (eller cardiotiden) fylls i, en gång per nytt pass.
-// 'change' körs när man lämnar rutan – så popupen inte avbryter mitt i skrivandet.
-document.addEventListener('change', e => {
+// Parkeringspåminnelse: visas en gång per nytt pass, så fort första setet (eller cardiotiden)
+// finns ifyllt – oavsett om det skrevs in, kom från "↺ Som förra" eller något annat.
+// Skriver man just i en ruta väntar popupen tills man lämnar den, så den inte avbryter.
+function maybeParkReminder() {
+    if (!session || session.editing || session.parkShown || _restoring) return;
+    const hasCardio = ['c-time', 'w-c-time'].some(id => $(id).value.trim());
+    if (!collectExercises(currentList()).length && !hasCardio) return;
+    // Står markören i setets rad (t.ex. kg → reps) väntar vi tills man lämnar raden
+    const a = document.activeElement;
+    const row = a && a.matches('.set-row input, #c-time, #w-c-time') ? (a.closest('.set-row') || a) : null;
+    if (row && !row.dataset.parkWait) {
+        row.dataset.parkWait = '1';
+        row.addEventListener('focusout', function wait() {
+            setTimeout(() => {
+                if (row.contains(document.activeElement)) return; // bara bytt ruta inom raden
+                row.removeEventListener('focusout', wait);
+                delete row.dataset.parkWait;
+                showParkReminder();
+            }, 50);
+        });
+        return;
+    }
+    if (!row) showParkReminder();
+}
+function showParkReminder() {
     if (!session || session.editing || session.parkShown) return;
-    if (!e.target.matches('.set-row input, #c-time, #w-c-time') || !e.target.value.trim()) return;
+    if (document.activeElement) document.activeElement.blur();
     session.parkShown = true;
-    e.target.blur();
+    saveDraft();
     $('park-overlay').classList.add('open');
-});
+}
+document.addEventListener('change', e => { if (e.target.matches('#c-time, #w-c-time')) maybeParkReminder(); });
 function closeParkReminder() { $('park-overlay').classList.remove('open'); }
 function openEasyPark() {
     closeParkReminder();
@@ -1814,6 +1841,7 @@ function titleFor(exercises) {
 
 function updateSaveBar() {
     if (!session) return;
+    maybeParkReminder();
     const exs = collectExercises(currentList());
     const nSets = exs.reduce((s, e) => s + e.sets.length, 0);
     if (session.mode === 'workout') {
@@ -1906,7 +1934,7 @@ function saveDraft() {
         .map(c => ({ name: c.dataset.name, variant: c.dataset.variant || null, open: c.classList.contains('open'), sets: readRows(c) }))
         .filter(c => c.open || c.sets.some(s => s.w || s.r));
     const prefix = session.mode === 'cardio' ? 'c' : 'w';
-    const draft = { mode: session.mode, type: session.type, date: $(`${prefix}-date`).value, cards, ts: Date.now() };
+    const draft = { mode: session.mode, type: session.type, date: $(`${prefix}-date`).value, cards, ts: Date.now(), parkShown: !!session.parkShown };
     if (session.mode === 'workout') draft.cardio = $('w-cardio').style.display !== 'none' ? readCardio('w') : null;
     else draft.cardio = readCardio('c');
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch (e) {}
@@ -1955,7 +1983,8 @@ function restoreDraft() {
             renderActs(prefix === 'w' ? 'w-acts' : 'c-acts', c.activity);
             $(ids[0]).value = c.time || ''; $(ids[1]).value = c.kcal || ''; $(ids[2]).value = c.km || '';
         }
-        if (draftHasContent(d)) { session.parkShown = true; toast('Pågående pass återställt ✓'); }
+        session.parkShown = !!d.parkShown; // påminnelsen visas bara om den inte redan visats för passet
+        if (draftHasContent(d)) toast('Pågående pass återställt ✓');
     } catch (e) {}
     _restoring = false;
     updateSaveBar();

@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-09-29
+- Parkeringspåminnelsen visas nu direkt när man valt pass (styrka, cardio och helkropp) i stället för vid första setet – inte vid redigering, "Slumpa ett annat" eller återupptaget utkast där den redan visats
+
 ## 2026-09-25
 - Buggfix: parkeringspåminnelsen kom inte upp på iPhone – visas nu så fort första setet är ifyllt och man lämnar raden; utkast minns om den visats
 - Appen letar efter ny version även när den öppnas från bakgrunden, och laddar om utan gammal cache
