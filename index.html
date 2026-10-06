@@ -843,6 +843,37 @@
             padding: 10px 0 calc(14px + var(--safe-b));
         }
 
+        .signature a { color: inherit; text-decoration: underline; cursor: pointer; }
+
+        /* ── INLOGGNING (ligger över allt utom splash) ── */
+        #login {
+            position: fixed; inset: 0; z-index: 450;
+            display: none; align-items: center; justify-content: center;
+            padding: 24px 16px calc(24px + var(--safe-b));
+            background: rgba(4,12,18,0.82);
+        }
+        #login.show { display: flex; }
+        .login-card {
+            width: 100%; max-width: 340px; text-align: center;
+            background: var(--surface-solid); border: 1px solid var(--border);
+            border-radius: 20px; padding: 28px 22px 22px;
+        }
+        .login-card h2 { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 2px; font-weight: 400; }
+        .login-card p { color: var(--muted); font-size: 14px; margin: 4px 0 18px; }
+        .login-card input {
+            width: 100%; padding: 14px; border-radius: 12px; font-size: 16px;
+            background: var(--surface2); border: 1px solid var(--line); color: var(--text);
+            font-family: inherit;
+        }
+        .login-card input:focus { outline: none; border-color: var(--accent); }
+        .login-card button {
+            width: 100%; margin-top: 12px; padding: 14px; border: 0; border-radius: 12px;
+            background: var(--accent); color: #04211c; font-size: 16px; font-weight: 700;
+            font-family: inherit; cursor: pointer;
+        }
+        .login-card button:disabled { opacity: 0.6; }
+        .login-err { color: var(--danger); font-size: 13px; min-height: 18px; margin-top: 10px; }
+
         @media (max-width: 380px) {
             .home-greeting h2 { font-size: 34px; }
             .wcard h3 { font-size: 20px; }
@@ -855,6 +886,17 @@
 <!-- ════════ SPLASH ════════ -->
 <div id="splash" onclick="hideSplash()">
     <div class="splash-title">TRÄNINGSLOGG</div>
+</div>
+
+<!-- ════════ INLOGGNING ════════ -->
+<div id="login">
+    <form class="login-card" onsubmit="event.preventDefault(); doLogin();">
+        <h2>Träningslogg</h2>
+        <p>Skriv lösenordet – enheten kommer ihåg dig sedan.</p>
+        <input type="password" id="login-pw" placeholder="Lösenord" autocomplete="current-password">
+        <button type="submit" id="login-btn">Logga in</button>
+        <div class="login-err" id="login-err"></div>
+    </form>
 </div>
 
 <!-- ════════ START ════════ -->
@@ -986,7 +1028,7 @@
     <div class="page" id="history-list"></div>
 </div>
 
-<div class="signature">Made by: David Hefner &nbsp;·&nbsp; <span id="footer-version"></span></div>
+<div class="signature">Made by: David Hefner &nbsp;·&nbsp; <span id="footer-version"></span> &nbsp;·&nbsp; <a onclick="doLogout()">Logga ut</a></div>
 
 <!-- ════════ ÖVNINGSVÄLJARE ════════ -->
 <div id="sheet-picker" class="sheet-overlay" onclick="if(event.target===this) closeSheet('sheet-picker')">
@@ -1112,6 +1154,7 @@
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
 // ── SPLASH ───────────────────────────────────────────
@@ -1124,7 +1167,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20261006-1';
+const APP_VERSION = '20261006-2';
 // Kollar om en ny version finns – vid start och varje gång appen kommer tillbaka från
 // bakgrunden. Laddar om med versionen i adressen så att webbläsarens cache inte ger gamla sidan.
 function checkForUpdate() {
@@ -1157,6 +1200,11 @@ db.enablePersistence().catch(() => {});
 const USER_ID = 'david';
 function userRef()     { return db.collection('users').doc(USER_ID).collection('workouts'); }
 function customExRef() { return db.collection('global').doc('custom_exercises'); }
+
+// Inloggning: bara ett lösenord – e-posten är fast och hör till Davids konto i Firebase Auth.
+// Firebase sparar inloggningen i enheten, så den finns kvar tills man loggar ut.
+const AUTH_EMAIL = 'david@traning.app';
+const auth = firebase.auth();
 
 // ── DATA ─────────────────────────────────────────────
 const WORKOUTS = {
@@ -1465,24 +1513,64 @@ $('footer-version').textContent = 'v' + APP_VERSION;
 localStorage.removeItem('traning_current_user');
 localStorage.removeItem('traning_draft'); // gammalt utkastformat
 
-customExRef().onSnapshot(snap => {
-    const d = snap.exists ? snap.data() : {};
-    const items = Array.isArray(d.items) ? d.items.map(i => ({ ...i })) : [];
-    // Äldre egna övningar (bara namn) → utan grupp tills de redigeras
-    (d.list || []).forEach(n => {
-        if (!items.some(i => i.name === n)) items.push({ name: n, group: null, noWeight: false, image: '' });
-    });
-    exLib = { items, overrides: d.overrides || {} };
-    if ($('sheet-picker').classList.contains('open')) renderPicker();
-}, () => {});
+// Data hämtas först när man är inloggad (databasen släpper inte in någon annan)
+let dataStarted = false;
+function startData() {
+    if (dataStarted) return;
+    dataStarted = true;
+    customExRef().onSnapshot(snap => {
+        const d = snap.exists ? snap.data() : {};
+        const items = Array.isArray(d.items) ? d.items.map(i => ({ ...i })) : [];
+        // Äldre egna övningar (bara namn) → utan grupp tills de redigeras
+        (d.list || []).forEach(n => {
+            if (!items.some(i => i.name === n)) items.push({ name: n, group: null, noWeight: false, image: '' });
+        });
+        exLib = { items, overrides: d.overrides || {} };
+        if ($('sheet-picker').classList.contains('open')) renderPicker();
+    }, () => {});
 
-userRef().orderBy('date').onSnapshot(snapshot => {
-    workouts = snapshot.docs.map(doc => doc.data());
-    rebuildIndex();
-    if (isActive('screen-home')) renderHome();
-    if (isActive('screen-history')) renderHistory();
-    if (isActive('screen-stats')) renderStats();
-}, () => toast('Kunde inte ansluta till molnet', true));
+    userRef().orderBy('date').onSnapshot(snapshot => {
+        workouts = snapshot.docs.map(doc => doc.data());
+        rebuildIndex();
+        if (isActive('screen-home')) renderHome();
+        if (isActive('screen-history')) renderHistory();
+        if (isActive('screen-stats')) renderStats();
+    }, () => toast('Kunde inte ansluta till molnet', true));
+}
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        $('login').classList.remove('show');
+        startData();
+    } else {
+        $('login').classList.add('show');
+        if (!$('splash')) $('login-pw').focus();
+    }
+});
+
+function doLogin() {
+    const pw = $('login-pw').value;
+    if (!pw) return;
+    $('login-btn').disabled = true;
+    $('login-err').textContent = '';
+    auth.signInWithEmailAndPassword(AUTH_EMAIL, pw)
+        .then(() => { $('login-pw').value = ''; })
+        .catch(e => {
+            const wrong = ['auth/invalid-credential', 'auth/wrong-password', 'auth/invalid-login-credentials'].includes(e.code);
+            $('login-err').textContent = wrong ? 'Fel lösenord' :
+                e.code === 'auth/too-many-requests' ? 'För många försök – vänta en stund' :
+                e.code === 'auth/network-request-failed' ? 'Ingen internetanslutning' :
+                ['auth/configuration-not-found', 'auth/operation-not-allowed'].includes(e.code) ? 'Inloggning är inte påslagen i Firebase' :
+                'Kunde inte logga in (' + e.code + ')';
+        })
+        .finally(() => { $('login-btn').disabled = false; });
+}
+
+function doLogout() {
+    if (!confirm('Logga ut från den här enheten?')) return;
+    // Laddar om efteråt så att all data och alla lyssnare nollställs
+    auth.signOut().then(() => location.reload());
+}
 
 renderHome();
 

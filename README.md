@@ -18,11 +18,13 @@ En mobilanpassad träningslogg-app byggd som en enda HTML-fil. Spårar styrkepas
 - **Statistik** – veckor i rad, rekordvecka, fördelning per muskelgrupp, diagram per vecka/månad/veckodag
 - **Firande vid sparat pass** – konfetti, personbästa, roliga jämförelser, veckor i rad och jubileer
 - **Firebase-synk** – realtidssynk mellan enheter, fungerar offline
+- **Inloggning** – ett lösenord första gången på varje enhet, sedan loggas man in automatiskt. "Logga ut" finns längst ner
 
 ## Teknik
 
 - Vanilla HTML/CSS/JavaScript – inga ramverk
 - Firebase Firestore (`users/david/workouts`, egna övningar i `global/custom_exercises`)
+- Firebase Authentication (e-post/lösenord, kontot `david@traning.app`); databasreglerna finns i `firestore.rules`
 - PWA-metadata (installerbar på mobil)
 
 ## Återgå till tidigare version

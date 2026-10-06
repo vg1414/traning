@@ -713,6 +713,106 @@
             border-radius: 14px; padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer;
         }
 
+        /* ── VILOTIMER ── */
+        /* Ingen transform/backdrop-filter på själva panelen (iOS-touchbuggar) – bara opacity, storlek och skuggor */
+        .rest {
+            position: fixed; z-index: 90;
+            right: 14px; bottom: calc(86px + var(--safe-b));
+            width: 96px;
+            display: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: width 0.2s;
+        }
+        .rest.on { display: block; animation: restIn 0.35s ease-out; }
+        @keyframes restIn { from { opacity: 0; } to { opacity: 1; } }
+        .rest-ring {
+            position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%;
+            background: radial-gradient(circle at 50% 38%, #12303a 0%, #08141c 68%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,212,180,0.22), 0 0 24px rgba(0,212,180,0.22);
+            cursor: pointer;
+        }
+        .rest-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+        .rr-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 7; }
+        .rr-prog {
+            fill: none; stroke: url(#rest-grad); stroke-width: 7; stroke-linecap: round;
+            transition: stroke-dashoffset 0.2s linear;
+            filter: drop-shadow(0 0 4px rgba(0,212,180,0.75));
+        }
+        .rr-tick { stroke: rgba(255,255,255,0.16); stroke-width: 1; }
+        .rr-tick.maj { stroke: rgba(255,255,255,0.42); stroke-width: 1.6; }
+        .rr-dot { fill: #fff; filter: drop-shadow(0 0 4px #00d4b4); }
+        .rest-center {
+            position: absolute; inset: 0; pointer-events: none;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .rest-time {
+            font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 0.9;
+            letter-spacing: 1px; color: #fff; font-variant-numeric: tabular-nums;
+        }
+        .rest-lbl { font-size: 9px; letter-spacing: 2px; font-weight: 700; color: var(--accent); margin-top: 3px; }
+        .rest-x {
+            position: absolute; top: -6px; left: -6px;
+            width: 26px; height: 26px; border-radius: 50%; padding: 0;
+            background: #0b1822; border: 1px solid var(--line); color: var(--muted);
+            font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center;
+        }
+        .rest-head, .rest-adj, .rest-hint, .rest-presets, .rest-skip { display: none; }
+        /* Medan man skriver (tangentbordet uppe) krymper ringen så den inte är i vägen */
+        body:has(.set-row input:focus) .rest:not(.big) { width: 70px; }
+        body:has(.set-row input:focus) .rest:not(.big) .rest-time { font-size: 24px; }
+        body:has(.set-row input:focus) .rest:not(.big) .rest-lbl { display: none; }
+
+        /* Stort läge – tryck på ringen */
+        .rest.big {
+            left: 16px; right: 16px; width: auto; max-width: 380px; margin: 0 auto;
+            background: rgba(8,18,26,0.97); border: 1px solid var(--border); border-radius: 22px;
+            padding: 14px 14px 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.65);
+        }
+        .rest.big .rest-x { display: none; }
+        .rest.big .rest-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+        .rest-head > div { flex: 1; min-width: 0; }
+        .rest-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rest-sub { font-size: 12px; color: var(--muted); }
+        .rest-min { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 10px; padding: 4px 11px; font-size: 16px; }
+        .rest.big .rest-stage { display: grid; grid-template-columns: 1fr 180px 1fr; align-items: center; gap: 8px; }
+        .rest.big .rest-adj {
+            display: block; justify-self: center;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--surface2); border: 1px solid var(--line);
+            font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px;
+        }
+        .rest.big .rest-adj:active { border-color: var(--accent); color: var(--accent); }
+        .rest.big .rest-time { font-size: 62px; }
+        .rest.big .rest-lbl { font-size: 12px; margin-top: 4px; }
+        .rest.big .rest-hint { display: block; text-align: center; font-size: 13px; color: var(--muted); margin: 10px 0 2px; }
+        .rest-hint b { color: var(--text); }
+        .rest.big .rest-presets { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin: 10px 0 6px; }
+        .rest-presets .chip { padding: 6px 11px; font-size: 13px; }
+        .rest.big .rest-skip { display: block; width: 100%; background: none; border: none; color: var(--muted); font-size: 13px; padding: 8px; }
+
+        /* Sista 10 sekunderna: ringen blir gul/orange */
+        .rest.warn .rr-prog { stroke: url(#rest-grad-warn); filter: drop-shadow(0 0 5px rgba(250,204,21,0.8)); }
+        .rest.warn .rr-dot { filter: drop-shadow(0 0 5px #facc15); }
+        .rest.warn .rest-lbl { color: var(--c-helkropp); }
+        .rest-time.pop { animation: restPop 0.5s ease-out; }
+        @keyframes restPop { from { transform: scale(1.35); color: var(--c-helkropp); } to { transform: scale(1); } }
+        /* Klar: ringen pulserar i accentfärg + skärmkanten blinkar */
+        .rest.done .rest-ring { animation: restPulse 1.1s ease-in-out infinite; }
+        .rest.done .rr-prog { stroke-dashoffset: 0 !important; stroke: var(--accent); }
+        .rest.done .rr-dot { display: none; }
+        .rest.done .rest-time { color: var(--accent); }
+        .rest.done .rest-lbl { color: var(--muted); }
+        @keyframes restPulse {
+            0%, 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,212,180,0.4), 0 0 18px rgba(0,212,180,0.3); }
+            50%      { box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 0 3px rgba(0,212,180,0.9), 0 0 48px rgba(0,212,180,0.75); }
+        }
+        .rest-flash {
+            position: fixed; inset: 0; z-index: 89; pointer-events: none; opacity: 0;
+            box-shadow: inset 0 0 90px 12px rgba(0,212,180,0.6);
+        }
+        .rest-flash.go { animation: restFlash 0.9s ease-in-out 3; }
+        @keyframes restFlash { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
         /* ── LIGHTBOX ── */
         .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 200; }
         .lightbox.open { display: flex; }
@@ -971,6 +1071,38 @@
     </div>
 </div>
 
+<!-- ════════ VILOTIMER ════════ -->
+<div class="rest-flash" id="rest-flash"></div>
+<div class="rest" id="rest">
+    <div class="rest-head">
+        <div><div class="rest-title" id="rest-title"></div><div class="rest-sub" id="rest-sub"></div></div>
+        <button class="rest-min" onclick="toggleRestBig()" aria-label="Minimera">⌄</button>
+    </div>
+    <div class="rest-stage">
+        <button class="rest-adj" onclick="adjustRest(-15)">−15</button>
+        <div class="rest-ring" onclick="toggleRestBig()">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+                <defs>
+                    <linearGradient id="rest-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00d4b4"/><stop offset="1" stop-color="#4fc3f7"/></linearGradient>
+                    <linearGradient id="rest-grad-warn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#facc15"/><stop offset="1" stop-color="#fb923c"/></linearGradient>
+                </defs>
+                <g id="rest-ticks"></g>
+                <g transform="rotate(-90 60 60)">
+                    <circle class="rr-track" cx="60" cy="60" r="52"/>
+                    <circle class="rr-prog" id="rest-prog" cx="60" cy="60" r="52"/>
+                    <circle class="rr-dot" id="rest-dot" cx="112" cy="60" r="4.5"/>
+                </g>
+            </svg>
+            <div class="rest-center"><div class="rest-time" id="rest-time">2:00</div><div class="rest-lbl" id="rest-lbl">VILA</div></div>
+        </div>
+        <button class="rest-adj" onclick="adjustRest(15)">+15</button>
+    </div>
+    <div class="rest-hint" id="rest-hint"></div>
+    <div class="rest-presets" id="rest-presets"></div>
+    <button class="rest-skip" onclick="stopRest()">Hoppa över vilan</button>
+    <button class="rest-x" onclick="stopRest()" aria-label="Stäng timer">×</button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -992,7 +1124,7 @@ function hideSplash() {
 setTimeout(hideSplash, 1900);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20260929-2';
+const APP_VERSION = '20261006-1';
 // Kollar om en ny version finns – vid start och varje gång appen kommer tillbaka från
 // bakgrunden. Laddar om med versionen i adressen så att webbläsarens cache inte ger gamla sidan.
 function checkForUpdate() {
@@ -1389,10 +1521,160 @@ document.addEventListener('keydown', e => {
     if (next) next.focus(); else e.target.blur();
 });
 
+// ── VILOTIMER ────────────────────────────────────────
+// Startar när ett set är ifyllt (reps finns) och man lämnar raden – via Enter eller genom
+// att trycka utanför. Räknar mot en sluttid (klockslag), så den visar rätt även om
+// mobilen låsts en stund. Vald vilotid minns i localStorage (traning_rest_secs).
+const REST_KEY = 'traning_rest_secs';
+const REST_PRESETS = [60, 90, 120, 150, 180];
+const REST_C = 2 * Math.PI * 52;       // ringens omkrets (r = 52 i SVG:n)
+let rest = null;                       // { start, end, done, shown } – pågående vila
+let restTimer = null;
+
+function restDefault() {
+    try { return Math.min(600, Math.max(15, parseInt(localStorage.getItem(REST_KEY), 10) || 120)); }
+    catch { return 120; }
+}
+function saveRestDefault(s) { try { localStorage.setItem(REST_KEY, String(s)); } catch {} }
+function fmtClock(s) { return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+
+// Urtavla: 60 små streck, vart femte längre
+(function () {
+    let h = '';
+    for (let i = 0; i < 60; i++) {
+        const a = i * Math.PI / 30, maj = i % 5 === 0, r1 = maj ? 56.5 : 57.5;
+        const p = r => `${(60 + r * Math.sin(a)).toFixed(2)} ${(60 - r * Math.cos(a)).toFixed(2)}`;
+        h += `<path class="rr-tick${maj ? ' maj' : ''}" d="M${p(r1)} L${p(59.5)}"/>`;
+    }
+    $('rest-ticks').innerHTML = h;
+    $('rest-prog').style.strokeDasharray = REST_C;
+})();
+
+// Ett set räknas som klart när fokus lämnar raden och reps är ifyllt.
+// Raden kommer ihåg vad den innehöll när timern startade, så att bara klicka sig
+// igenom en färdig rad inte startar om timern.
+document.addEventListener('focusout', e => {
+    if (!session || session.editing || !e.target.matches('.set-row input')) return;
+    const row = e.target.closest('.set-row');
+    if (e.relatedTarget && row.contains(e.relatedTarget)) return; // hoppar bara kg → reps
+    const r = row.querySelector('.in-r').value.trim();
+    if (!r) return;
+    const w = row.querySelector('.in-w');
+    const sig = (w ? w.value.trim() : '') + '|' + r;
+    if (row.dataset.restSig === sig) return;
+    row.dataset.restSig = sig;
+    startRest(row);
+});
+// När vilan är slut och man börjar skriva nästa set försvinner timern av sig själv
+document.addEventListener('focusin', e => {
+    if (rest && rest.done && e.target.matches('.set-row input')) stopRest();
+});
+
+function startRest(row) {
+    const card = row.closest('.ex-card');
+    const rows = [...card.querySelectorAll('.set-row')];
+    const i = rows.indexOf(row);
+    $('rest-title').textContent = card.querySelector('.ex-name').textContent;
+    $('rest-sub').textContent = `Vila efter set ${i + 1}`;
+    // "Nästa"-tips: det man redan skrivit i nästa rad, annars förra gångens värden (de gråa förslagen)
+    const next = rows[i + 1];
+    let hint = 'Sista setet – starkt jobbat 💪';
+    if (next) {
+        const val = el => el ? (el.value.trim() || (/^\d/.test(el.placeholder) ? el.placeholder : '')) : '';
+        const nw = val(next.querySelector('.in-w')), nr = val(next.querySelector('.in-r'));
+        hint = `Nästa: <b>set ${i + 2}</b>` + (nr ? ` · ${nw && num(nw) > 0 ? `${esc(nw)} kg × ` : ''}${esc(nr)}` : '');
+    }
+    $('rest-hint').innerHTML = hint;
+    const now = Date.now();
+    rest = { start: now, end: now + restDefault() * 1000, done: false, shown: null };
+    $('rest').classList.remove('done', 'warn');
+    $('rest').classList.add('on');
+    renderRestPresets();
+    clearInterval(restTimer);
+    restTimer = setInterval(tickRest, 200);
+    tickRest();
+}
+
+function tickRest() {
+    if (!rest) return;
+    const el = $('rest'), now = Date.now();
+    const leftMs = rest.end - now;
+    const frac = Math.max(0, Math.min(1, leftMs / (rest.end - rest.start)));
+    // Ringen: bågen krymper moturs mot toppen, den lysande pricken sitter i bågens ände
+    $('rest-prog').style.strokeDashoffset = REST_C * (1 - frac);
+    const a = frac * 2 * Math.PI;
+    $('rest-dot').setAttribute('cx', (60 + 52 * Math.cos(a)).toFixed(2));
+    $('rest-dot').setAttribute('cy', (60 + 52 * Math.sin(a)).toFixed(2));
+
+    if (leftMs > 0) {
+        if (rest.done) { rest.done = false; el.classList.remove('done'); } // förlängd efter noll
+        const left = Math.ceil(leftMs / 1000);
+        el.classList.toggle('warn', left <= 10);
+        if (left !== rest.shown) {
+            rest.shown = left;
+            const t = $('rest-time');
+            t.textContent = fmtClock(left);
+            $('rest-lbl').textContent = 'VILA';
+            if (left <= 3) { t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop'); } // 3-2-1-studs
+        }
+        return;
+    }
+    // Tiden är slut
+    if (!rest.done) {
+        rest.done = true;
+        el.classList.remove('warn');
+        el.classList.add('done');
+        $('rest-time').textContent = 'KÖR!';
+        $('rest-lbl').textContent = 'REDO';
+        const f = $('rest-flash');
+        f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
+    }
+    if (-leftMs >= 180000) stopRest(); // glömd timer stänger sig själv efter 3 min
+}
+
+// −15 / +15: ändrar pågående vila och sparas som ny standardtid
+function adjustRest(d) {
+    if (!rest) return;
+    const now = Date.now();
+    if (rest.done) {
+        if (d < 0) return;
+        rest.start = now; rest.end = now + d * 1000;  // efter noll: +15 ger 15 s extra
+    } else {
+        const total = Math.min(600, Math.max(15, Math.round((rest.end - rest.start) / 1000) + d));
+        rest.end = rest.start + total * 1000;
+        saveRestDefault(total);
+        renderRestPresets();
+    }
+    rest.shown = null;
+    tickRest();
+}
+
+function setRestPreset(s) {
+    saveRestDefault(s);
+    if (rest) { rest.end = rest.start + s * 1000; rest.shown = null; tickRest(); }
+    renderRestPresets();
+}
+
+function renderRestPresets() {
+    const def = restDefault();
+    $('rest-presets').innerHTML = REST_PRESETS.map(s =>
+        `<button class="chip${s === def ? ' on' : ''}" onclick="setRestPreset(${s})">${fmtClock(s)}</button>`
+    ).join('') + (REST_PRESETS.includes(def) ? '' : `<button class="chip on">${fmtClock(def)}</button>`);
+}
+
+function toggleRestBig() { $('rest').classList.toggle('big'); }
+
+function stopRest() {
+    rest = null;
+    clearInterval(restTimer);
+    $('rest').classList.remove('on', 'big', 'done', 'warn');
+}
+
 // ── NAVIGATION ───────────────────────────────────────
 function isActive(id) { return $(id).classList.contains('active'); }
 function showScreen(id) {
     if (isActive(id)) return;
+    if (id !== 'screen-workout' && id !== 'screen-cardio') stopRest(); // vilan hör bara till passvyn
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     $(id).classList.add('active');
     window.scrollTo(0, 0);

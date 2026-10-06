@@ -1,6 +1,7 @@
 # Ändringslogg
 
 ## 2026-10-06
+- Inloggning: appen ligger bakom ett lösenord (Firebase Authentication). Enheten kommer ihåg inloggningen tills man trycker "Logga ut" längst ner. Databasregler i `firestore.rules` låser Davids pass och övningslistan till det inloggade kontot
 - Vilotimer: startar när ett set är ifyllt (reps + lämnar raden). Flytande ring nere till höger som räknar ner från 2:00; tryck för stort läge med −15/+15, snabbval 1:00–3:00 och tips om nästa set. Vald tid sparas som standard. Gul de sista 10 s, vid noll "KÖR!" med pulserande ring och blinkande skärmkant
 
 ## 2026-09-29
