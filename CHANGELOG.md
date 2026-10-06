@@ -1,5 +1,8 @@
 # Ändringslogg
 
+## 2026-10-06
+- Vilotimer: startar när ett set är ifyllt (reps + lämnar raden). Flytande ring nere till höger som räknar ner från 2:00; tryck för stort läge med −15/+15, snabbval 1:00–3:00 och tips om nästa set. Vald tid sparas som standard. Gul de sista 10 s, vid noll "KÖR!" med pulserande ring och blinkande skärmkant
+
 ## 2026-09-29
 - Kurvan på övningskorten visar totalt lyft per pass (kg × reps) med siffra för senaste passet; tryck för att växla till tyngsta vikten
 - Bekräftelse "Klar med passet?" innan ett nytt pass sparas, så ett råkat-tryck inte avslutar passet
