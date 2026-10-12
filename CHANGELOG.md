@@ -1,5 +1,11 @@
 # Ändringslogg
 
+## 2026-10-12
+- Ny splash: en levande turkos orb (WebGL) där ljuset virvlar som vätska. Den laddar upp, dras ut till en tunn linje och ett hjärtslag rusar genom den – när slaget når mitten tonar hantelbilden fram och linjen smälter ihop med bildens pulslinje. Totalt ca 4 s, tryck för att hoppa över. Utan WebGL eller med "minska rörelse" visas bilden direkt
+- Bildens fyrkantiga kanter tonas nu ut mjukt mot bakgrunden (syntes tidigare på datorskärm)
+- Inloggningsrutan får fokus först när splashen är borta
+- Det blå strecket före "TRÄNINGSLOGG" på splashen är borttaget; texten står centrerad
+
 ## 2026-10-06
 - Inloggning: appen ligger bakom ett lösenord (Firebase Authentication). Enheten kommer ihåg inloggningen tills man trycker "Logga ut" längst ner. Databasregler i `firestore.rules` låser Davids pass och övningslistan till det inloggade kontot
 - Databasreglerna publicerade till Firebase; `firebase.json` + `.firebaserc` tillagda så att reglerna kan publiceras från projektmappen
