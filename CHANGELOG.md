@@ -1,6 +1,7 @@
 # Ändringslogg
 
 ## 2026-10-12
+- Vilotimern blir gul redan de sista 30 sekunderna, och siffran studsar varje sekund de sista 10 (tidigare gul vid 10 s och studs vid 3 s)
 - Ny splash: en levande turkos orb (WebGL) där ljuset virvlar som vätska. Den laddar upp, dras ut till en tunn linje och ett hjärtslag rusar genom den – när slaget når mitten tonar hantelbilden fram och linjen smälter ihop med bildens pulslinje. Totalt ca 4 s, tryck för att hoppa över. Utan WebGL eller med "minska rörelse" visas bilden direkt
 - Bildens fyrkantiga kanter tonas nu ut mjukt mot bakgrunden (syntes tidigare på datorskärm)
 - Inloggningsrutan får fokus först när splashen är borta

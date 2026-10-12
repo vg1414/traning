@@ -809,7 +809,7 @@
         .rest-presets .chip { padding: 6px 11px; font-size: 13px; }
         .rest.big .rest-skip { display: block; width: 100%; background: none; border: none; color: var(--muted); font-size: 13px; padding: 8px; }
 
-        /* Sista 10 sekunderna: ringen blir gul/orange */
+        /* Sista 30 sekunderna: ringen blir gul/orange – sista 10 studsar siffran varje sekund */
         .rest.warn .rr-prog { stroke: url(#rest-grad-warn); filter: drop-shadow(0 0 5px rgba(250,204,21,0.8)); }
         .rest.warn .rr-dot { filter: drop-shadow(0 0 5px #facc15); }
         .rest.warn .rest-lbl { color: var(--c-helkropp); }
@@ -1457,7 +1457,7 @@ const splashOrb = startSplashOrb(document.getElementById('splash'));
 setTimeout(hideSplash, 4200 * splashOrb.K);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20261012-1';
+const APP_VERSION = '20261012-2';
 // Kollar om en ny version finns – vid start och varje gång appen kommer tillbaka från
 // bakgrunden. Laddar om med versionen i adressen så att webbläsarens cache inte ger gamla sidan.
 function checkForUpdate() {
@@ -1987,13 +1987,13 @@ function tickRest() {
     if (leftMs > 0) {
         if (rest.done) { rest.done = false; el.classList.remove('done'); } // förlängd efter noll
         const left = Math.ceil(leftMs / 1000);
-        el.classList.toggle('warn', left <= 10);
+        el.classList.toggle('warn', left <= 30);
         if (left !== rest.shown) {
             rest.shown = left;
             const t = $('rest-time');
             t.textContent = fmtClock(left);
             $('rest-lbl').textContent = 'VILA';
-            if (left <= 3) { t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop'); } // 3-2-1-studs
+            if (left <= 10) { t.classList.remove('pop'); void t.offsetWidth; t.classList.add('pop'); } // studs sista 10 s
         }
         return;
     }

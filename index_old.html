@@ -118,47 +118,66 @@
         /* ── STARTSIDA ── */
         .home-greeting { margin: 6px 0 18px; }
 
-        /* ── SPLASH (visas vid start, tonar bort) ── */
+        /* ── SPLASH: levande orb → pulslinje → hantelbild (orben ritas av startSplashOrb) ── */
         #splash {
+            --splash-k: 1; /* tempo: 1 = normalt, högre = långsammare (orb-skriptet läser samma värde) */
             position: fixed; inset: 0; z-index: 500;
             background: #041219;
             display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
             padding-bottom: calc(16vh + var(--safe-b));
             transition: opacity 0.6s ease;
             cursor: pointer;
+            overflow: hidden;
         }
         #splash::before {
             content: ''; position: absolute; inset: 0;
             background: url('bg3.jpeg') center 46% / min(145vw, 115vh) auto no-repeat;
-            animation: splash-glow 1.8s ease-in-out both;
+            /* Tona ut bildens fyrkantiga kanter: två mjuka masker (sidor + över/under) som följer bildens storlek och läge */
+            -webkit-mask: linear-gradient(to right, transparent, #000 13%, #000 87%, transparent) center 46% / min(145vw, 115vh) min(145vw, 115vh) no-repeat,
+                          linear-gradient(to bottom, transparent, #000 18%, #000 80%, transparent) center 46% / min(145vw, 115vh) min(145vw, 115vh) no-repeat;
+            -webkit-mask-composite: source-in;
+            mask: linear-gradient(to right, transparent, #000 13%, #000 87%, transparent) center 46% / min(145vw, 115vh) min(145vw, 115vh) no-repeat,
+                  linear-gradient(to bottom, transparent, #000 18%, #000 80%, transparent) center 46% / min(145vw, 115vh) min(145vw, 115vh) no-repeat;
+            mask-composite: intersect;
+            opacity: 0;
         }
         #splash::after {
             /* mjuka övergångar i kanterna så bilden smälter in i bakgrunden */
             content: ''; position: absolute; inset: 0;
             background: radial-gradient(ellipse 75% 45% at 50% 46%, rgba(4,18,25,0) 55%, #041219 100%);
         }
-        @keyframes splash-glow {
-            from { opacity: 0; transform: scale(0.96); filter: brightness(0.6); }
-            50%  { opacity: 1; filter: brightness(1.25) saturate(1.3); }
-            to   { opacity: 1; transform: scale(1); filter: brightness(1.05) saturate(1.2); }
-        }
+        /* Orben ritas ovanpå bilden men under texten */
+        .splash-orb { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        /* Osynlig mätare: ger exakt samma storlek som bilden får, så skriptet kan räkna ut var pulslinjen hamnar */
+        .splash-probe { position: absolute; width: min(145vw, 115vh); height: 0; visibility: hidden; }
         .splash-title {
-            position: relative; z-index: 1;
-            display: flex; align-items: center; gap: 12px;
+            position: relative; z-index: 2;
             font-family: 'Bebas Neue', sans-serif;
             font-size: 30px; letter-spacing: 6px;
+            padding-left: 6px; /* väger upp mellanrummet efter sista bokstaven så texten hamnar mitt i */
             color: rgba(225,245,242,0.95);
             text-shadow: 0 0 20px rgba(0,212,180,0.45);
-            animation: splash-text 1s 0.4s ease both;
+            opacity: 0;
         }
-        .splash-title::before {
-            content: ''; width: 4px; height: 26px; border-radius: 2px;
-            background: linear-gradient(to bottom, var(--accent), var(--accent2));
-            box-shadow: 0 0 12px rgba(0,212,180,0.7);
+        /* Tidslinje (gånger --splash-k, från att klassen .play sätts):
+           orben blommar 0.1s → laddar upp 0.7s → blir linje 1.3s → hjärtslaget 1.9–2.8s
+           → bilden tonar fram 2.25s (när slaget når mitten) → texten 2.8s */
+        #splash.play::before { animation: splash-img calc(0.8s * var(--splash-k)) ease-out calc(2.25s * var(--splash-k)) both; }
+        #splash.play .splash-title { animation: splash-text calc(1s * var(--splash-k)) ease calc(2.8s * var(--splash-k)) both; }
+        /* Utan WebGL eller med "minska rörelse": bilden direkt, texten strax efter */
+        #splash.no-orb::before { animation-delay: 0s; }
+        #splash.no-orb .splash-title { animation-delay: calc(0.4s * var(--splash-k)); }
+        #splash.no-orb .splash-orb { display: none; }
+        @keyframes splash-img {
+            from { opacity: 0; filter: brightness(1.8) saturate(1.4); }
+            to   { opacity: 1; filter: brightness(1.05) saturate(1.2); }
         }
         @keyframes splash-text {
             from { opacity: 0; letter-spacing: 12px; }
             to   { opacity: 1; letter-spacing: 6px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #splash.play::before, #splash.play .splash-title { animation-duration: 0.01s; animation-delay: 0s; }
         }
         #splash.hide { opacity: 0; pointer-events: none; }
         .home-greeting h2 {
@@ -885,6 +904,8 @@
 
 <!-- ════════ SPLASH ════════ -->
 <div id="splash" onclick="hideSplash()">
+    <canvas class="splash-orb"></canvas>
+    <div class="splash-probe"></div>
     <div class="splash-title">TRÄNINGSLOGG</div>
 </div>
 
@@ -1158,16 +1179,285 @@
 
 <script>
 // ── SPLASH ───────────────────────────────────────────
+// En glödande turkos orb där ljuset virvlar som vätska. Den laddar upp, dras ut till en tunn linje,
+// och ett hjärtslag rusar genom linjen. När slaget når mitten tonar hantelbilden fram så att
+// linjen smälter ihop med pulslinjen i bilden. Ritas med WebGL för mjuk rörelse.
+
+// Pulslinjen i bg3.jpeg (1024×1024), uppmätt i bilden: [x, y] i bildens pixlar, vänster → höger
+const PULSE_PTS = [[352,487],[442,487],[459,522],[492,357],[545,607],[581,437],[597,487],[680,487]];
+
+function startSplashOrb(splash, opts = {}) {
+    const canvas = splash.querySelector('.splash-orb');
+    const probe = splash.querySelector('.splash-probe');
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const K = parseFloat(getComputedStyle(splash).getPropertyValue('--splash-k')) || 1;
+
+    // Ingen orb: visa bilden direkt
+    const fallback = () => { splash.classList.add('no-orb', 'play'); return { K, stop() {} }; };
+    if (reduceMotion || !canvas) return fallback();
+    const gl = canvas.getContext('webgl', { premultipliedAlpha: true, antialias: false });
+    if (!gl) return fallback();
+
+    const vert = `
+      attribute vec2 a;
+      void main() { gl_Position = vec4(a, 0.0, 1.0); }`;
+
+    const frag = `
+      precision highp float;
+      uniform vec2  uRes, uC, uHalf, uHeadP;
+      uniform float uDpr, uTime, uR, uMorph, uFill, uHeat, uFade, uGlow, uEnergy, uSweep, uHead, uThick, uTrail;
+      uniform vec2  uP[8];
+      uniform float uS[8];
+
+      float hash(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+      float noise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(mix(hash(i), hash(i + vec2(1, 0)), u.x),
+                   mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), u.x), u.y);
+      }
+      float fbm(vec2 p) {
+        float v = 0.0, a = 0.5;
+        mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+        for (int i = 0; i < 5; i++) { v += a * noise(p); p = m * p; a *= 0.5; }
+        return v;
+      }
+      // Avstånd till en rundad rektangel – med hörnradie = halva storleken blir det en cirkel
+      float sdBox(vec2 p, vec2 b, float r) {
+        vec2 q = abs(p) - b + r;
+        return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+      }
+      // Färgskala: nästan svart → mörk petrol → turkos → nästan vitt
+      vec3 ramp(float v) {
+        vec3 c0 = vec3(0.01, 0.05, 0.07), c1 = vec3(0.0, 0.20, 0.25),
+             c2 = vec3(0.0, 0.59, 0.67), c3 = vec3(0.0, 0.83, 0.71), c4 = vec3(0.86, 1.0, 0.97);
+        v = clamp(v, 0.0, 1.0);
+        if (v < 0.30) return mix(c0, c1, v / 0.30);
+        if (v < 0.60) return mix(c1, c2, (v - 0.30) / 0.30);
+        if (v < 0.85) return mix(c2, c3, (v - 0.60) / 0.25);
+        return mix(c3, c4, (v - 0.85) / 0.15);
+      }
+
+      void main() {
+        vec2 px = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) / uDpr;  // CSS-pixlar, origo uppe till vänster
+        vec2 uv = px - uC;                                                // pixlar från orbens mitt
+
+        // Orb → linje: cirkel som blir en mycket tunn, bred rundad rektangel
+        float R = uR * (1.0 + 0.018 * sin(uTime * 1.4));                 // orben "andas"
+        vec2 hs = mix(vec2(R), uHalf, uMorph);
+        float rad = mix(R, uHalf.y, uMorph);
+        float sdFlat = sdBox(uv, hs, min(rad, min(hs.x, hs.y)));
+
+        // EKG-kurvan: avstånd till pulslinjen + hur långt längs linjen punkten ligger
+        float best = 1e5, s = 0.0;
+        for (int i = 0; i < 7; i++) {
+          vec2 a = uP[i], ba = uP[i + 1] - a;
+          float h = clamp(dot(px - a, ba) / dot(ba, ba), 0.0, 1.0);
+          float d = length(px - a - ba * h);
+          if (d < best) { best = d; s = uS[i] + h * length(ba); }
+        }
+        // Bakom hjärtslagets spets syns EKG-formen, framför den är linjen fortfarande rak
+        float behind = (1.0 - smoothstep(uHead - 1.5, uHead + 1.5, s)) * uSweep;
+        float ahead = mix(1.0, smoothstep(uHeadP.x - 1.0, uHeadP.x + 1.0, px.x), uSweep);
+        float sd = min(sdFlat + (1.0 - ahead) * 1e4, best - uThick + (1.0 - behind) * 1e4);
+
+        // Linjens ändar tonas ut mjukt så den inte slutar tvärt
+        float ends = mix(1.0, smoothstep(uHalf.x, uHalf.x * 0.7, abs(uv.x)), uMorph);
+        float a = smoothstep(1.0, -1.0, sd) * (1.0 - uFade) * ends;
+
+        // Låtsas-3D: bula ut mönstret mot mitten så det ser ut som en kula
+        float edge = max(min(hs.x, hs.y), 1.0);
+        float inner = clamp(-sd / edge, 0.0, 1.0);
+        float z = sqrt(1.0 - (1.0 - inner) * (1.0 - inner));
+        vec2 q = uv / max(R, 1.0) * mix(1.0, 0.35, uMorph);
+        vec2 p = q / (z + 0.55) * 1.1;
+
+        // Domain warping: brus som förskjuter brus ger de flytande virvlarna
+        float t = uTime * (0.16 + 0.5 * uEnergy);
+        vec2 w1 = vec2(fbm(p * 1.3 + vec2(0.0, t)), fbm(p * 1.3 + vec2(5.2, 1.3) - t));
+        vec2 w2 = vec2(fbm(p * 1.7 + 3.0 * w1 + vec2(1.7, 9.2) + 0.7 * t),
+                       fbm(p * 1.7 + 3.0 * w1 + vec2(8.3, 2.8) - 0.5 * t));
+        float f = fbm(p * 1.1 + 3.5 * w2 + 0.3 * t);
+        float v = pow(smoothstep(0.18, 0.68, f), 0.9);
+
+        // Ljuset sprider sig inifrån som bläck i vatten
+        float reveal = smoothstep(0.0, 0.35, uFill * 1.5 - length(uv) / max(R, 1.0) * 0.9 + (f - 0.5) * 0.8);
+        reveal = mix(reveal, 1.0, step(0.999, uFill));
+        v *= reveal;
+        v = mix(v, 0.68 + 0.32 * v, uHeat);                  // glöder upp när den laddar
+
+        // Efterglöd bakom spetsen: ljusare ju närmare spetsen
+        float trail = behind * exp(-max(uHead - s, 0.0) / uTrail);
+        v = min(1.0, v + trail * 0.5);
+
+        vec3 col = ramp(v);
+        col *= 0.55 + 0.45 * z;                              // mörkare mot kanten
+        col += vec3(0.3, 1.0, 0.9) * pow(1.0 - z, 2.5) * 0.5 * (1.0 - uMorph);  // turkost kantljus
+        float spec = smoothstep(0.45, 0.0, length(uv / max(R, 1.0) - vec2(-0.35, -0.42))) * (1.0 - uMorph) * 0.22;
+        col += vec3(0.8, 1.0, 0.97) * spec;                  // glasreflex
+
+        // Mjukt sken runt formen, färgat av virvlarna
+        float gw = mix(22.0 + 18.0 * uEnergy, 12.0, uMorph);
+        float glow = exp(-max(sd, 0.0) / gw) * uGlow * (0.85 + 0.15 * sin(uTime * 1.4));
+        glow *= mix(1.0, 1.0 + 1.2 * trail, uSweep);
+        vec3 gcol = mix(vec3(0.0, 0.40, 0.42), vec3(0.15, 0.85, 0.75), v * 0.6 + 0.2);
+        // Tona ut skenet mot canvasens kanter så ingen fyrkant syns
+        vec2 e = min(gl_FragCoord.xy, uRes - gl_FragCoord.xy) / uDpr;
+        float ga = glow * 0.55 * smoothstep(0.0, 70.0, min(e.x, e.y)) * mix(1.0, ends, 0.8);
+
+        // Hjärtslagets spets: ett ljust glödande huvud
+        float hd = length(px - uHeadP);
+        float head = (exp(-hd / 5.0) + 0.45 * exp(-hd / 22.0)) * uSweep * (1.0 - uFade);
+        vec3 hcol = vec3(0.85, 1.0, 0.97);
+
+        vec3 rgb = col * a + gcol * ga * (1.0 - a);
+        float al = a + ga * (1.0 - a);
+        rgb += hcol * head; al = min(1.0, al + head);
+        gl_FragColor = vec4(rgb, al);
+      }`;
+
+    function compile(type, src) {
+        const sh = gl.createShader(type);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) console.warn(gl.getShaderInfoLog(sh));
+        return sh;
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vert));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, frag));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return fallback();
+    gl.useProgram(prog);
+
+    // En triangel som täcker hela canvasen – shadern räknar ut varje pixel
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'a');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const U = {};
+    ['uRes', 'uC', 'uHalf', 'uHeadP', 'uDpr', 'uTime', 'uR', 'uMorph', 'uFill', 'uHeat', 'uFade', 'uGlow',
+     'uEnergy', 'uSweep', 'uHead', 'uThick', 'uTrail', 'uP', 'uS']
+        .forEach(n => U[n] = gl.getUniformLocation(prog, n));
+
+    // Räkna ut var bildens pulslinje hamnar på skärmen, exakt som CSS placerar bilden:
+    // bredd min(145vw, 115vh), vågrätt centrerad, lodrätt 46 % av det lediga utrymmet
+    let dpr = 1, sc = 1, pts = [], arc = [], total = 1, C = [0, 0];
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const r = splash.getBoundingClientRect();
+        canvas.width = Math.round(r.width * dpr);
+        canvas.height = Math.round(r.height * dpr);
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        const S = probe ? probe.offsetWidth : Math.min(1.45 * innerWidth, 1.15 * innerHeight);
+        const left = (r.width - S) / 2, top = (r.height - S) * 0.46;
+        sc = S / 1024;
+        pts = PULSE_PTS.map(([x, y]) => [left + x * sc, top + y * sc]);
+        arc = [0];
+        for (let i = 1; i < pts.length; i++)
+            arc.push(arc[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+        total = arc[arc.length - 1];
+        C = [(pts[0][0] + pts[pts.length - 1][0]) / 2, pts[0][1]];
+        gl.uniform2fv(U.uP, pts.flat());
+        gl.uniform1fv(U.uS, arc);
+    }
+    addEventListener('resize', resize);
+    resize();
+
+    // Punkt på pulslinjen ett visst avstånd från vänsterkanten
+    function pointAt(d) {
+        for (let i = 1; i < pts.length; i++) {
+            if (d <= arc[i] || i === pts.length - 1) {
+                const f = Math.min(1, Math.max(0, (d - arc[i - 1]) / (arc[i] - arc[i - 1])));
+                return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+            }
+        }
+    }
+
+    const clamp01 = x => Math.min(1, Math.max(0, x));
+    const seg = (t, a, b) => clamp01((t - a) / (b - a));
+    const easeOutBack = x => { const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+    const easeOutCubic = x => 1 - Math.pow(1 - x, 3);
+    const easeInOut = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    const easeSweep = x => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+
+    // Klassen .play startar CSS-animationerna i exakt samma ögonblick som orbens klocka
+    const t0 = performance.now();
+    splash.classList.add('play');
+    let stopped = false;
+
+    function frame(now) {
+        // Splashen är borttagen (eller demon startar om) – sluta rita och släpp minnet
+        if (stopped || !canvas.isConnected) {
+            removeEventListener('resize', resize);
+            const lose = gl.getExtension('WEBGL_lose_context');
+            if (lose) lose.loseContext();
+            return;
+        }
+        const ms = opts.clock ? opts.clock() : now - t0;
+        const t = ms / K;                                       // tidslinjen nedan är i "tempo 1"-millisekunder
+
+        const base  = Math.min(innerWidth, innerHeight * 0.75) * 0.2;
+        const charge = seg(t, 700, 1300);
+        const beat  = Math.pow(Math.abs(Math.sin(Math.PI * (t - 700) / 280)), 6) * charge * (1 - seg(t, 1250, 1400));
+        const R     = base * easeOutBack(seg(t, 100, 800)) * (1 + 0.07 * beat);
+        const fill  = easeOutCubic(seg(t, 150, 900));
+        const heat  = easeInOut(seg(t, 800, 1450));
+        const morph = easeInOut(seg(t, 1300, 1850));
+        const sweepP = seg(t, 1900, 2800);
+        const sweep = t >= 1900 ? 1 : 0;
+        const fade  = easeInOut(seg(t, 2500, 3200));
+        const swirl = 0.8 * Math.sin(Math.PI * seg(t, 500, 1850));
+        const glow  = (0.95 - 0.6 * fade) * seg(t, 0, 500) * (1 + 0.5 * beat);
+        const head  = easeSweep(sweepP) * (total + 30 * sc) ;
+        const headP = pointAt(Math.min(head, total));
+        // Linjen tjocknar mot bildens linje medan den tonar bort, så de smälter ihop
+        const thick = 2.4 + (14 * sc - 2.4) * fade;
+
+        gl.uniform2f(U.uRes, canvas.width, canvas.height);
+        gl.uniform1f(U.uDpr, dpr);
+        gl.uniform1f(U.uTime, ms / 1000);
+        gl.uniform2f(U.uC, C[0], C[1]);
+        gl.uniform1f(U.uR, R);
+        gl.uniform2f(U.uHalf, (pts[pts.length - 1][0] - pts[0][0]) / 2, thick);
+        gl.uniform1f(U.uMorph, morph);
+        gl.uniform1f(U.uFill, fill);
+        gl.uniform1f(U.uHeat, heat);
+        gl.uniform1f(U.uFade, fade);
+        gl.uniform1f(U.uGlow, glow);
+        gl.uniform1f(U.uEnergy, swirl + 0.6 * beat);
+        gl.uniform1f(U.uSweep, sweep);
+        gl.uniform1f(U.uHead, head);
+        gl.uniform2f(U.uHeadP, headP[0], headP[1]);
+        gl.uniform1f(U.uThick, thick);
+        gl.uniform1f(U.uTrail, 140 * sc);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+    return { K, stop() { stopped = true; }, points: () => pts };
+}
+
 function hideSplash() {
     const s = document.getElementById('splash');
     if (!s || s.classList.contains('hide')) return;
     s.classList.add('hide');
-    setTimeout(() => s.remove(), 700);
+    setTimeout(() => {
+        s.remove();   // orbens ritloop märker detta själv, slutar rita och släpper WebGL-minnet
+        // Inloggningsrutan får fokus först när splashen är helt borta, så tangentbordet inte hoppar upp under animationen
+        const login = document.getElementById('login');
+        if (login && login.classList.contains('show')) document.getElementById('login-pw').focus();
+    }, 700);
 }
-setTimeout(hideSplash, 1900);
+// Splashen göms när animationen är klar (4,2 s gånger tempot); tryck var som helst hoppar över
+const splashOrb = startSplashOrb(document.getElementById('splash'));
+setTimeout(hideSplash, 4200 * splashOrb.K);
 
 // ── AUTO-UPPDATERING ──────────────────────────────────
-const APP_VERSION = '20261006-2';
+const APP_VERSION = '20261012-1';
 // Kollar om en ny version finns – vid start och varje gång appen kommer tillbaka från
 // bakgrunden. Laddar om med versionen i adressen så att webbläsarens cache inte ger gamla sidan.
 function checkForUpdate() {
