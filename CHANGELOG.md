@@ -5,6 +5,7 @@
 - Bildens fyrkantiga kanter tonas nu ut mjukt mot bakgrunden (syntes tidigare på datorskärm)
 - Inloggningsrutan får fokus först när splashen är borta
 - Det blå strecket före "TRÄNINGSLOGG" på splashen är borttaget; texten står centrerad
+- README: startanimationen beskriven under Funktioner och Teknik
 
 ## 2026-10-06
 - Inloggning: appen ligger bakom ett lösenord (Firebase Authentication). Enheten kommer ihåg inloggningen tills man trycker "Logga ut" längst ner. Databasregler i `firestore.rules` låser Davids pass och övningslistan till det inloggade kontot

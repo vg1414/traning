@@ -6,6 +6,7 @@ En mobilanpassad träningslogg-app byggd som en enda HTML-fil. Spårar styrkepas
 
 ## Funktioner
 
+- **Startanimation** – en levande turkos orb där ljuset virvlar som vätska. Den dras ut till en linje, ett hjärtslag rusar igenom och hantelbilden tonar fram så att linjen blir bildens pulslinje (ca 4 s, tryck för att hoppa över)
 - **Styrkepass** – Bröst & Triceps, Rygg & Biceps, Axlar & Mage, Ben & Rumpa. Övningarna visas som hopfällda kort (senast gjorda överst) med förra resultatet – fäll ut och logga
 - **Snabb loggning** – förra passets vikter/reps som gråa förslag, Enter hoppar till nästa ruta, "↺ Som förra" fyller i allt
 - **PB och viktkurva** per övning
@@ -25,6 +26,7 @@ En mobilanpassad träningslogg-app byggd som en enda HTML-fil. Spårar styrkepas
 - Vanilla HTML/CSS/JavaScript – inga ramverk
 - Firebase Firestore (`users/david/workouts`, egna övningar i `global/custom_exercises`)
 - Firebase Authentication (e-post/lösenord, kontot `david@traning.app`); databasreglerna finns i `firestore.rules`
+- WebGL-shader för startanimationen (faller tillbaka på bara bilden utan WebGL eller med "minska rörelse")
 - PWA-metadata (installerbar på mobil)
 
 ## Återgå till tidigare version
